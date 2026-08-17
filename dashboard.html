@@ -1256,6 +1256,18 @@
       });
     }
 
+    const db = supabase.createClient("SUPABASE_URL", "SUPABASE_ANON_KEY");
+
+// Ověření, zda je uživatel přihlášený
+async function checkAuth() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    // Pokud není přihlášený, vrátit na login
+    window.location.href = "index.html";
+  }
+}
+checkAuth();
+
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
       const downloadAnchor = document.createElement('a');
