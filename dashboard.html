@@ -47,6 +47,7 @@
       color: #f1f5f9;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      display: none; /* Skryto do doby, než se ověří přihlášení */
     }
 
     /* Scrollbar customization */
@@ -87,7 +88,7 @@
     }
   </style>
 </head>
-<body class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
+<body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
 
   <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
 
@@ -108,9 +109,18 @@
         </div>
       </div>
 
-      <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Nastavení a správa">
-        <i class="fa-solid fa-sliders text-xs"></i>
-      </button>
+      <!-- Akční tlačítka vpravo nahoře -->
+      <div class="flex items-center gap-1.5">
+        <!-- Tlačítko Profilu -->
+        <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2" title="Můj profil">
+          <i class="fa-solid fa-user text-xs"></i>
+        </button>
+
+        <!-- Tlačítko Nastavení -->
+        <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2" title="Nastavení a správa">
+          <i class="fa-solid fa-sliders text-xs"></i>
+        </button>
+      </div>
     </header>
 
     <!-- TAB 1: ZÁPIS DÁVKY -->
@@ -400,6 +410,30 @@
 
   </div>
 
+  <!-- Profile / Auth Modal -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-5 shadow-2xl relative flex flex-col items-center text-center">
+      <button onclick="closeProfileModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="w-14 h-14 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-2xl mb-3 shadow-lg shadow-brand-500/10">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+
+      <h3 class="text-sm font-bold text-white mb-0.5">Uživatelský profil</h3>
+      <p class="text-[11px] text-slate-400 mb-3">Jste přihlášeni jako:</p>
+
+      <div class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-3 mb-4">
+        <p id="profile-user-email" class="text-xs font-mono font-bold text-brand-400 truncate">načítám...</p>
+      </div>
+
+      <button onclick="handleLogout()" class="w-full py-2.5 bg-red-500/15 hover:bg-red-500/25 text-red-400 font-bold text-xs rounded-xl border border-red-500/30 flex items-center justify-center gap-2 transition-all active:scale-98">
+        <i class="fa-solid fa-right-from-bracket text-xs"></i> Odhlásit se
+      </button>
+    </div>
+  </div>
+
   <!-- Settings / Export / Changelog Modal -->
   <div id="settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-2xl p-4 sm:p-5 shadow-2xl relative max-h-[88vh] flex flex-col">
@@ -671,6 +705,52 @@
     <span id="toast-msg">Záznam byl přidán</span>
   </div>
 
+  <!-- 1. Načtení Supabase knihovny -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 2. Autentizační logika a profil -->
+  <script>
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserEmail = "";
+
+    async function checkAuth() {
+      const { data: { session }, error } = await db.auth.getSession();
+
+      if (error || !session) {
+        // Uživatel není přihlášen -> přesměrovat na login
+        window.location.replace("index.html");
+        return;
+      }
+
+      // Uložíme e-mail a zobrazíme aplikaci
+      currentUserEmail = session.user.email;
+      document.getElementById('profile-user-email').textContent = currentUserEmail;
+      document.getElementById('main-body').style.display = 'flex';
+    }
+
+    function openProfileModal() {
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    async function handleLogout() {
+      await db.auth.signOut();
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace("index.html");
+    }
+
+    // Spustit kontrolu přihlášení
+    checkAuth();
+  </script>
+
+  <!-- 3. Hlavní kód aplikace Grammi -->
   <script>
     const STORAGE_KEY = 'grammi_dose_logs_v3';
     const SETTINGS_KEY = 'grammi_settings_v1';
@@ -1314,26 +1394,5 @@
       return demo;
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
-
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  async function checkAuth() {
-    const { data: { session }, error } = await db.auth.getSession();
-
-    if (error || !session) {
-      // Uživatel není přihlášen -> poslat na login
-      window.location.replace("index.html");
-      return;
-    }
-
-    console.log("Přihlášen jako:", session.user.email);
-  }
-
-  checkAuth();
-</script>
 </body>
 </html>
