@@ -14,6 +14,7 @@
       --primary-hover: #2563eb;
       --border-color: #334155;
       --error-color: #ef4444;
+      --success-color: #22c55e;
       --input-bg: #0f172a;
     }
 
@@ -129,6 +130,12 @@
       color: #fca5a5;
     }
 
+    .alert-success {
+      background-color: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success-color);
+      color: #86efac;
+    }
+
     .spinner {
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
@@ -154,19 +161,19 @@
       <p>Zadejte své přihlašovací údaje</p>
     </div>
 
-    <!-- Místo pro chybové hlášky -->
-    <div id="alertBox" class="alert alert-error"></div>
+    <!-- Místo pro hlášky -->
+    <div id="alertBox" class="alert"></div>
 
     <form id="loginForm" onsubmit="handleLogin(event)">
       <div class="form-group">
-        <label for="username">Uživatelské jméno</label>
+        <label for="email">E-mail</label>
         <input 
-          type="text" 
-          id="username" 
-          name="username" 
-          placeholder="např. admin" 
+          type="email" 
+          id="email" 
+          name="email" 
+          placeholder="např. admin@test.cz" 
           required 
-          autocomplete="username"
+          autocomplete="email"
         >
       </div>
 
@@ -189,87 +196,81 @@
     </form>
   </div>
 
+  <!-- Načtení oficiální Supabase JS knihovny -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    // URL vašeho budoucího backend API (např. https://moje-api.cz/api/login)
-    const API_LOGIN_URL = null; // Až bude backend hotový, nastavte sem URL: "https://vase-api/api/login"
+    // =========================================================================
+    // NASTAVENÍ: Vlož sem své údaje z administrace Supabase (Krok 4)
+    // =========================================================================
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+
+    // Inicializace Supabase klienta
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function handleLogin(event) {
       event.preventDefault();
 
-      const usernameInput = document.getElementById("username").value.trim();
+      const emailInput = document.getElementById("email").value.trim();
       const passwordInput = document.getElementById("password").value;
       const alertBox = document.getElementById("alertBox");
       const submitBtn = document.getElementById("submitBtn");
       const btnSpinner = document.getElementById("btnSpinner");
       const btnText = document.getElementById("btnText");
 
-      // Skrytí předchozí chyby
+      // Skrytí předchozí hlášky
       alertBox.style.display = "none";
       alertBox.textContent = "";
+      alertBox.className = "alert";
 
-      // Aktivace načítacího stavu
+      // Aktivace načítacího stavu tlačítka
       submitBtn.disabled = true;
       btnSpinner.style.display = "inline-block";
       btnText.textContent = "Ověřuji...";
 
-      // =========================================================================
-      // VARIANTA A: Připraveno pro ostré Backend API + SQL Databázi
-      // =========================================================================
-      if (API_LOGIN_URL) {
-        try {
-          const response = await fetch(API_LOGIN_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              username: usernameInput,
-              password: passwordInput
-            })
-          });
+      try {
+        // Dotaz na PostgreSQL Auth v Supabase
+        const { data, error } = await db.auth.signInWithPassword({
+          email: emailInput,
+          password: passwordInput,
+        });
 
-          const data = await response.json();
+        if (error) {
+          showError("Neplatný e-mail nebo heslo.");
+          return;
+        }
 
-          if (response.ok && data.token) {
-            // Uložení JWT tokenu / session z backendu
-            sessionStorage.setItem("authToken", data.token);
-            sessionStorage.setItem("currentUser", usernameInput);
-            
-            // Přesměrování do hlavní aplikace
+        if (data.session) {
+          // Úspěch – uložíme session token
+          sessionStorage.setItem("authToken", data.session.access_token);
+          sessionStorage.setItem("currentUser", data.user.email);
+
+          showSuccess("Přihlášení úspěšné! Přesměrovávám...");
+
+          // Přesměrování na hlavní stránku (pokud ji máš vytvořenou)
+          setTimeout(() => {
             window.location.href = "dashboard.html";
-          } else {
-            showError(data.message || "Neplatné přihlašovací jméno nebo heslo.");
-          }
-        } catch (err) {
-          showError("Nepodařilo se připojit k serveru. Zkuste to znovu.");
-        } finally {
-          resetButton();
+          }, 1000);
         }
-        return;
+      } catch (err) {
+        showError("Chyba při komunikaci s databází.");
+      } finally {
+        resetButton();
       }
-
-      // =========================================================================
-      // VARIANTA B: Dočasný režim (než zprovozníte backend s SQL)
-      // =========================================================================
-      setTimeout(() => {
-        // Zde můžete nastavit dočasné údaje pro testování
-        const MOCK_USER = "admin";
-        const MOCK_PASS = "heslo123";
-
-        if (usernameInput === MOCK_USER && passwordInput === MOCK_PASS) {
-          sessionStorage.setItem("authToken", "demo_token_123");
-          sessionStorage.setItem("currentUser", usernameInput);
-          window.location.href = "dashboard.html";
-        } else {
-          showError("Nesprávné uživatelské jméno nebo heslo.");
-          resetButton();
-        }
-      }, 600); // Simulace síťového zpoždění
     }
 
     function showError(message) {
       const alertBox = document.getElementById("alertBox");
       alertBox.textContent = message;
+      alertBox.className = "alert alert-error";
+      alertBox.style.display = "block";
+    }
+
+    function showSuccess(message) {
+      const alertBox = document.getElementById("alertBox");
+      alertBox.textContent = message;
+      alertBox.className = "alert alert-success";
       alertBox.style.display = "block";
     }
 
