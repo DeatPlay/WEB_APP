@@ -48,13 +48,13 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Ambient glow v pozadí */
+    /* Ambient glow v pozadí vycentrované na obsah */
     .ambient-glow {
       position: absolute;
       width: 380px;
       height: 380px;
-      background: radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, rgba(11, 15, 23, 0) 70%);
-      top: 30%;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.14) 0%, rgba(11, 15, 23, 0) 70%);
+      top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
@@ -82,29 +82,32 @@
   <!-- Jemné ambientní podsvícení -->
   <div class="ambient-glow"></div>
 
-  <!-- Přirozeně rozložený vertikální kontejner -->
+  <!-- Vertikální kontejner -->
   <div class="w-full max-w-sm h-full flex flex-col justify-between relative z-10">
 
-    <!-- Horní část: Branding a uvítání -->
-    <div class="pt-6 sm:pt-10 flex flex-col items-center text-center">
-      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-2xl shadow-lg shadow-brand-500/20 mb-4">
-        <i class="fa-solid fa-mortar-pestle"></i>
-      </div>
-      
-      <h1 class="font-extrabold text-2xl tracking-tight text-white flex items-center gap-2 leading-none">
-        Grammi
-        <span class="text-brand-400 font-semibold text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20">
-          v0.9
-        </span>
-      </h1>
-      <p class="text-xs text-slate-400 font-medium mt-2">Přihlaste se ke svému účtu</p>
-    </div>
+    <!-- Horní odsazení pro vyvážení -->
+    <div class="shrink-0 h-4"></div>
 
-    <!-- Střední část: Formulář a vstupy -->
-    <div class="w-full my-auto flex flex-col gap-4">
+    <!-- Centrální blok (Logo + Branding + Formulář) -->
+    <div class="w-full my-auto flex flex-col gap-6">
       
+      <!-- Branding a uvítání posunuté do středu -->
+      <div class="flex flex-col items-center text-center">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-3xl shadow-xl shadow-brand-500/20 mb-4 transition-transform duration-300 hover:scale-105">
+          <i class="fa-solid fa-mortar-pestle"></i>
+        </div>
+        
+        <h1 class="font-extrabold text-2xl tracking-tight text-white flex items-center gap-2 leading-none">
+          Grammi
+          <span class="text-brand-400 font-semibold text-[11px] px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20">
+            v0.9
+          </span>
+        </h1>
+        <p class="text-xs text-slate-400 font-medium mt-2">Přihlaste se ke svému účtu</p>
+      </div>
+
       <!-- Stavové hlášky -->
-      <div id="alertBox" class="hidden text-xs font-semibold py-3 px-4 rounded-xl border transition-all text-center"></div>
+      <div id="alertBox" class="hidden text-xs font-semibold py-3 px-4 rounded-2xl border transition-all text-center"></div>
 
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
         
@@ -145,7 +148,7 @@
               placeholder="••••••••" 
               required 
               autocomplete="current-password"
-              class="w-full bg-cardbg/80 border border-borderbg rounded-2xl py-3 pl-11 pr-4 text-sm font-semibold text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner"
+            class="w-full bg-cardbg/80 border border-borderbg rounded-2xl py-3 pl-11 pr-4 text-sm font-semibold text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner"
             >
           </div>
         </div>
@@ -164,7 +167,7 @@
     </div>
 
     <!-- Spodní část: Footer -->
-    <div class="text-center pb-2">
+    <div class="text-center pb-2 shrink-0">
       <p class="text-[11px] text-slate-500 font-medium">
         Grammi • DP
       </p>
@@ -191,7 +194,7 @@
       const btnSpinner = document.getElementById("btnSpinner");
       const btnText = document.getElementById("btnText");
 
-      alertBox.className = "hidden text-xs font-semibold py-3 px-4 rounded-xl border transition-all text-center";
+      alertBox.className = "hidden text-xs font-semibold py-3 px-4 rounded-2xl border transition-all text-center";
       alertBox.textContent = "";
 
       submitBtn.disabled = true;
