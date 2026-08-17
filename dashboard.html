@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Grammi</title>
+
+  <!-- Tailwind CSS & FontAwesome & Chart.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            },
+            darkbg: '#0b0f17',
+            cardbg: '#141c2b',
+            borderbg: '#1e293b'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #f1f5f9;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Scrollbar customization */
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #141c2b;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    /* Apple Liquid Glass Aesthetics */
+    .liquid-glass-nav {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6),
+                  inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-pill {
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.95) 0%, rgba(20, 184, 166, 0.9) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.45),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.75),
+                  inset 0 -1px 1px 0 rgba(0, 0, 0, 0.2);
+      transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Glass Inputs */
+    input[type="time"], input[type="date"] {
+      color-scheme: dark;
+    }
+  </style>
+</head>
+<body class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
+
+  <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+
+    <!-- Top Header -->
+    <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-mortar-pestle"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
+            Grammi
+            <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95" title="Zobrazit Changelog">
+              v0.8
+            </button>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Up to date</p>
+        </div>
+      </div>
+
+      <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Nastavení a správa">
+        <i class="fa-solid fa-sliders text-xs"></i>
+      </button>
+    </header>
+
+    <!-- TAB 1: ZÁPIS DÁVKY -->
+    <div id="tab-input" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
+
+      <!-- Quick Today Summary Banner -->
+      <div class="bg-cardbg border border-borderbg rounded-xl p-2.5 flex justify-between items-center shrink-0 shadow-md">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400">
+            <i class="fa-solid fa-weight-hanging text-xs"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Dnes celkem</p>
+            <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-grams">0.00</span> <span class="text-xs text-brand-400">g</span></p>
+          </div>
+        </div>
+
+        <div class="text-right">
+          <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Dnes</p>
+          <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-count">0</span> <span class="text-xs text-slate-400">x</span></p>
+        </div>
+
+        <div class="text-right border-l border-borderbg pl-3">
+          <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Poslední</p>
+          <p id="tab1-last-time" class="text-xs font-semibold text-slate-300 leading-tight">--:--</p>
+        </div>
+      </div>
+
+      <!-- Compact Form Card -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-solid fa-circle-plus text-brand-400"></i> Nový zápis
+          </h2>
+          <button type="button" onclick="setCurrentTime()" class="text-[10px] text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 px-2 py-0.5 rounded-md font-mono flex items-center gap-1 transition-all" title="Obnovit na aktuální čas">
+            <i class="fa-solid fa-bolt text-[9px]"></i> <span id="current-time-badge">Teď</span>
+          </button>
+        </div>
+
+        <form id="add-dose-form" onsubmit="handleFormSubmit(event)" class="space-y-2">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-[11px] font-semibold text-slate-400">Množství</label>
+            </div>
+
+            <div class="relative flex items-center">
+              <input 
+                type="number" 
+                id="input-amount" 
+                step="0.01" 
+                min="0.01" 
+                max="50" 
+                placeholder="2.50" 
+                required
+                oninput="syncSliderFromInput(this.value)"
+                class="w-full bg-darkbg border border-borderbg rounded-xl py-2 pl-3 pr-10 text-xl font-extrabold text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+              >
+              <span class="absolute right-3.5 font-bold text-slate-500 text-sm pointer-events-none">g</span>
+            </div>
+
+            <!-- Precision Slider -->
+            <div class="mt-1.5 flex items-center gap-2 bg-darkbg/60 p-1.5 rounded-xl border border-borderbg/60">
+              <span class="text-[10px] text-slate-500 font-mono font-bold">0.50g</span>
+              <input 
+                type="range" 
+                id="input-slider" 
+                min="0.5" 
+                max="4.0" 
+                step="0.01" 
+                value="2.50"
+                oninput="syncInputFromSlider(this.value)"
+                class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
+              >
+              <span class="text-[10px] text-slate-500 font-mono font-bold">4.00g</span>
+            </div>
+
+            <!-- Quick Buttons -->
+            <div class="grid grid-cols-4 gap-1.5 mt-1.5">
+              <button type="button" onclick="setQuickAmount(1.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+1.50g</button>
+              <button type="button" onclick="setQuickAmount(2.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.00g</button>
+              <button type="button" onclick="setQuickAmount(2.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.50g</button>
+              <button type="button" onclick="setQuickAmount(3.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+3.00g</button>
+            </div>
+          </div>
+
+          <!-- Tlačítko pro zpětný zápis / detailní čas -->
+          <div class="flex items-center gap-1.5 pt-1">
+            <button 
+              type="button" 
+              onclick="openCustomTimeModal()" 
+              id="btn-custom-time" 
+              class="flex-1 py-2 px-3 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-xl text-xs font-semibold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            >
+              <i class="fa-solid fa-calendar-days text-brand-400 text-xs"></i>
+              <span id="custom-time-label">Zapsat jiný den / čas</span>
+            </button>
+
+            <button 
+              type="button" 
+              id="btn-reset-now" 
+              onclick="resetToNow()" 
+              class="hidden py-2 px-2.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all"
+              title="Obnovit na dnešek a teď"
+            >
+              <i class="fa-solid fa-rotate-left text-[10px]"></i> Teď
+            </button>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide mt-1"
+          >
+            <i class="fa-solid fa-plus text-sm"></i> Přidat
+          </button>
+        </form>
+      </div>
+
+      <!-- Dose Interval Status Circle Indicator Card -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col items-center justify-center text-center overflow-hidden">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Stav
+        </div>
+
+        <div class="flex-1 flex flex-col items-center justify-center w-full my-auto">
+          <!-- Circular Indicator Badge -->
+          <div id="status-circle" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 relative">
+            <span id="status-icon" class="text-3xl sm:text-4xl transition-transform duration-300">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <span id="status-percent" class="text-[11px] font-extrabold mt-1 tracking-tight">100%</span>
+          </div>
+
+          <!-- Status Text Labels -->
+          <div class="mt-4 flex items-center gap-2">
+            <p id="status-elapsed-time" class="text-2xl font-black text-white tracking-tight">--h --m</p>
+            <button type="button" onclick="renderStatusCircle()" class="w-8 h-8 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white hover:bg-slate-800 transition-all active:scale-90 shadow-sm" title="Aktualizovat čas">
+              <i class="fa-solid fa-rotate-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Target Interval Footer Badge -->
+        <div class="w-full pt-2 border-t border-borderbg/60 flex justify-between items-center text-[11px] text-slate-400 shrink-0">
+          <span>Cílový interval: <strong id="status-target-interval" class="text-slate-200">4.0 h</strong></span>
+          <button onclick="openExportModal('config')" class="text-brand-400 hover:underline flex items-center gap-1 font-semibold">
+            <i class="fa-solid fa-gear text-[10px]"></i> Změnit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: STATISTIKY -->
+    <div id="tab-stats" class="flex-1 flex flex-col gap-2.5 overflow-hidden hidden">
+
+      <!-- Stats Summary Grid (4 Cards) -->
+      <div class="grid grid-cols-2 gap-2 shrink-0">
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400">Dnes celkem</p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-today">0.00</span> <span class="text-xs text-brand-400">g</span></p>
+        </div>
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400">Týdenní průměr</p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-avg">0.00</span> <span class="text-xs text-brand-400">g/den</span></p>
+        </div>
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
+            Mezičas <i class="fa-solid fa-hourglass-half text-[10px] text-brand-400"></i>
+          </p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-interval">--</span></p>
+        </div>
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
+            Od poslední <i class="fa-solid fa-stopwatch text-[10px] text-brand-400"></i>
+          </p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-time-since">--</span></p>
+        </div>
+      </div>
+
+      <!-- Time Distribution & Habits Card -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-regular fa-clock text-brand-400"></i> Časová okna
+          </h2>
+          <span id="tab2-top-window-badge" class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md">--</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1 font-medium">
+              <span>Ráno (5-11h)</span>
+              <span id="pct-rano" class="font-bold text-white">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-darkbg rounded-full overflow-hidden border border-borderbg">
+              <div id="bar-rano" class="h-full bg-brand-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1 font-medium">
+              <span>Odpoledne (11-17h)</span>
+              <span id="pct-odpoledne" class="font-bold text-white">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-darkbg rounded-full overflow-hidden border border-borderbg">
+              <div id="bar-odpoledne" class="h-full bg-brand-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1 font-medium">
+              <span>Večer (17-22h)</span>
+              <span id="pct-vecer" class="font-bold text-white">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-darkbg rounded-full overflow-hidden border border-borderbg">
+              <div id="bar-vecer" class="h-full bg-brand-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1 font-medium">
+              <span>Noc (22-5h)</span>
+              <span id="pct-noc" class="font-bold text-white">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-darkbg rounded-full overflow-hidden border border-borderbg">
+              <div id="bar-noc" class="h-full bg-brand-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Card -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95" title="Přepnout graf">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          </button>
+          <h2 id="chart-title-text" class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)
+          </h2>
+          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95" title="Přepnout graf">
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+        <div class="h-28 w-full relative">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Detailed History Log Card -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col overflow-hidden">
+        <div class="flex justify-between items-center mb-2 shrink-0">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Kompletní historie
+          </h2>
+          <span id="log-count-badge" class="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md">0 záznamů</span>
+        </div>
+
+        <div id="tab2-log-container" class="space-y-1.5 flex-1 overflow-y-auto custom-scroll pr-1">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Apple Liquid Glass Navigation Bar -->
+    <nav class="liquid-glass-nav rounded-full p-1 relative grid grid-cols-2 gap-0 shrink-0 mb-2">
+      <!-- Animated Liquid Glass Pill -->
+      <div 
+        id="liquid-pill" 
+        class="liquid-pill absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full pointer-events-none"
+      ></div>
+
+      <button 
+        id="nav-btn-input" 
+        onclick="switchTab('input')" 
+        class="relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950"
+      >
+        <i class="fa-solid fa-pen-to-square text-sm"></i> Zapsat
+      </button>
+      <button 
+        id="nav-btn-stats" 
+        onclick="switchTab('stats')" 
+        class="relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white"
+      >
+        <i class="fa-solid fa-chart-pie text-sm"></i> Statistiky
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Settings / Export / Changelog Modal -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-2xl p-4 sm:p-5 shadow-2xl relative max-h-[88vh] flex flex-col">
+      <button onclick="closeExportModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-10">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-brand-400"></i> Správa a Nastavení Grammi
+      </h3>
+
+      <!-- Settings Nav Sub-tabs -->
+      <div class="flex bg-darkbg p-1 rounded-xl border border-borderbg mb-3 shrink-0">
+        <button id="settings-tab-btn-config" onclick="switchSettingsTab('config')" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-gear"></i> Nastavení
+        </button>
+        <button id="settings-tab-btn-changelog" onclick="switchSettingsTab('changelog')" class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-list-check"></i> Changelog
+        </button>
+      </div>
+
+      <!-- Tab Content 1: General Settings & Data Management -->
+      <div id="settings-tab-config" class="space-y-3 overflow-y-auto custom-scroll pr-0.5">
+        <p class="text-xs text-slate-400">Možnosti přizpůsobení a export/import dat.</p>
+
+        <!-- Target Interval Setting Input -->
+        <div class="bg-darkbg border border-borderbg rounded-xl p-3">
+          <label class="block text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-hourglass-half text-brand-400"></i> Interval
+          </label>
+          <div class="flex items-center gap-2 mt-2">
+            <input 
+              type="number" 
+              id="setting-target-hours" 
+              step="0.5" 
+              min="0.5" 
+              max="24" 
+              value="4.0" 
+              onchange="updateTargetIntervalSetting(this.value)"
+              class="w-24 bg-cardbg border border-borderbg rounded-xl py-1.5 px-3 text-sm font-extrabold text-white text-center focus:outline-none focus:border-brand-500"
+            >
+            <span class="text-xs font-semibold text-slate-400">hodin</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1.5 leading-normal">
+            Ovlivňuje ukazatel stavu (0-50% červená, 50-95% žlutá, 96-100% zelená).
+          </p>
+        </div>
+
+        <button onclick="exportData()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-colors">
+          <i class="fa-solid fa-download"></i> Stáhnout data (JSON)
+        </button>
+
+        <label class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <i class="fa-solid fa-upload"></i> Importovat data (JSON)
+          <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+        </label>
+
+        <hr class="border-slate-800 my-1">
+
+        <button onclick="confirmClearAll()" class="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-xs rounded-xl border border-red-500/20 flex items-center justify-center gap-2 transition-colors">
+          <i class="fa-solid fa-trash-can"></i> Smazat všechny záznamy
+        </button>
+      </div>
+
+      <!-- Tab Content 2: Changelog History -->
+      <div id="settings-tab-changelog" class="hidden space-y-3 overflow-y-auto custom-scroll pr-1">
+        <p class="text-xs text-slate-400">Historie aktualizací a seznam změn v Grammi.</p>
+
+        <!-- Version v0.8 -->
+        <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v0.8
+            </span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Přechod na <strong>Github</strong> hosting.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.7 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.7</span>
+            <span class="text-[10px] text-slate-500">Changelog</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Přidána nová záložka <strong>Changelog</strong> přímo v nastavení aplikace.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Verze v hlavičce je nyní klikatelná pro rychlé zobrazení historického přehledu.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Vylepšená responzivita nastavení a záložkového menu.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.6 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.6</span>
+            <span class="text-[10px] text-slate-500">Statistiky & Grafy</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Přepínání grafů mezi <strong>Týdenním přehledem</strong> a <strong>Dnešním průběhem po hodinách</strong>.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Rozložení dávek do časových oken (Ráno, Odpoledne, Večer, Noc).</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.5 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.5</span>
+            <span class="text-[10px] text-slate-500">Ovládání & UI</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Precision slider pro jemný výběr gramáže s rychlými presety.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Apple Liquid Glass spodní navigace s plynulou animací.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Dynamický kruhový indikátor doporučeného intervalu.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.4 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.4</span>
+            <span class="text-[10px] text-slate-500">Správa Dat</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Export a import datových záloh ve formátu JSON.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>Možnost zpětného zápisu dávky s volitelnou poznámkou.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.1 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.1</span>
+            <span class="text-[10px] text-slate-500">Initial Release</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
+              <span>První verze systému Grammi pro pohodlné evidování dávek.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Time & Note Modal -->
+  <div id="custom-time-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-4 shadow-2xl relative flex flex-col gap-3">
+      <div class="flex justify-between items-center border-b border-borderbg pb-2">
+        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2 uppercase tracking-wider">
+          <i class="fa-solid fa-clock text-brand-400"></i> Zapsat jiný den / čas
+        </h3>
+        <button type="button" onclick="closeCustomTimeModal()" class="text-slate-400 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2.5">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Čas dávky</label>
+            <input 
+              type="time" 
+              id="input-time" 
+              required
+              class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-brand-500 text-center"
+            >
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Datum dávky</label>
+            <input 
+              type="date" 
+              id="input-date" 
+              required
+              class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-1 text-xs text-slate-200 focus:outline-none focus:border-brand-500 text-center"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 mb-1">Poznámka (volitelná)</label>
+          <input 
+            type="text" 
+            id="input-note" 
+            placeholder="Soustředění, práce, včerejší dávka..." 
+            class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 placeholder:text-slate-600"
+          >
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="grid grid-cols-2 gap-1.5 pt-1">
+          <button type="button" onclick="setQuickModalDate('yesterday')" class="py-1.5 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50">
+            <i class="fa-solid fa-backward text-[10px] mr-1"></i> Včera
+          </button>
+          <button type="button" onclick="setQuickModalDate('now')" class="py-1.5 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50">
+            <i class="fa-solid fa-bolt text-[10px] mr-1 text-brand-400"></i> Dnes teď
+          </button>
+        </div>
+
+        <button 
+          type="button" 
+          onclick="confirmCustomTime()" 
+          class="w-full py-2.5 mt-1 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-md transition-all"
+        >
+          Potvrdit nastavení
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Notification Banner -->
+  <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-800/95 backdrop-blur-md border border-brand-500/40 text-white text-xs px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+    <i class="fa-solid fa-circle-check text-brand-400"></i>
+    <span id="toast-msg">Záznam byl přidán</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'grammi_dose_logs_v3';
+    const SETTINGS_KEY = 'grammi_settings_v1';
+    
+    let logs = [];
+    let targetIntervalHours = 4.0; // Default 4 hours target pause
+    let chartInstance = null;
+    let currentChartMode = 'weekly'; // 'weekly' nebo 'daily'
+    let activeTab = 'input';
+    let isCustomTimeSet = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      loadLogs();
+      setCurrentTime();
+      setQuickAmount(2.50);
+    });
+
+    function loadSettings() {
+      try {
+        const stored = localStorage.getItem(SETTINGS_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.targetIntervalHours) {
+            targetIntervalHours = parseFloat(parsed.targetIntervalHours) || 4.0;
+          }
+        }
+      } catch(e) {}
+      
+      const inputEl = document.getElementById('setting-target-hours');
+      if (inputEl) inputEl.value = targetIntervalHours.toFixed(1);
+    }
+
+    function toggleChartMode() {
+      currentChartMode = currentChartMode === 'weekly' ? 'daily' : 'weekly';
+      renderChart();
+    }
+
+    function openExportModal(defaultSubTab = 'config') {
+      document.getElementById('settings-modal').classList.remove('hidden');
+      switchSettingsTab(defaultSubTab);
+    }
+
+    function closeExportModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function switchSettingsTab(subTab) {
+      const configTab = document.getElementById('settings-tab-config');
+      const changelogTab = document.getElementById('settings-tab-changelog');
+      const btnConfig = document.getElementById('settings-tab-btn-config');
+      const btnChangelog = document.getElementById('settings-tab-btn-changelog');
+
+      if (subTab === 'config') {
+        configTab.classList.remove('hidden');
+        changelogTab.classList.add('hidden');
+
+        btnConfig.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5";
+        btnChangelog.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+      } else {
+        configTab.classList.add('hidden');
+        changelogTab.classList.remove('hidden');
+
+        btnChangelog.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5";
+        btnConfig.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+      }
+    }
+
+    function updateTargetIntervalSetting(val) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num <= 0) return;
+      targetIntervalHours = num;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ targetIntervalHours }));
+      renderAll();
+    }
+
+    function setCurrentTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+      const badge = document.getElementById('current-time-badge');
+
+      if (timeInput) timeInput.value = `${hours}:${mins}`;
+      if (dateInput) dateInput.value = getDateKey(now);
+      if (badge) badge.textContent = `${hours}:${mins}`;
+    }
+
+    function openCustomTimeModal() {
+      document.getElementById('custom-time-modal').classList.remove('hidden');
+    }
+
+    function closeCustomTimeModal() {
+      document.getElementById('custom-time-modal').classList.add('hidden');
+    }
+
+    function setQuickModalDate(preset) {
+      const dateInput = document.getElementById('input-date');
+      const now = new Date();
+
+      if (preset === 'now') {
+        setCurrentTime();
+      } else if (preset === 'yesterday') {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (dateInput) dateInput.value = getDateKey(yesterday);
+      }
+    }
+
+    function confirmCustomTime() {
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+      const noteInput = document.getElementById('input-note');
+      const label = document.getElementById('custom-time-label');
+      const resetBtn = document.getElementById('btn-reset-now');
+
+      const timeVal = timeInput.value;
+      const dateVal = dateInput.value;
+      const noteVal = noteInput.value.trim();
+
+      const todayKey = getDateKey(new Date());
+      const isToday = dateVal === todayKey;
+
+      const dateObj = new Date(dateVal);
+      const dateFormatted = isToday ? 'Dnes' : `${dateObj.getDate()}.${dateObj.getMonth() + 1}.`;
+
+      let textLabel = `${dateFormatted} v ${timeVal}`;
+      if (noteVal) {
+        textLabel += ` (${noteVal})`;
+      }
+
+      label.textContent = textLabel;
+      label.classList.add('text-brand-400');
+      resetBtn.classList.remove('hidden');
+      isCustomTimeSet = true;
+
+      closeCustomTimeModal();
+    }
+
+    function resetToNow() {
+      setCurrentTime();
+      const noteInput = document.getElementById('input-note');
+      if (noteInput) noteInput.value = '';
+
+      const label = document.getElementById('custom-time-label');
+      const resetBtn = document.getElementById('btn-reset-now');
+
+      label.textContent = 'Zapsat jiný den / čas';
+      label.classList.remove('text-brand-400');
+      resetBtn.classList.add('hidden');
+      isCustomTimeSet = false;
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      const tabInput = document.getElementById('tab-input');
+      const tabStats = document.getElementById('tab-stats');
+      const btnInput = document.getElementById('nav-btn-input');
+      const btnStats = document.getElementById('nav-btn-stats');
+      const liquidPill = document.getElementById('liquid-pill');
+
+      if (tab === 'input') {
+        tabInput.classList.remove('hidden');
+        tabStats.classList.add('hidden');
+
+        liquidPill.style.transform = 'translateX(0%)';
+        btnInput.className = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950";
+        btnStats.className = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white";
+      } else {
+        tabInput.classList.add('hidden');
+        tabStats.classList.remove('hidden');
+
+        liquidPill.style.transform = 'translateX(100%)';
+        btnStats.className = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950";
+        btnInput.className = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white";
+
+        renderChart();
+      }
+    }
+
+    function setQuickAmount(val) {
+      const input = document.getElementById('input-amount');
+      const slider = document.getElementById('input-slider');
+      const numVal = parseFloat(val).toFixed(2);
+      if (input) input.value = numVal;
+      if (slider) slider.value = numVal;
+    }
+
+    function syncInputFromSlider(val) {
+      const input = document.getElementById('input-amount');
+      if (input) input.value = parseFloat(val).toFixed(2);
+    }
+
+    function syncSliderFromInput(val) {
+      const slider = document.getElementById('input-slider');
+      if (slider && val) slider.value = val;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+      }, 2200);
+    }
+
+    function loadLogs() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        logs = stored ? JSON.parse(stored) : getDemoData();
+      } catch (e) {
+        logs = getDemoData();
+      }
+      sortLogs();
+      renderAll();
+    }
+
+    function sortLogs() {
+      logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
+    function saveLogs() {
+      sortLogs();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+      renderAll();
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const amountInput = document.getElementById('input-amount');
+      const noteInput = document.getElementById('input-note');
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) return;
+
+      // Construct retroactive timestamp
+      let chosenDate = dateInput.value || getDateKey(new Date());
+      let chosenTime = timeInput.value || '12:00';
+      const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
+
+      const newLog = {
+        id: 'k_' + Date.now(),
+        amount: amount,
+        note: noteInput ? noteInput.value.trim() : '',
+        timestamp: customTimestamp
+      };
+
+      logs.unshift(newLog);
+      saveLogs();
+
+      resetToNow(); // Reset time & note state for next dose
+      showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
+    }
+
+    function deleteLog(id) {
+      logs = logs.filter(item => item.id !== id);
+      saveLogs();
+      showToast('Záznam smazán');
+    }
+
+    function renderAll() {
+      renderStats();
+      renderLogHistory();
+      renderStatusCircle();
+      if (activeTab === 'stats') renderChart();
+    }
+
+    function getDateKey(d) {
+      const date = new Date(d);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function renderStatusCircle() {
+      const circleEl = document.getElementById('status-circle');
+      const iconEl = document.getElementById('status-icon');
+      const percentEl = document.getElementById('status-percent');
+      const elapsedEl = document.getElementById('status-elapsed-time');
+      const targetIntervalEl = document.getElementById('status-target-interval');
+
+      targetIntervalEl.textContent = `${targetIntervalHours.toFixed(1)} h`;
+
+      if (logs.length === 0) {
+        // Default state if no doses logged yet
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/20";
+        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+        percentEl.textContent = '100%';
+        elapsedEl.textContent = '--h --m';
+        return;
+      }
+
+      const latestTime = new Date(logs[0].timestamp);
+      const now = new Date();
+      const elapsedMins = Math.max(0, Math.floor((now - latestTime) / (1000 * 60)));
+      const targetMins = targetIntervalHours * 60;
+      
+      const pct = Math.min(100, Math.round((elapsedMins / targetMins) * 100));
+
+      const hElapsed = Math.floor(elapsedMins / 60);
+      const mElapsed = String(elapsedMins % 60).padStart(2, '0');
+      const timeElapsedText = `${hElapsed}h ${mElapsed}m`;
+
+      percentEl.textContent = `${pct}%`;
+      elapsedEl.textContent = timeElapsedText;
+
+      if (pct <= 50) {
+        // Red state: 0% - 50%
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-red-500 bg-red-500/10 text-red-400 shadow-red-500/30 scale-95";
+        iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      } else if (pct <= 95) {
+        // Yellow/Amber state: 51% - 95%
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-amber-400 bg-amber-400/10 text-amber-400 shadow-amber-400/30";
+        iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
+      } else {
+        // Green state: 96% - 100%+
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/30 scale-105";
+        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+      }
+    }
+
+    function renderStats() {
+      const todayKey = getDateKey(new Date());
+      let todayGrams = 0;
+      let todayCount = 0;
+      let lastTimeStr = '--:--';
+
+      const todayLogs = logs.filter(l => getDateKey(l.timestamp) === todayKey);
+
+      todayLogs.forEach(l => {
+        todayGrams += l.amount;
+        todayCount++;
+      });
+
+      if (todayLogs.length > 0) {
+        const latest = new Date(todayLogs[0].timestamp);
+        lastTimeStr = `${String(latest.getHours()).padStart(2, '0')}:${String(latest.getMinutes()).padStart(2, '0')}`;
+      }
+
+      // Tab 1 Quick stats
+      document.getElementById('tab1-today-grams').textContent = todayGrams.toFixed(2);
+      document.getElementById('tab1-today-count').textContent = todayCount;
+      document.getElementById('tab1-last-time').textContent = lastTimeStr;
+
+      // Tab 2 Stats - Basic
+      document.getElementById('tab2-stat-today').textContent = todayGrams.toFixed(2);
+
+      // Calculate Average Intervals between doses (30m - 12h gap)
+      const chronoLogs = [...logs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      let totalIntervalMins = 0;
+      let intervalCount = 0;
+
+      for (let i = 1; i < chronoLogs.length; i++) {
+        const prev = new Date(chronoLogs[i - 1].timestamp);
+        const curr = new Date(chronoLogs[i].timestamp);
+        const diffMins = Math.floor((curr - prev) / (1000 * 60));
+
+        // Filter valid intraday gaps (between 30 min and 12 hrs)
+        if (diffMins >= 30 && diffMins <= 720) {
+          totalIntervalMins += diffMins;
+          intervalCount++;
+        }
+      }
+
+      let intervalText = '--';
+      if (intervalCount > 0) {
+        const avgMins = Math.round(totalIntervalMins / intervalCount);
+        const h = Math.floor(avgMins / 60);
+        const m = avgMins % 60;
+        intervalText = h > 0 ? `${h}h ${m}m` : `${m}m`;
+      }
+      document.getElementById('tab2-stat-interval').textContent = intervalText;
+
+      // Time since last dose
+      let timeSinceText = '--';
+      if (logs.length > 0) {
+        const latestTime = new Date(logs[0].timestamp);
+        const now = new Date();
+        const diffMins = Math.max(0, Math.floor((now - latestTime) / (1000 * 60)));
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+
+        if (h >= 24) {
+          const days = Math.floor(h / 24);
+          timeSinceText = `${days}d zpět`;
+        } else if (h > 0) {
+          timeSinceText = `${h}h ${m}m`;
+        } else {
+          timeSinceText = `${m} min`;
+        }
+      }
+      document.getElementById('tab2-stat-time-since').textContent = timeSinceText;
+
+      // Time Windows Distribution (Ráno, Odpoledne, Večer, Noc)
+      let periods = { rano: 0, odpoledne: 0, vecer: 0, noc: 0 };
+
+      logs.forEach(l => {
+        const hour = new Date(l.timestamp).getHours();
+        if (hour >= 5 && hour < 11) periods.rano++;
+        else if (hour >= 11 && hour < 17) periods.odpoledne++;
+        else if (hour >= 17 && hour < 22) periods.vecer++;
+        else periods.noc++;
+      });
+
+      const totalLogs = logs.length || 1;
+      const pctRano = logs.length > 0 ? Math.round((periods.rano / totalLogs) * 100) : 0;
+      const pctOdpoledne = logs.length > 0 ? Math.round((periods.odpoledne / totalLogs) * 100) : 0;
+      const pctVecer = logs.length > 0 ? Math.round((periods.vecer / totalLogs) * 100) : 0;
+      const pctNoc = logs.length > 0 ? Math.round((periods.noc / totalLogs) * 100) : 0;
+
+      document.getElementById('pct-rano').textContent = `${pctRano}%`;
+      document.getElementById('pct-odpoledne').textContent = `${pctOdpoledne}%`;
+      document.getElementById('pct-vecer').textContent = `${pctVecer}%`;
+      document.getElementById('pct-noc').textContent = `${pctNoc}%`;
+
+      document.getElementById('bar-rano').style.width = `${pctRano}%`;
+      document.getElementById('bar-odpoledne').style.width = `${pctOdpoledne}%`;
+      document.getElementById('bar-vecer').style.width = `${pctVecer}%`;
+      document.getElementById('bar-noc').style.width = `${pctNoc}%`;
+
+      // Determine top window badge
+      let topLabel = '--';
+      if (logs.length > 0) {
+        let maxVal = periods.rano;
+        topLabel = 'Nejčastěji: Ráno';
+        if (periods.odpoledne > maxVal) { maxVal = periods.odpoledne; topLabel = 'Nejčastěji: Odpoledne'; }
+        if (periods.vecer > maxVal) { maxVal = periods.vecer; topLabel = 'Nejčastěji: Večer'; }
+        if (periods.noc > maxVal) { maxVal = periods.noc; topLabel = 'Nejčastěji: Noc'; }
+      }
+      document.getElementById('tab2-top-window-badge').textContent = topLabel;
+    }
+
+    function renderLogHistory() {
+      const tab2Container = document.getElementById('tab2-log-container');
+      const countBadge = document.getElementById('log-count-badge');
+
+      countBadge.textContent = `${logs.length} záznamů`;
+
+      // TAB 2 Full Log list
+      tab2Container.innerHTML = '';
+      if (logs.length === 0) {
+        tab2Container.innerHTML = `
+          <div class="text-center py-6 text-slate-500 text-xs flex flex-col items-center justify-center gap-1.5 h-full">
+            <i class="fa-solid fa-inbox text-xl text-slate-600 mb-0.5"></i>
+            Zatím nemáte žádné záznamy.
+          </div>
+        `;
+        return;
+      }
+
+      logs.forEach((log) => {
+        const d = new Date(log.timestamp);
+        const dateFormatted = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
+        const timeFormatted = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+        const el = document.createElement('div');
+        el.className = 'bg-darkbg/70 border border-borderbg/80 rounded-xl p-2 flex justify-between items-center text-xs';
+        el.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div>
+              <span class="font-bold text-white text-sm">${log.amount.toFixed(2)} <span class="text-[10px] font-normal text-slate-400">g</span></span>
+              <span class="text-[10px] text-slate-500 block">${dateFormatted} • ${timeFormatted}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            ${log.note ? `<span class="text-[10px] text-slate-400 max-w-[110px] truncate" title="${log.note}">${log.note}</span>` : ''}
+            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1">
+              <i class="fa-regular fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
+        tab2Container.appendChild(el);
+      });
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById('weeklyChart').getContext('2d');
+      const titleEl = document.getElementById('chart-title-text');
+      const labels = [];
+      const totals = [];
+
+      if (currentChartMode === 'weekly') {
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)`;
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = getDateKey(d);
+
+          const dayLabel = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
+          labels.push(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1));
+
+          const sum = logs
+            .filter(l => getDateKey(l.timestamp) === key)
+            .reduce((acc, curr) => acc + curr.amount, 0);
+
+          totals.push(sum);
+        }
+
+        const sumTotal = totals.reduce((a, b) => a + b, 0);
+        const avg = (sumTotal / 7).toFixed(2);
+        const avgEl = document.getElementById('tab2-stat-avg');
+        if (avgEl) avgEl.textContent = avg;
+      } else {
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Dnešní průběh po hodinách (g)`;
+        const todayKey = getDateKey(new Date());
+        const todayLogs = logs.filter(l => getDateKey(l.timestamp) === todayKey);
+
+        for (let hour = 0; hour < 24; hour++) {
+          labels.push(`${String(hour).padStart(2, '0')}:00`);
+          const sum = todayLogs
+            .filter(l => new Date(l.timestamp).getHours() === hour)
+            .reduce((acc, curr) => acc + curr.amount, 0);
+          totals.push(sum);
+        }
+      }
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Gramy',
+            data: totals,
+            backgroundColor: totals.map((val, idx) => {
+              if (currentChartMode === 'weekly') {
+                return idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)';
+              } else {
+                return val > 0 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.5)';
+              }
+            }),
+            borderColor: totals.map((val, idx) => {
+              if (currentChartMode === 'weekly') {
+                return idx === 6 ? '#14b8a6' : '#334155';
+              } else {
+                return val > 0 ? '#14b8a6' : '#1e293b';
+              }
+            }),
+            borderWidth: 1.5,
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#2dd4bf',
+              displayColors: false,
+              callbacks: {
+                label: (context) => ` Celkem: ${context.raw.toFixed(2)} g`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 9, weight: '600' },
+                maxRotation: 0,
+                autoSkip: currentChartMode === 'daily',
+                autoSkipPadding: 8
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `grammi_export_${getDateKey(new Date())}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Data byla vyexportována');
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (Array.isArray(parsed)) {
+            logs = parsed;
+            saveLogs();
+            closeExportModal();
+            showToast('Data byla úspěšně importována');
+          }
+        } catch (err) {
+          showToast('Chyba při čtení souboru');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function confirmClearAll() {
+      logs = [];
+      saveLogs();
+      closeExportModal();
+      showToast('Všechna data byla smazána');
+    }
+
+    function getDemoData() {
+      const demo = [];
+      const now = new Date();
+
+      for (let i = 0; i < 4; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        d.setHours(9 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
+
+        demo.push({
+          id: 'demo_' + i,
+          amount: parseFloat((1.5 + Math.random() * 1.5).toFixed(2)),
+          note: i === 0 ? 'Ranní soustředění' : '',
+          timestamp: d.toISOString()
+        });
+      }
+      return demo;
+    }
+  </script>
+</body>
+</html>
