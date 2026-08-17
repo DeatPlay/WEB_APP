@@ -236,7 +236,7 @@
             sessionStorage.setItem("currentUser", usernameInput);
             
             // Přesměrování do hlavní aplikace
-            window.location.href = "app.html";
+            window.location.href = "dashboard.html";
           } else {
             showError(data.message || "Neplatné přihlašovací jméno nebo heslo.");
           }
@@ -259,7 +259,7 @@
         if (usernameInput === MOCK_USER && passwordInput === MOCK_PASS) {
           sessionStorage.setItem("authToken", "demo_token_123");
           sessionStorage.setItem("currentUser", usernameInput);
-          window.location.href = "app.html";
+          window.location.href = "dashboard.html";
         } else {
           showError("Nesprávné uživatelské jméno nebo heslo.");
           resetButton();
