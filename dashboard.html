@@ -101,7 +101,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95" title="Zobrazit Changelog">
-              v0.8
+              v0.9
             </button>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Up to date</p>
@@ -468,13 +468,31 @@
       <div id="settings-tab-changelog" class="hidden space-y-3 overflow-y-auto custom-scroll pr-1">
         <p class="text-xs text-slate-400">Historie aktualizací a seznam změn v Grammi.</p>
 
-        <!-- Version v0.8 -->
+        <!-- Version v0.9 -->
         <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-code-commit text-brand-400"></i> v0.8
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v0.9
             </span>
             <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Implementace <strong>login</strong> stránky.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Testování a první předpracování pro <strong>SQL</strong> propojení.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version v0.8 -->
+        <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200">v0.8</span>
+            <span class="text-[10px] text-slate-500">Changelog</span>
           </div>
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
