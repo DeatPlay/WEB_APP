@@ -118,6 +118,38 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    /* Rank Glow efekty pro badge */
+    .rank-badge-bronze {
+      background: rgba(217, 119, 6, 0.12);
+      border-color: rgba(217, 119, 6, 0.35);
+      color: #f59e0b;
+      box-shadow: 0 0 8px rgba(217, 119, 6, 0.25);
+    }
+    .rank-badge-silver {
+      background: rgba(148, 163, 184, 0.12);
+      border-color: rgba(148, 163, 184, 0.35);
+      color: #cbd5e1;
+      box-shadow: 0 0 8px rgba(148, 163, 184, 0.25);
+    }
+    .rank-badge-gold {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+    .rank-badge-platina {
+      background: rgba(45, 212, 191, 0.15);
+      border-color: rgba(45, 212, 191, 0.45);
+      color: #2dd4bf;
+      box-shadow: 0 0 12px rgba(45, 212, 191, 0.35);
+    }
+    .rank-badge-diamond {
+      background: rgba(168, 85, 247, 0.18);
+      border-color: rgba(192, 132, 252, 0.55);
+      color: #c084fc;
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
+    }
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
@@ -219,7 +251,6 @@
       const { data: { session }, error } = await db.auth.getSession();
 
       if (error || !session) {
-        // Není přihlášený -> okamžitý přesun na přihlášení
         window.location.replace("index.html");
         return;
       }
@@ -227,7 +258,6 @@
       currentUserId = session.user.id;
       document.getElementById('main-body').style.display = 'flex';
 
-      // Načtení dat po úspěšném ověření
       await loadLeaderboard();
     }
 
@@ -241,9 +271,49 @@
       }, 220);
     }
 
-    // 3. Načtení dat z PostgreSQL Supabase
+    // 3. Pomocná funkce pro výpočet ranku uživatele
+    function getUserRankBadgeHTML(totalGrams) {
+      let rankName = "BRONZE";
+      let rankIcon = "fa-shield";
+      let badgeClass = "rank-badge-bronze";
+
+      if (totalGrams <= 20) {
+        rankName = "BRONZE";
+        rankIcon = "fa-shield";
+        badgeClass = "rank-badge-bronze";
+      } else if (totalGrams <= 50) {
+        rankName = "SILVER";
+        rankIcon = "fa-medal";
+        badgeClass = "rank-badge-silver";
+      } else if (totalGrams <= 100) {
+        rankName = "GOLD";
+        rankIcon = "fa-crown";
+        badgeClass = "rank-badge-gold";
+      } else if (totalGrams <= 500) {
+        rankName = "PLATINA";
+        rankIcon = "fa-gem";
+        badgeClass = "rank-badge-platina";
+      } else {
+        rankName = "DIAMOND";
+        rankIcon = "fa-bolt-lightning";
+        badgeClass = "rank-badge-diamond";
+      }
+
+      return `
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-wider ${badgeClass}">
+          <i class="fa-solid ${rankIcon} text-[8px]"></i> ${rankName}
+        </span>
+      `;
+    }
+
+    // 4. Načtení dat z PostgreSQL Supabase
     async function loadLeaderboard() {
       try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) {
+          currentUserId = session.user.id;
+        }
+
         const { data, error } = await db
           .from('leaderboard_view')
           .select('user_id, display_name, total_grams, max_dose, dose_count');
@@ -336,7 +406,8 @@
           rankIcon = `<i class="fa-solid fa-medal text-amber-600 text-[11px]"></i>`;
         }
 
-        const youBadge = user.isCurrent ? `<span class="ml-1.5 text-[9px] font-bold text-brand-400 bg-brand-500/15 border border-brand-500/30 px-1.5 py-0.2 rounded-md">TY</span>` : '';
+        const youBadge = user.isCurrent ? `<span class="text-[9px] font-bold text-brand-400 bg-brand-500/15 border border-brand-500/30 px-1.5 py-0.2 rounded-md">TY</span>` : '';
+        const rankBadgeHTML = getUserRankBadgeHTML(user.totalGrams);
 
         const primaryValue = currentSort === 'total' ? user.totalGrams.toFixed(2) : user.maxDose.toFixed(2);
         const secondaryValue = currentSort === 'total' ? user.maxDose.toFixed(2) : user.totalGrams.toFixed(2);
@@ -346,18 +417,20 @@
         return `
           <div class="bg-darkbg/70 border ${cardBorder} rounded-xl p-2.5 flex justify-between items-center text-xs transition-all hover:bg-darkbg">
             <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-bold ${badgeStyle}">
+              <div class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-bold shrink-0 ${badgeStyle}">
                 ${rankIcon}
               </div>
               <div>
-                <span class="font-bold text-white text-xs inline-flex items-center leading-tight">
-                  ${user.name} ${youBadge}
-                </span>
-                <span class="text-[10px] text-slate-500 font-mono block">${secondaryLabel}</span>
+                <div class="flex items-center gap-1.5 flex-wrap leading-tight">
+                  <span class="font-bold text-white text-xs">${user.name}</span>
+                  ${rankBadgeHTML}
+                  ${youBadge}
+                </div>
+                <span class="text-[10px] text-slate-500 font-mono block mt-0.5">${secondaryLabel}</span>
               </div>
             </div>
 
-            <div class="text-right">
+            <div class="text-right shrink-0">
               <div class="font-black text-white text-sm leading-none">
                 ${primaryValue} <span class="text-[10px] font-normal text-brand-400">g</span>
               </div>

@@ -113,29 +113,29 @@
 
     /* RANK Glow efekty */
     .rank-glow-bronze {
-      box-shadow: 0 0 15px rgba(217, 119, 6, 0.35);
+      box-shadow: 0 0 12px rgba(217, 119, 6, 0.35);
       border-color: rgba(217, 119, 6, 0.5);
     }
     .rank-glow-silver {
-      box-shadow: 0 0 15px rgba(148, 163, 184, 0.35);
+      box-shadow: 0 0 12px rgba(148, 163, 184, 0.35);
       border-color: rgba(148, 163, 184, 0.5);
     }
     .rank-glow-gold {
-      box-shadow: 0 0 18px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
       border-color: rgba(245, 158, 11, 0.6);
     }
     .rank-glow-platina {
-      box-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+      box-shadow: 0 0 18px rgba(45, 212, 191, 0.5);
       border-color: rgba(45, 212, 191, 0.7);
     }
     .rank-glow-diamond {
-      box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 12px rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 22px rgba(168, 85, 247, 0.6), 0 0 10px rgba(59, 130, 246, 0.5);
       border-color: rgba(192, 132, 252, 0.8);
       animation: diamond-pulse 2.5s infinite alternate;
     }
     @keyframes diamond-pulse {
-      0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 10px rgba(56, 189, 248, 0.4); }
-      100% { box-shadow: 0 0 28px rgba(217, 70, 239, 0.75), 0 0 15px rgba(96, 165, 250, 0.6); }
+      0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 8px rgba(56, 189, 248, 0.4); }
+      100% { box-shadow: 0 0 25px rgba(217, 70, 239, 0.75), 0 0 14px rgba(96, 165, 250, 0.6); }
     }
   </style>
 </head>
@@ -151,7 +151,7 @@
         <div>
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
-            <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95" title="Zobrazit Changelog">
+            <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
               v0.9_4
             </button>
           </h1>
@@ -160,19 +160,19 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- Rank Badge v pravém horním rohu -->
-        <div onclick="openProfileModal()" id="header-rank-badge" class="h-8.5 px-2.5 rounded-xl border flex items-center gap-1.5 cursor-pointer transition-all duration-500 bg-darkbg rank-glow-bronze" title="Váš aktuální Rank">
+        <!-- Rank Badge: obdélník s jemnými růžky -->
+        <div onclick="openProfileModal()" id="header-rank-badge" class="h-8.5 px-2.5 rounded-lg border flex items-center gap-1.5 cursor-pointer transition-all duration-500 bg-cardbg rank-glow-bronze shadow-sm active:scale-95" title="Váš aktuální Rank">
           <i id="header-rank-icon" class="fa-solid fa-shield text-[10px] text-amber-500"></i>
-          <span id="header-rank-text" class="text-[10px] font-black uppercase tracking-wider text-amber-500">BRONZE</span>
+          <span id="header-rank-text" class="text-[10px] font-black uppercase tracking-wider text-amber-500 leading-none">BRONZE</span>
         </div>
 
         <!-- Tlačítko Profilu (stálá ikona) -->
-        <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2 cursor-pointer" title="Můj profil">
+        <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2 cursor-pointer active:scale-95" title="Můj profil">
           <i class="fa-solid fa-user text-xs"></i>
         </button>
 
         <!-- Tlačítko Nastavení -->
-        <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2 cursor-pointer" title="Nastavení a správa">
+        <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2 cursor-pointer active:scale-95" title="Nastavení a správa">
           <i class="fa-solid fa-sliders text-xs"></i>
         </button>
       </div>
@@ -396,13 +396,13 @@
 
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
         <div class="flex justify-between items-center mb-1.5">
-          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95" title="Přepnout graf">
+          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 cursor-pointer" title="Přepnout graf">
             <i class="fa-solid fa-chevron-left text-[10px]"></i>
           </button>
           <h2 id="chart-title-text" class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
             <i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)
           </h2>
-          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95" title="Přepnout graf">
+          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 cursor-pointer" title="Přepnout graf">
             <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
@@ -866,8 +866,12 @@
       const bodyEl = document.getElementById('main-body');
       
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('from') === 'leaderboard') {
+      const isFromLeaderboard = urlParams.get('from') === 'leaderboard';
+      
+      if (isFromLeaderboard) {
         bodyEl.classList.add('page-slide-in-left');
+        // Okamžitě vyčistit URL parametr, aby při dalším F5/refreshi zůstal web na Zapsat
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       bodyEl.style.display = 'flex';
@@ -877,7 +881,7 @@
       setQuickAmount(2.50);
       await loadLogs();
 
-      if (urlParams.get('from') === 'leaderboard') {
+      if (isFromLeaderboard) {
         switchTab('stats');
       }
     }
@@ -961,12 +965,12 @@
       // Reset tříd glow efektů
       rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
       rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90";
-      headerRankBadge.className = "h-8.5 px-2.5 rounded-xl border flex items-center gap-1.5 cursor-pointer transition-all duration-500 bg-darkbg";
+      headerRankBadge.className = "h-8.5 px-2.5 rounded-lg border flex items-center gap-1.5 cursor-pointer transition-all duration-500 bg-cardbg shadow-sm active:scale-95";
 
       let rankData = {
         name: "BRONZE",
         icon: "fa-shield",
-        colorClass: "text-amber-600",
+        colorClass: "text-amber-500",
         bgIconClass: "bg-amber-600/20 text-amber-500",
         borderClass: "border-amber-700/50",
         glowClass: "rank-glow-bronze",
@@ -1045,7 +1049,7 @@
 
       // Vykreslení do hlavičky nahoře
       headerRankText.textContent = rankData.name;
-      headerRankText.className = `text-[10px] font-black uppercase tracking-wider ${rankData.colorClass}`;
+      headerRankText.className = `text-[10px] font-black uppercase tracking-wider leading-none ${rankData.colorClass}`;
       headerRankIcon.className = `fa-solid ${rankData.icon} text-[10px] ${rankData.colorClass}`;
       headerRankBadge.classList.add(rankData.glowClass);
 
