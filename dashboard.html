@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="view-transition" content="same-origin">
   <title>Grammi</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -47,6 +48,14 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       display: none; /* Skryto do doby, než se ověří přihlášení */
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
+    }
+
+    /* Plynulý slide-out při přechodu na Leaderboard */
+    .page-slide-out-left {
+      transform: translateX(-35px);
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Scrollbar customization */
@@ -351,10 +360,11 @@
         </div>
       </div>
 
-      <!-- Tlačítko Leaderboard -->
-      <a 
-        href="leaderboard.html" 
-        class="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-brand-500/15 to-amber-500/15 hover:from-amber-500/25 hover:via-brand-500/25 hover:to-amber-500/25 border border-amber-500/30 rounded-2xl text-xs font-extrabold text-amber-300 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0"
+      <!-- Tlačítko Leaderboard s plynulým přechodem -->
+      <button 
+        type="button"
+        onclick="navigateToPage('leaderboard.html')"
+        class="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-brand-500/15 to-amber-500/15 hover:from-amber-500/25 hover:via-brand-500/25 hover:to-amber-500/25 border border-amber-500/30 rounded-2xl text-xs font-extrabold text-amber-300 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0 cursor-pointer"
       >
         <span class="flex items-center gap-2">
           <span class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
@@ -363,7 +373,7 @@
           Leaderboard & Žebříček
         </span>
         <i class="fa-solid fa-arrow-right text-[11px] text-amber-400/80"></i>
-      </a>
+      </button>
 
       <!-- Rozklikávací Historie (Accordion) -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col mb-1">
@@ -712,6 +722,15 @@
     let currentChartMode = 'weekly';
     let activeTab = 'input';
     let isCustomTimeSet = false;
+
+    // Plynulý přechod na jinou stránku
+    function navigateToPage(url) {
+      const container = document.getElementById('main-body');
+      container.classList.add('page-slide-out-left');
+      setTimeout(() => {
+        window.location.href = url;
+      }, 240);
+    }
 
     // Ověření relace uživatele
     async function checkAuth() {
