@@ -50,6 +50,7 @@
       color: #f1f5f9;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      display: none; /* Skryto, dokud se neověří přihlášení */
     }
 
     /* Plynulý vstup při příchodu zprava */
@@ -119,7 +120,7 @@
     }
   </style>
 </head>
-<body class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
+<body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
 
   <!-- Ambient Glow -->
   <div class="ambient-glow"></div>
@@ -183,7 +184,10 @@
 
       <!-- Scrollable Top 10 Container -->
       <div id="leaderboard-list" class="space-y-1.5 flex-1 overflow-y-auto custom-scroll pr-1">
-        <!-- Dynamically rendered -->
+        <div class="text-center py-8 text-slate-500 text-xs flex flex-col items-center justify-center gap-2">
+          <i class="fa-solid fa-spinner fa-spin text-lg text-amber-400"></i>
+          Načítám žebříček z databáze...
+        </div>
       </div>
     </div>
 
@@ -198,8 +202,36 @@
 
   </div>
 
+  <!-- Načtení oficiální Supabase JS knihovny -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    // Plynulý návrat na Dashboard
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let leaderboardData = [];
+    let currentSort = 'total';
+    let currentUserId = null;
+
+    // 1. Ověření, že je uživatel přihlášený
+    async function checkAuth() {
+      const { data: { session }, error } = await db.auth.getSession();
+
+      if (error || !session) {
+        // Není přihlášený -> okamžitý přesun na přihlášení
+        window.location.replace("index.html");
+        return;
+      }
+
+      currentUserId = session.user.id;
+      document.getElementById('main-body').style.display = 'flex';
+
+      // Načtení dat po úspěšném ověření
+      await loadLeaderboard();
+    }
+
+    // 2. Plynulý návrat na Dashboard
     function navigateBack(url) {
       const wrapper = document.getElementById('leaderboard-wrapper');
       wrapper.classList.remove('page-slide-in-right');
@@ -209,21 +241,34 @@
       }, 220);
     }
 
-    // Demo data prvních 10 uživatelů pro frontend
-    let leaderboardData = [
-      { id: 1, name: "David K.", email: "david@example.com", totalGrams: 148.50, maxDose: 4.80 },
-      { id: 2, name: "Petr N.", email: "petr@example.com", totalGrams: 122.20, maxDose: 5.00 },
-      { id: 3, name: "Marek V.", email: "marek@example.com", totalGrams: 98.40, maxDose: 3.50 },
-      { id: 4, name: "Honza Š.", email: "honza@example.com", totalGrams: 84.10, maxDose: 4.20 },
-      { id: 5, name: "Tomáš B.", email: "tomas@example.com", totalGrams: 72.80, maxDose: 3.00 },
-      { id: 6, name: "Lukáš M.", email: "lukas@example.com", totalGrams: 65.50, maxDose: 2.80 },
-      { id: 7, name: "Jakub K.", email: "jakub@example.com", totalGrams: 54.00, maxDose: 3.20 },
-      { id: 8, name: "Filip R.", email: "filip@example.com", totalGrams: 42.60, maxDose: 2.50 },
-      { id: 9, name: "Martin D.", email: "martin@example.com", totalGrams: 31.20, maxDose: 2.20 },
-      { id: 10, name: "Adam P.", email: "adam@example.com", totalGrams: 24.80, maxDose: 2.00 },
-    ];
+    // 3. Načtení dat z PostgreSQL Supabase
+    async function loadLeaderboard() {
+      try {
+        const { data, error } = await db
+          .from('leaderboard_view')
+          .select('user_id, display_name, total_grams, max_dose, dose_count');
 
-    let currentSort = 'total'; // 'total' nebo 'max'
+        if (error) throw error;
+
+        leaderboardData = (data || []).map(row => ({
+          id: row.user_id,
+          name: row.display_name || 'Anonym',
+          totalGrams: parseFloat(row.total_grams) || 0,
+          maxDose: parseFloat(row.max_dose) || 0,
+          isCurrent: row.user_id === currentUserId
+        }));
+
+        renderLeaderboard();
+      } catch (err) {
+        console.error('Chyba načítání žebříčku:', err);
+        document.getElementById('leaderboard-list').innerHTML = `
+          <div class="text-center py-6 text-red-400 text-xs flex flex-col items-center justify-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+            Nepodařilo se načíst data žebříčku.
+          </div>
+        `;
+      }
+    }
 
     function setSortMode(mode) {
       currentSort = mode;
@@ -250,7 +295,16 @@
     function renderLeaderboard() {
       const container = document.getElementById('leaderboard-list');
 
-      // Řazení pole
+      if (leaderboardData.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 text-slate-500 text-xs flex flex-col items-center justify-center gap-1.5">
+            <i class="fa-solid fa-inbox text-lg"></i>
+            Zatím žádní uživatelé nezapsali dávku.
+          </div>
+        `;
+        return;
+      }
+
       leaderboardData.sort((a, b) => {
         if (currentSort === 'total') {
           return b.totalGrams - a.totalGrams;
@@ -259,10 +313,11 @@
         }
       });
 
-      container.innerHTML = leaderboardData.map((user, index) => {
+      const top10 = leaderboardData.slice(0, 10);
+
+      container.innerHTML = top10.map((user, index) => {
         const rank = index + 1;
         
-        // Stylování TOP 3
         let badgeStyle = "bg-slate-800 text-slate-400 border-borderbg";
         let cardBorder = "border-borderbg/80";
         let rankIcon = rank;
@@ -281,6 +336,8 @@
           rankIcon = `<i class="fa-solid fa-medal text-amber-600 text-[11px]"></i>`;
         }
 
+        const youBadge = user.isCurrent ? `<span class="ml-1.5 text-[9px] font-bold text-brand-400 bg-brand-500/15 border border-brand-500/30 px-1.5 py-0.2 rounded-md">TY</span>` : '';
+
         const primaryValue = currentSort === 'total' ? user.totalGrams.toFixed(2) : user.maxDose.toFixed(2);
         const secondaryValue = currentSort === 'total' ? user.maxDose.toFixed(2) : user.totalGrams.toFixed(2);
         const primaryUnit = currentSort === 'total' ? 'g celkem' : 'g max';
@@ -293,8 +350,10 @@
                 ${rankIcon}
               </div>
               <div>
-                <span class="font-bold text-white text-xs block leading-tight">${user.name}</span>
-                <span class="text-[10px] text-slate-500 font-mono">${secondaryLabel}</span>
+                <span class="font-bold text-white text-xs inline-flex items-center leading-tight">
+                  ${user.name} ${youBadge}
+                </span>
+                <span class="text-[10px] text-slate-500 font-mono block">${secondaryLabel}</span>
               </div>
             </div>
 
@@ -309,8 +368,8 @@
       }).join('');
     }
 
-    // Prvotní vykreslení
-    renderLeaderboard();
+    // Spustit autentizaci při načtení
+    checkAuth();
   </script>
 </body>
 </html>
