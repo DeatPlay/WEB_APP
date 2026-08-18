@@ -138,7 +138,7 @@
       100% { text-shadow: 0 0 18px rgba(217, 70, 239, 0.95), 0 0 32px rgba(96, 165, 250, 0.7); }
     }
 
-    /* Glow efekty pro velký avatar frame v modalu */
+    /* Glow efekty pro rámečky */
     .rank-glow-bronze {
       box-shadow: 0 0 15px rgba(217, 119, 6, 0.35);
       border-color: rgba(217, 119, 6, 0.5);
@@ -181,7 +181,7 @@
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
               v0.9_4
             </button>
-            <!-- DEV Odznak v hlavičce (dynamicky zobrazen pro vývojáře) -->
+            <!-- DEV Odznak v hlavičce -->
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
             </span>
@@ -191,8 +191,8 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- Zářící text Ranku bez rámečku -->
-        <div onclick="openProfileModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Váš aktuální Rank">
+        <!-- Zářící text Ranku (kliknutím otevře info o všech rancích) -->
+        <div onclick="openRanksModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Zobrazit všechny Ranky">
           <i id="header-rank-icon" class="fa-solid fa-shield text-[11px]"></i>
           <span id="header-rank-text" class="text-xs font-black uppercase tracking-wider leading-none">BRONZE</span>
         </div>
@@ -504,7 +504,132 @@
 
   </div>
 
-  <!-- Vylepšený Profile Modal -->
+  <!-- NOVÉ OKNO: Systém Ranků & Úrovní -->
+  <div id="ranks-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+      
+      <!-- Close Button -->
+      <button onclick="closeRanksModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Header -->
+      <div class="text-center mb-3.5 shrink-0">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-brand-400 flex items-center justify-center text-slate-950 text-xl font-black mx-auto mb-2 shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-base font-black text-white">Úrovně & Ranky</h3>
+        <p class="text-xs text-slate-400 mt-0.5">Váš celkový součet: <strong id="ranks-modal-user-grams" class="text-brand-400 font-extrabold font-mono">0.00 g</strong></p>
+      </div>
+
+      <!-- Seznam Ranků -->
+      <div class="space-y-2 overflow-y-auto custom-scroll pr-1 flex-1">
+        
+        <!-- 1. BRONZE -->
+        <div id="rank-card-bronze" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-700/20 border border-amber-600/30 flex items-center justify-center text-amber-500 text-sm shadow-sm">
+              <i class="fa-solid fa-shield"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider">BRONZE</h4>
+                <span id="rank-tag-bronze" class="hidden text-[9px] font-black bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Základní úroveň</p>
+            </div>
+          </div>
+          <div class="text-right font-mono">
+            <span class="text-xs font-black text-white">0 – 20</span> <span class="text-[10px] text-slate-400">g</span>
+          </div>
+        </div>
+
+        <!-- 2. SILVER -->
+        <div id="rank-card-silver" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-400/20 border border-slate-300/30 flex items-center justify-center text-slate-300 text-sm shadow-sm">
+              <i class="fa-solid fa-medal"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black uppercase text-slate-300 tracking-wider">SILVER</h4>
+                <span id="rank-tag-silver" class="hidden text-[9px] font-black bg-slate-300/20 border border-slate-300/40 text-slate-200 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Pokročilý člen</p>
+            </div>
+          </div>
+          <div class="text-right font-mono">
+            <span class="text-xs font-black text-white">21 – 50</span> <span class="text-[10px] text-slate-400">g</span>
+          </div>
+        </div>
+
+        <!-- 3. GOLD -->
+        <div id="rank-card-gold" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-sm shadow-sm">
+              <i class="fa-solid fa-crown"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black uppercase text-amber-400 tracking-wider">GOLD</h4>
+                <span id="rank-tag-gold" class="hidden text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Zkušený uživatel</p>
+            </div>
+          </div>
+          <div class="text-right font-mono">
+            <span class="text-xs font-black text-white">51 – 100</span> <span class="text-[10px] text-slate-400">g</span>
+          </div>
+        </div>
+
+        <!-- 4. PLATINA -->
+        <div id="rank-card-platina" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-400 text-sm shadow-sm">
+              <i class="fa-solid fa-gem"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black uppercase text-brand-400 tracking-wider">PLATINA</h4>
+                <span id="rank-tag-platina" class="hidden text-[9px] font-black bg-brand-400/20 border border-brand-400/40 text-brand-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Elitní třída</p>
+            </div>
+          </div>
+          <div class="text-right font-mono">
+            <span class="text-xs font-black text-white">101 – 500</span> <span class="text-[10px] text-slate-400">g</span>
+          </div>
+        </div>
+
+        <!-- 5. DIAMOND -->
+        <div id="rank-card-diamond" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-400 text-sm shadow-sm">
+              <i class="fa-solid fa-bolt-lightning"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black uppercase text-purple-400 tracking-wider">DIAMOND</h4>
+                <span id="rank-tag-diamond" class="hidden text-[9px] font-black bg-purple-500/25 border border-purple-400/50 text-purple-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Legendární status</p>
+            </div>
+          </div>
+          <div class="text-right font-mono">
+            <span class="text-xs font-black text-white">501 – 1000+</span> <span class="text-[10px] text-slate-400">g</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Button -->
+      <button onclick="closeRanksModal()" class="w-full py-2.5 mt-3 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer shrink-0">
+        Rozumím
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
   <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-3xl p-5 shadow-2xl relative flex flex-col items-center text-center overflow-hidden">
       
@@ -514,7 +639,7 @@
 
       <!-- Avatar & Upload -->
       <div class="relative group my-1">
-        <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 rank-glow-bronze bg-darkbg">
+        <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 rank-glow-bron -bronze bg-darkbg">
           <img id="modal-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
           <i id="modal-avatar-icon" class="fa-solid fa-user text-2xl text-slate-400"></i>
         </div>
@@ -541,15 +666,17 @@
         <i class="fa-regular fa-calendar-check text-[10px] text-brand-400"></i> Členem od: <strong id="profile-created-date" class="text-slate-300 font-semibold">--</strong>
       </p>
 
-      <!-- RANK Card Badge -->
-      <div id="profile-rank-card" class="w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90">
+      <!-- RANK Card Badge (kliknutím také otevře přehled všech ranků) -->
+      <div onclick="closeProfileModal(); openRanksModal();" id="profile-rank-card" class="w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group">
         <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-1.5">
             <span id="rank-icon-wrapper" class="w-6 h-6 rounded-lg flex items-center justify-center text-xs">
               <i id="rank-icon" class="fa-solid fa-shield"></i>
             </span>
             <div>
-              <p class="text-[9px] uppercase font-bold tracking-widest text-slate-400 leading-none">Aktuální Rank</p>
+              <p class="text-[9px] uppercase font-bold tracking-widest text-slate-400 leading-none flex items-center gap-1">
+                Aktuální Rank <i class="fa-solid fa-chevron-right text-[8px] text-slate-500 group-hover:translate-x-0.5 transition-transform"></i>
+              </p>
               <h4 id="rank-name" class="text-xs font-black tracking-wide uppercase leading-tight mt-0.5">BRONZE</h4>
             </div>
           </div>
@@ -647,27 +774,27 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Implementace <strong>login</strong> stránky.</span>
+              <span>Implementace <strong>login</strong> stránky[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Testování a první předpracování pro <strong>SQL</strong> propojení.</span>
+              <span>Testování a první předpracování pro <strong>SQL</strong> propojení[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému & SQL databáze.</span>
+              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému & SQL databáze[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_2</strong> -> Zprovoznění <strong>zápisu dat</strong> systému & SQL databáze.</span>
+              <span><strong>v0.9_2</strong> -> Zprovoznění <strong>zápisu dat</strong> systému & SQL databáze[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_3</strong> -> Zavedení <strong>leaderboard</strong>.</span>
+              <span><strong>v0.9_3</strong> -> Zavedení <strong>leaderboard</strong>[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_4</strong> -> Vylepšený <strong>profil uživatele</strong> s fotkou a <strong>zářícím textem RANKu</strong> v záhlaví.</span>
+              <span><strong>v0.9_4</strong> -> Vylepšený <strong>profil uživatele</strong> s fotkou a <strong>zářícím textem RANKu</strong> v záhlaví[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -680,7 +807,7 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Přechod na <strong>Github</strong> hosting.</span>
+              <span>Přechod na <strong>Github</strong> hosting[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -693,15 +820,15 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Přidána nová záložka <strong>Changelog</strong> přímo v nastavení aplikace.</span>
+              <span>Přidána nová záložka <strong>Changelog</strong> přímo v nastavení aplikace[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Verze v hlavičce je nyní klikatelná pro rychlé zobrazení historického přehledu.</span>
+              <span>Verze v hlavičce je nyní klikatelná pro rychlé zobrazení historického přehledu[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Vylepšená responzivita nastavení a záložkového menu.</span>
+              <span>Vylepšená responzivita nastavení a záložkového menu[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -714,11 +841,11 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Přepínání grafů mezi <strong>Týdenním přehledem</strong> a <strong>Dnešním průběhem po hodinách</strong>.</span>
+              <span>Přepínání grafů mezi <strong>Týdenním přehledem</strong> a <strong>Dnešním průběhem po hodinách</strong>[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Rozložení dávek do časových oken (Ráno, Odpoledne, Večer, Noc).</span>
+              <span>Rozložení dávek do časových oken (Ráno, Odpoledne, Večer, Noc)[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -731,15 +858,15 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Precision slider pro jemný výběr gramáže s rychlými presety.</span>
+              <span>Precision slider pro jemný výběr gramáže s rychlými presety[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Apple Liquid Glass spodní navigace s plynulou animací.</span>
+              <span>Apple Liquid Glass spodní navigace s plynulou animací[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Dynamický kruhový indikátor doporučeného intervalu.</span>
+              <span>Dynamický kruhový indikátor doporučeného intervalu[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -752,11 +879,11 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Export a import datových záloh ve formátu JSON.</span>
+              <span>Export a import datových záloh ve formátu JSON[cite: 11].</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Možnost zpětného zápisu dávky s volitelnou poznámkou.</span>
+              <span>Možnost zpětného zápisu dávky s volitelnou poznámkou[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -769,7 +896,7 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>První verze systému Grammi pro pohodlné evidování dávek.</span>
+              <span>První verze systému Grammi pro pohodlné evidování dávek[cite: 11].</span>
             </li>
           </ul>
         </div>
@@ -856,7 +983,6 @@
     const DEV_EMAILS = [
       'admin@grammi.app',
       'dev@grammi.app'
-      // Přidejte sem svůj přihlašovací e-mail pro Supabase
     ];
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1022,11 +1148,16 @@
       rankTotalGramsEl.textContent = totalGrams.toFixed(2);
       rankProgressCurrent.textContent = `${totalGrams.toFixed(1)} g`;
 
+      // Aktualizace v okně všech ranků
+      const ranksModalGrams = document.getElementById('ranks-modal-user-grams');
+      if (ranksModalGrams) ranksModalGrams.textContent = `${totalGrams.toFixed(2)} g`;
+
       // Reset tříd
       rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
-      rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90";
+      rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group";
       headerRankBadge.className = "flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1";
 
+      let rankKey = 'bronze';
       let rankData = {
         name: "BRONZE",
         icon: "fa-shield",
@@ -1042,6 +1173,7 @@
       };
 
       if (totalGrams <= 20) {
+        rankKey = 'bronze';
         rankData = {
           name: "BRONZE",
           icon: "fa-shield",
@@ -1056,6 +1188,7 @@
           nextName: "Silver"
         };
       } else if (totalGrams <= 50) {
+        rankKey = 'silver';
         rankData = {
           name: "SILVER",
           icon: "fa-medal",
@@ -1070,6 +1203,7 @@
           nextName: "Gold"
         };
       } else if (totalGrams <= 100) {
+        rankKey = 'gold';
         rankData = {
           name: "GOLD",
           icon: "fa-crown",
@@ -1084,6 +1218,7 @@
           nextName: "Platina"
         };
       } else if (totalGrams <= 500) {
+        rankKey = 'platina';
         rankData = {
           name: "PLATINA",
           icon: "fa-gem",
@@ -1098,6 +1233,7 @@
           nextName: "Diamond"
         };
       } else {
+        rankKey = 'diamond';
         rankData = {
           name: "DIAMOND",
           icon: "fa-bolt-lightning",
@@ -1113,7 +1249,7 @@
         };
       }
 
-      // Vykreslení do horní lišty (čisté záření písma)
+      // Vykreslení do horní lišty
       headerRankBadge.classList.add(rankData.textGlowClass);
       headerRankText.textContent = rankData.name;
       headerRankIcon.className = `fa-solid ${rankData.icon} text-[11px]`;
@@ -1138,6 +1274,42 @@
 
       rankProgressBar.className = `h-full rounded-full transition-all duration-700 ${rankData.barColor}`;
       rankProgressBar.style.width = `${pct}%`;
+
+      // Nastavení aktivního tagu v okně všech ranků
+      highlightActiveRankInModal(rankKey);
+    }
+
+    function highlightActiveRankInModal(activeKey) {
+      const rankKeys = ['bronze', 'silver', 'gold', 'platina', 'diamond'];
+      
+      rankKeys.forEach(key => {
+        const card = document.getElementById(`rank-card-${key}`);
+        const tag = document.getElementById(`rank-tag-${key}`);
+        
+        if (card && tag) {
+          // Reset stylu karty
+          card.className = "bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+          tag.classList.add('hidden');
+
+          if (key === activeKey) {
+            tag.classList.remove('hidden');
+            if (key === 'bronze') card.className = "bg-darkbg/90 border border-amber-600/60 rank-glow-bronze rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'silver') card.className = "bg-darkbg/90 border border-slate-300/60 rank-glow-silver rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'gold') card.className = "bg-darkbg/90 border border-amber-400/70 rank-glow-gold rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'platina') card.className = "bg-darkbg/90 border border-brand-400/80 rank-glow-platina rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'diamond') card.className = "bg-darkbg/90 border border-purple-400/90 rank-glow-diamond rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+          }
+        }
+      });
+    }
+
+    function openRanksModal() {
+      updateRankBadge();
+      document.getElementById('ranks-modal').classList.remove('hidden');
+    }
+
+    function closeRanksModal() {
+      document.getElementById('ranks-modal').classList.add('hidden');
     }
 
     function openProfileModal() {
