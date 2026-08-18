@@ -181,6 +181,10 @@
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
               v0.9_4
             </button>
+            <!-- DEV Odznak v hlavičce (dynamicky zobrazen pro vývojáře) -->
+            <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-code text-[8px]"></i> DEV
+            </span>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Up to date</p>
         </div>
@@ -525,7 +529,14 @@
         <i class="fa-solid fa-trash-can text-[9px] mr-1"></i> Odstranit fotku
       </button>
 
-      <h3 id="profile-user-email" class="text-sm font-bold text-white truncate max-w-[240px] mt-1 mb-0.5">načítám...</h3>
+      <div class="flex items-center justify-center gap-1.5 mt-1 mb-0.5 max-w-full">
+        <h3 id="profile-user-email" class="text-sm font-bold text-white truncate max-w-[200px]">načítám...</h3>
+        <!-- DEV Odznak v profilovém okně -->
+        <span id="profile-dev-badge" class="hidden text-amber-300 bg-amber-500/20 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded uppercase items-center gap-1 shrink-0">
+          <i class="fa-solid fa-code text-[8px]"></i> DEV
+        </span>
+      </div>
+      
       <p class="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 mb-3.5">
         <i class="fa-regular fa-calendar-check text-[10px] text-brand-400"></i> Členem od: <strong id="profile-created-date" class="text-slate-300 font-semibold">--</strong>
       </p>
@@ -841,6 +852,13 @@
     const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
 
+    // Seznam e-mailů s právy DEV odznaku
+    const DEV_EMAILS = [
+      'admin@grammi.app',
+      'dev@grammi.app'
+      // Přidejte sem svůj přihlašovací e-mail pro Supabase
+    ];
+
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const SETTINGS_KEY = 'grammi_settings_v1';
     
@@ -862,6 +880,29 @@
       }, 240);
     }
 
+    function checkDevStatus(user) {
+      const isDevEmail = DEV_EMAILS.includes(user.email);
+      const isDevMeta = user.user_metadata && user.user_metadata.role === 'developer';
+      const isDev = isDevEmail || isDevMeta;
+
+      const headerBadge = document.getElementById('header-dev-badge');
+      const profileBadge = document.getElementById('profile-dev-badge');
+
+      if (isDev) {
+        if (headerBadge) headerBadge.classList.remove('hidden');
+        if (profileBadge) {
+          profileBadge.classList.remove('hidden');
+          profileBadge.classList.add('inline-flex');
+        }
+      } else {
+        if (headerBadge) headerBadge.classList.add('hidden');
+        if (profileBadge) {
+          profileBadge.classList.add('hidden');
+          profileBadge.classList.remove('inline-flex');
+        }
+      }
+    }
+
     async function checkAuth() {
       const { data: { session }, error } = await db.auth.getSession();
 
@@ -880,6 +921,7 @@
         document.getElementById('profile-created-date').textContent = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
       }
 
+      checkDevStatus(session.user);
       loadLocalAvatar();
       
       const bodyEl = document.getElementById('main-body');
