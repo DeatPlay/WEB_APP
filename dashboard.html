@@ -111,37 +111,31 @@
       color-scheme: dark;
     }
 
-    /* RANK Badge styly sjednocené s leaderboard.html */
-    .rank-badge-bronze {
-      background: rgba(217, 119, 6, 0.12);
-      border-color: rgba(217, 119, 6, 0.35);
+    /* Čisté záření samotného textu ranku v záhlaví (bez rámečku) */
+    .rank-text-glow-bronze {
       color: #f59e0b;
-      box-shadow: 0 0 10px rgba(217, 119, 6, 0.25);
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.65), 0 0 20px rgba(217, 119, 6, 0.4);
     }
-    .rank-badge-silver {
-      background: rgba(148, 163, 184, 0.12);
-      border-color: rgba(148, 163, 184, 0.35);
-      color: #cbd5e1;
-      box-shadow: 0 0 10px rgba(148, 163, 184, 0.25);
+    .rank-text-glow-silver {
+      color: #e2e8f0;
+      text-shadow: 0 0 10px rgba(226, 232, 240, 0.65), 0 0 20px rgba(148, 163, 184, 0.4);
     }
-    .rank-badge-gold {
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.45);
+    .rank-text-glow-gold {
       color: #fbbf24;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.8), 0 0 24px rgba(245, 158, 11, 0.5);
     }
-    .rank-badge-platina {
-      background: rgba(45, 212, 191, 0.15);
-      border-color: rgba(45, 212, 191, 0.45);
+    .rank-text-glow-platina {
       color: #2dd4bf;
-      box-shadow: 0 0 14px rgba(45, 212, 191, 0.4);
+      text-shadow: 0 0 12px rgba(45, 212, 191, 0.8), 0 0 24px rgba(20, 184, 166, 0.5);
     }
-    .rank-badge-diamond {
-      background: rgba(168, 85, 247, 0.18);
-      border-color: rgba(192, 132, 252, 0.55);
+    .rank-text-glow-diamond {
       color: #c084fc;
-      box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
-      animation: diamond-pulse 2.5s infinite alternate;
+      text-shadow: 0 0 14px rgba(192, 132, 252, 0.9), 0 0 28px rgba(168, 85, 247, 0.6), 0 0 40px rgba(56, 189, 248, 0.4);
+      animation: diamond-text-pulse 2.2s infinite alternate;
+    }
+    @keyframes diamond-text-pulse {
+      0% { text-shadow: 0 0 10px rgba(192, 132, 252, 0.7), 0 0 20px rgba(168, 85, 247, 0.5); }
+      100% { text-shadow: 0 0 18px rgba(217, 70, 239, 0.95), 0 0 32px rgba(96, 165, 250, 0.7); }
     }
 
     /* Glow efekty pro velký avatar frame v modalu */
@@ -192,11 +186,11 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <!-- Rank Badge v designu leaderboard.html -->
-        <div onclick="openProfileModal()" id="header-rank-badge" class="h-8.5 px-2.5 rounded-lg border flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 rank-badge-bronze" title="Váš aktuální Rank">
-          <i id="header-rank-icon" class="fa-solid fa-shield text-[10px]"></i>
-          <span id="header-rank-text" class="text-[10px] font-black uppercase tracking-wider leading-none">BRONZE</span>
+      <div class="flex items-center gap-2">
+        <!-- Zářící text Ranku bez rámečku -->
+        <div onclick="openProfileModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Váš aktuální Rank">
+          <i id="header-rank-icon" class="fa-solid fa-shield text-[11px]"></i>
+          <span id="header-rank-text" class="text-xs font-black uppercase tracking-wider leading-none">BRONZE</span>
         </div>
 
         <!-- Tlačítko Profilu -->
@@ -642,27 +636,27 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Implementace <strong>login</strong> stránky[cite: 9].</span>
+              <span>Implementace <strong>login</strong> stránky.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Testování a první předpracování pro <strong>SQL</strong> propojení[cite: 9].</span>
+              <span>Testování a první předpracování pro <strong>SQL</strong> propojení.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému & SQL databáze[cite: 9].</span>
+              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému & SQL databáze.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_2</strong> -> Zprovoznění <strong>zápisu dat</strong> systému & SQL databáze[cite: 9].</span>
+              <span><strong>v0.9_2</strong> -> Zprovoznění <strong>zápisu dat</strong> systému & SQL databáze.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_3</strong> -> Zavedení <strong>leaderboard</strong>[cite: 9].</span>
+              <span><strong>v0.9_3</strong> -> Zavedení <strong>leaderboard</strong>.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_4</strong> -> Vylepšený <strong>profil uživatele</strong> s fotkou a <strong>RANK odznakem</strong> v záhlaví[cite: 9].</span>
+              <span><strong>v0.9_4</strong> -> Vylepšený <strong>profil uživatele</strong> s fotkou a <strong>zářícím textem RANKu</strong> v záhlaví.</span>
             </li>
           </ul>
         </div>
@@ -675,7 +669,7 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Přechod na <strong>Github</strong> hosting[cite: 9].</span>
+              <span>Přechod na <strong>Github</strong> hosting.</span>
             </li>
           </ul>
         </div>
@@ -688,15 +682,15 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Přidána nová záložka <strong>Changelog</strong> přímo v nastavení aplikace[cite: 9].</span>
+              <span>Přidána nová záložka <strong>Changelog</strong> přímo v nastavení aplikace.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Verze v hlavičce je nyní klikatelná pro rychlé zobrazení historického přehledu[cite: 9].</span>
+              <span>Verze v hlavičce je nyní klikatelná pro rychlé zobrazení historického přehledu.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span>Vylepšená responzivita nastavení a záložkového menu[cite: 9].</span>
+              <span>Vylepšená responzivita nastavení a záložkového menu.</span>
             </li>
           </ul>
         </div>
@@ -709,11 +703,11 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Přepínání grafů mezi <strong>Týdenním přehledem</strong> a <strong>Dnešním průběhem po hodinách</strong>[cite: 9].</span>
+              <span>Přepínání grafů mezi <strong>Týdenním přehledem</strong> a <strong>Dnešním průběhem po hodinách</strong>.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Rozložení dávek do časových oken (Ráno, Odpoledne, Večer, Noc)[cite: 9].</span>
+              <span>Rozložení dávek do časových oken (Ráno, Odpoledne, Večer, Noc).</span>
             </li>
           </ul>
         </div>
@@ -726,15 +720,15 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Precision slider pro jemný výběr gramáže s rychlými presety[cite: 9].</span>
+              <span>Precision slider pro jemný výběr gramáže s rychlými presety.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Apple Liquid Glass spodní navigace s plynulou animací[cite: 9].</span>
+              <span>Apple Liquid Glass spodní navigace s plynulou animací.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Dynamický kruhový indikátor doporučeného intervalu[cite: 9].</span>
+              <span>Dynamický kruhový indikátor doporučeného intervalu.</span>
             </li>
           </ul>
         </div>
@@ -747,11 +741,11 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Export a import datových záloh ve formátu JSON[cite: 9].</span>
+              <span>Export a import datových záloh ve formátu JSON.</span>
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>Možnost zpětného zápisu dávky s volitelnou poznámkou[cite: 9].</span>
+              <span>Možnost zpětného zápisu dávky s volitelnou poznámkou.</span>
             </li>
           </ul>
         </div>
@@ -764,7 +758,7 @@
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-angle-right text-slate-500 text-[10px] mt-0.5"></i>
-              <span>První verze systému Grammi pro pohodlné evidování dávek[cite: 9].</span>
+              <span>První verze systému Grammi pro pohodlné evidování dávek.</span>
             </li>
           </ul>
         </div>
@@ -989,7 +983,7 @@
       // Reset tříd
       rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
       rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90";
-      headerRankBadge.className = "h-8.5 px-2.5 rounded-lg border flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95";
+      headerRankBadge.className = "flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1";
 
       let rankData = {
         name: "BRONZE",
@@ -997,7 +991,7 @@
         colorClass: "text-amber-500",
         bgIconClass: "bg-amber-600/20 text-amber-500",
         borderClass: "border-amber-700/50",
-        badgeStyleClass: "rank-badge-bronze",
+        textGlowClass: "rank-text-glow-bronze",
         glowClass: "rank-glow-bronze",
         barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
         min: 0,
@@ -1012,7 +1006,7 @@
           colorClass: "text-amber-500",
           bgIconClass: "bg-amber-600/20 text-amber-500",
           borderClass: "border-amber-700/50",
-          badgeStyleClass: "rank-badge-bronze",
+          textGlowClass: "rank-text-glow-bronze",
           glowClass: "rank-glow-bronze",
           barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
           min: 0,
@@ -1026,7 +1020,7 @@
           colorClass: "text-slate-300",
           bgIconClass: "bg-slate-300/20 text-slate-200",
           borderClass: "border-slate-400/50",
-          badgeStyleClass: "rank-badge-silver",
+          textGlowClass: "rank-text-glow-silver",
           glowClass: "rank-glow-silver",
           barColor: "bg-gradient-to-r from-slate-400 to-slate-200",
           min: 20,
@@ -1040,7 +1034,7 @@
           colorClass: "text-amber-400",
           bgIconClass: "bg-amber-400/20 text-amber-300",
           borderClass: "border-amber-400/60",
-          badgeStyleClass: "rank-badge-gold",
+          textGlowClass: "rank-text-glow-gold",
           glowClass: "rank-glow-gold",
           barColor: "bg-gradient-to-r from-amber-500 to-amber-300",
           min: 50,
@@ -1054,7 +1048,7 @@
           colorClass: "text-brand-400",
           bgIconClass: "bg-brand-500/20 text-brand-300",
           borderClass: "border-brand-400/60",
-          badgeStyleClass: "rank-badge-platina",
+          textGlowClass: "rank-text-glow-platina",
           glowClass: "rank-glow-platina",
           barColor: "bg-gradient-to-r from-teal-500 to-brand-400",
           min: 100,
@@ -1068,7 +1062,7 @@
           colorClass: "text-purple-400",
           bgIconClass: "bg-purple-500/25 text-purple-300",
           borderClass: "border-purple-400/70",
-          badgeStyleClass: "rank-badge-diamond",
+          textGlowClass: "rank-text-glow-diamond",
           glowClass: "rank-glow-diamond",
           barColor: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500",
           min: 500,
@@ -1077,10 +1071,10 @@
         };
       }
 
-      // Vykreslení do horní lišty v přesném stylu leaderboard.html
-      headerRankBadge.classList.add(rankData.badgeStyleClass);
+      // Vykreslení do horní lišty (čisté záření písma)
+      headerRankBadge.classList.add(rankData.textGlowClass);
       headerRankText.textContent = rankData.name;
-      headerRankIcon.className = `fa-solid ${rankData.icon} text-[10px]`;
+      headerRankIcon.className = `fa-solid ${rankData.icon} text-[11px]`;
 
       // Vykreslení do modalu profilu
       rankName.textContent = rankData.name;
