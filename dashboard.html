@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Grammi</title>
 
-  <!-- Tailwind CSS & FontAwesome & Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -92,7 +91,6 @@
 
   <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
 
-    <!-- Top Header -->
     <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-brand-500/20">
@@ -109,24 +107,19 @@
         </div>
       </div>
 
-      <!-- Akční tlačítka vpravo nahoře -->
       <div class="flex items-center gap-1.5">
-        <!-- Tlačítko Profilu -->
         <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2" title="Můj profil">
           <i class="fa-solid fa-user text-xs"></i>
         </button>
 
-        <!-- Tlačítko Nastavení -->
         <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2" title="Nastavení a správa">
           <i class="fa-solid fa-sliders text-xs"></i>
         </button>
       </div>
     </header>
 
-    <!-- TAB 1: ZÁPIS DÁVKY -->
     <div id="tab-input" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
 
-      <!-- Quick Today Summary Banner -->
       <div class="bg-cardbg border border-borderbg rounded-xl p-2.5 flex justify-between items-center shrink-0 shadow-md">
         <div class="flex items-center gap-2">
           <div class="w-7 h-7 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400">
@@ -149,7 +142,6 @@
         </div>
       </div>
 
-      <!-- Compact Form Card -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col gap-2">
         <div class="flex justify-between items-center">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
@@ -181,7 +173,6 @@
               <span class="absolute right-3.5 font-bold text-slate-500 text-sm pointer-events-none">g</span>
             </div>
 
-            <!-- Precision Slider -->
             <div class="mt-1.5 flex items-center gap-2 bg-darkbg/60 p-1.5 rounded-xl border border-borderbg/60">
               <span class="text-[10px] text-slate-500 font-mono font-bold">0.50g</span>
               <input 
@@ -197,7 +188,6 @@
               <span class="text-[10px] text-slate-500 font-mono font-bold">4.00g</span>
             </div>
 
-            <!-- Quick Buttons -->
             <div class="grid grid-cols-4 gap-1.5 mt-1.5">
               <button type="button" onclick="setQuickAmount(1.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+1.50g</button>
               <button type="button" onclick="setQuickAmount(2.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.00g</button>
@@ -206,7 +196,6 @@
             </div>
           </div>
 
-          <!-- Tlačítko pro zpětný zápis / detailní čas -->
           <div class="flex items-center gap-1.5 pt-1">
             <button 
               type="button" 
@@ -231,21 +220,20 @@
 
           <button 
             type="submit" 
-            class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide mt-1"
+            id="btn-submit-dose"
+            class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide mt-1 disabled:opacity-50"
           >
             <i class="fa-solid fa-plus text-sm"></i> Přidat
           </button>
         </form>
       </div>
 
-      <!-- Dose Interval Status Circle Indicator Card -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col items-center justify-center text-center overflow-hidden">
         <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
           <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Stav
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center w-full my-auto">
-          <!-- Circular Indicator Badge -->
           <div id="status-circle" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 relative">
             <span id="status-icon" class="text-3xl sm:text-4xl transition-transform duration-300">
               <i class="fa-solid fa-check"></i>
@@ -253,7 +241,6 @@
             <span id="status-percent" class="text-[11px] font-extrabold mt-1 tracking-tight">100%</span>
           </div>
 
-          <!-- Status Text Labels -->
           <div class="mt-4 flex items-center gap-2">
             <p id="status-elapsed-time" class="text-2xl font-black text-white tracking-tight">--h --m</p>
             <button type="button" onclick="renderStatusCircle()" class="w-8 h-8 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white hover:bg-slate-800 transition-all active:scale-90 shadow-sm" title="Aktualizovat čas">
@@ -262,7 +249,6 @@
           </div>
         </div>
 
-        <!-- Target Interval Footer Badge -->
         <div class="w-full pt-2 border-t border-borderbg/60 flex justify-between items-center text-[11px] text-slate-400 shrink-0">
           <span>Cílový interval: <strong id="status-target-interval" class="text-slate-200">4.0 h</strong></span>
           <button onclick="openExportModal('config')" class="text-brand-400 hover:underline flex items-center gap-1 font-semibold">
@@ -272,10 +258,8 @@
       </div>
     </div>
 
-    <!-- TAB 2: STATISTIKY -->
     <div id="tab-stats" class="flex-1 flex flex-col gap-2.5 overflow-hidden hidden">
 
-      <!-- Stats Summary Grid (4 Cards) -->
       <div class="grid grid-cols-2 gap-2 shrink-0">
         <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
           <p class="text-[10px] font-semibold uppercase text-slate-400">Dnes celkem</p>
@@ -299,7 +283,6 @@
         </div>
       </div>
 
-      <!-- Time Distribution & Habits Card -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
@@ -351,7 +334,6 @@
         </div>
       </div>
 
-      <!-- Chart Card -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
         <div class="flex justify-between items-center mb-1.5">
           <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95" title="Přepnout graf">
@@ -369,7 +351,6 @@
         </div>
       </div>
 
-      <!-- Detailed History Log Card -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col overflow-hidden">
         <div class="flex justify-between items-center mb-2 shrink-0">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
@@ -379,14 +360,11 @@
         </div>
 
         <div id="tab2-log-container" class="space-y-1.5 flex-1 overflow-y-auto custom-scroll pr-1">
-          <!-- Dynamically populated -->
-        </div>
+          </div>
       </div>
     </div>
 
-    <!-- Bottom Apple Liquid Glass Navigation Bar -->
     <nav class="liquid-glass-nav rounded-full p-1 relative grid grid-cols-2 gap-0 shrink-0 mb-2">
-      <!-- Animated Liquid Glass Pill -->
       <div 
         id="liquid-pill" 
         class="liquid-pill absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full pointer-events-none"
@@ -410,7 +388,6 @@
 
   </div>
 
-  <!-- Profile / Auth Modal -->
   <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-5 shadow-2xl relative flex flex-col items-center text-center">
       <button onclick="closeProfileModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base">
@@ -434,7 +411,6 @@
     </div>
   </div>
 
-  <!-- Settings / Export / Changelog Modal -->
   <div id="settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-2xl p-4 sm:p-5 shadow-2xl relative max-h-[88vh] flex flex-col">
       <button onclick="closeExportModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-10">
@@ -445,7 +421,6 @@
         <i class="fa-solid fa-sliders text-brand-400"></i> Správa a Nastavení Grammi
       </h3>
 
-      <!-- Settings Nav Sub-tabs -->
       <div class="flex bg-darkbg p-1 rounded-xl border border-borderbg mb-3 shrink-0">
         <button id="settings-tab-btn-config" onclick="switchSettingsTab('config')" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5">
           <i class="fa-solid fa-gear"></i> Nastavení
@@ -455,11 +430,9 @@
         </button>
       </div>
 
-      <!-- Tab Content 1: General Settings & Data Management -->
       <div id="settings-tab-config" class="space-y-3 overflow-y-auto custom-scroll pr-0.5">
         <p class="text-xs text-slate-400">Možnosti přizpůsobení a export/import dat.</p>
 
-        <!-- Target Interval Setting Input -->
         <div class="bg-darkbg border border-borderbg rounded-xl p-3">
           <label class="block text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5">
             <i class="fa-solid fa-hourglass-half text-brand-400"></i> Interval
@@ -498,11 +471,9 @@
         </button>
       </div>
 
-      <!-- Tab Content 2: Changelog History -->
       <div id="settings-tab-changelog" class="hidden space-y-3 overflow-y-auto custom-scroll pr-1">
         <p class="text-xs text-slate-400">Historie aktualizací a seznam změn v Grammi.</p>
 
-        <!-- Version v0.9 -->
         <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
@@ -521,12 +492,11 @@
             </li>
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
-              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému.</span>
+              <span><strong>v0.9_1</strong> -> Zprovoznění <strong>login</strong> systému & SQL databáze.</span>
             </li>
           </ul>
         </div>
 
-        <!-- Version v0.8 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.8</span>
@@ -540,7 +510,6 @@
           </ul>
         </div>
 
-        <!-- Version v0.7 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.7</span>
@@ -562,7 +531,6 @@
           </ul>
         </div>
 
-        <!-- Version v0.6 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.6</span>
@@ -580,7 +548,6 @@
           </ul>
         </div>
 
-        <!-- Version v0.5 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.5</span>
@@ -602,7 +569,6 @@
           </ul>
         </div>
 
-        <!-- Version v0.4 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.4</span>
@@ -620,7 +586,6 @@
           </ul>
         </div>
 
-        <!-- Version v0.1 -->
         <div class="bg-darkbg/60 border border-borderbg rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-200">v0.1</span>
@@ -638,7 +603,6 @@
     </div>
   </div>
 
-  <!-- Custom Time & Note Modal -->
   <div id="custom-time-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-4 shadow-2xl relative flex flex-col gap-3">
       <div class="flex justify-between items-center border-b border-borderbg pb-2">
@@ -682,7 +646,6 @@
           >
         </div>
 
-        <!-- Quick Presets -->
         <div class="grid grid-cols-2 gap-1.5 pt-1">
           <button type="button" onclick="setQuickModalDate('yesterday')" class="py-1.5 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50">
             <i class="fa-solid fa-backward text-[10px] mr-1"></i> Včera
@@ -703,36 +666,48 @@
     </div>
   </div>
 
-  <!-- Custom Notification Banner -->
   <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-800/95 backdrop-blur-md border border-brand-500/40 text-white text-xs px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
     <i class="fa-solid fa-circle-check text-brand-400"></i>
     <span id="toast-msg">Záznam byl přidán</span>
   </div>
 
-  <!-- 1. Načtení Supabase knihovny -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- 2. Autentizační logika a profil -->
   <script>
     const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SETTINGS_KEY = 'grammi_settings_v1';
+    
     let currentUserEmail = "";
+    let currentUserId = null;
+    let logs = [];
+    let targetIntervalHours = 4.0;
+    let chartInstance = null;
+    let currentChartMode = 'weekly';
+    let activeTab = 'input';
+    let isCustomTimeSet = false;
 
+    // Ověření relace uživatele
     async function checkAuth() {
       const { data: { session }, error } = await db.auth.getSession();
 
       if (error || !session) {
-        // Uživatel není přihlášen -> přesměrovat na login
         window.location.replace("index.html");
         return;
       }
 
-      // Uložíme e-mail a zobrazíme aplikaci
+      currentUserId = session.user.id;
       currentUserEmail = session.user.email;
       document.getElementById('profile-user-email').textContent = currentUserEmail;
       document.getElementById('main-body').style.display = 'flex';
+
+      // Inicializace aplikace po přihlášení
+      loadSettings();
+      setCurrentTime();
+      setQuickAmount(2.50);
+      await loadLogs();
     }
 
     function openProfileModal() {
@@ -749,29 +724,6 @@
       sessionStorage.clear();
       window.location.replace("index.html");
     }
-
-    // Spustit kontrolu přihlášení
-    checkAuth();
-  </script>
-
-  <!-- 3. Hlavní kód aplikace Grammi -->
-  <script>
-    const STORAGE_KEY = 'grammi_dose_logs_v3';
-    const SETTINGS_KEY = 'grammi_settings_v1';
-    
-    let logs = [];
-    let targetIntervalHours = 4.0; // Default 4 hours target pause
-    let chartInstance = null;
-    let currentChartMode = 'weekly'; // 'weekly' nebo 'daily'
-    let activeTab = 'input';
-    let isCustomTimeSet = false;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSettings();
-      loadLogs();
-      setCurrentTime();
-      setQuickAmount(2.50);
-    });
 
     function loadSettings() {
       try {
@@ -965,12 +917,29 @@
       }, 2200);
     }
 
-    function loadLogs() {
+    // Načtení dat přímo z PostgreSQL (Supabase)
+    async function loadLogs() {
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        logs = stored ? JSON.parse(stored) : getDemoData();
-      } catch (e) {
-        logs = getDemoData();
+        const { data, error } = await db
+          .from('doses')
+          .select('id, amount, note, timestamp')
+          .order('timestamp', { ascending: false });
+
+        if (error) {
+          console.error('Chyba čtení databáze:', error);
+          showToast('Chyba při načítání databáze');
+          logs = [];
+        } else {
+          logs = (data || []).map(row => ({
+            id: row.id,
+            amount: parseFloat(row.amount),
+            note: row.note || '',
+            timestamp: row.timestamp
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+        logs = [];
       }
       sortLogs();
       renderAll();
@@ -980,14 +949,10 @@
       logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     }
 
-    function saveLogs() {
-      sortLogs();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-      renderAll();
-    }
-
-    function handleFormSubmit(e) {
+    // Uložení nového záznamu do databáze
+    async function handleFormSubmit(e) {
       e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-dose');
       const amountInput = document.getElementById('input-amount');
       const noteInput = document.getElementById('input-note');
       const timeInput = document.getElementById('input-time');
@@ -996,29 +961,72 @@
       const amount = parseFloat(amountInput.value);
       if (isNaN(amount) || amount <= 0) return;
 
-      // Construct retroactive timestamp
       let chosenDate = dateInput.value || getDateKey(new Date());
       let chosenTime = timeInput.value || '12:00';
       const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
+      const note = noteInput ? noteInput.value.trim() : '';
 
-      const newLog = {
-        id: 'k_' + Date.now(),
-        amount: amount,
-        note: noteInput ? noteInput.value.trim() : '',
-        timestamp: customTimestamp
-      };
+      submitBtn.disabled = true;
 
-      logs.unshift(newLog);
-      saveLogs();
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .insert([{
+            amount: amount,
+            note: note,
+            timestamp: customTimestamp,
+            user_id: currentUserId
+          }])
+          .select();
 
-      resetToNow(); // Reset time & note state for next dose
-      showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
+        if (error) {
+          console.error('Chyba při vkládání:', error);
+          showToast('Chyba při ukládání do DB');
+          return;
+        }
+
+        if (data && data[0]) {
+          logs.unshift({
+            id: data[0].id,
+            amount: parseFloat(data[0].amount),
+            note: data[0].note || '',
+            timestamp: data[0].timestamp
+          });
+          sortLogs();
+          renderAll();
+        }
+
+        resetToNow();
+        showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba sítě při ukládání');
+      } finally {
+        submitBtn.disabled = false;
+      }
     }
 
-    function deleteLog(id) {
-      logs = logs.filter(item => item.id !== id);
-      saveLogs();
-      showToast('Záznam smazán');
+    // Smazání záznamu z databáze
+    async function deleteLog(id) {
+      try {
+        const { error } = await db
+          .from('doses')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.error('Chyba mazání:', error);
+          showToast('Chyba při mazání záznamu');
+          return;
+        }
+
+        logs = logs.filter(item => item.id !== id);
+        renderAll();
+        showToast('Záznam smazán');
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba komunikace při mazání');
+      }
     }
 
     function renderAll() {
@@ -1043,7 +1051,6 @@
       targetIntervalEl.textContent = `${targetIntervalHours.toFixed(1)} h`;
 
       if (logs.length === 0) {
-        // Default state if no doses logged yet
         circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/20";
         iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
         percentEl.textContent = '100%';
@@ -1066,15 +1073,12 @@
       elapsedEl.textContent = timeElapsedText;
 
       if (pct <= 50) {
-        // Red state: 0% - 50%
         circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-red-500 bg-red-500/10 text-red-400 shadow-red-500/30 scale-95";
         iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
       } else if (pct <= 95) {
-        // Yellow/Amber state: 51% - 95%
         circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-amber-400 bg-amber-400/10 text-amber-400 shadow-amber-400/30";
         iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
       } else {
-        // Green state: 96% - 100%+
         circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/30 scale-105";
         iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
       }
@@ -1098,15 +1102,11 @@
         lastTimeStr = `${String(latest.getHours()).padStart(2, '0')}:${String(latest.getMinutes()).padStart(2, '0')}`;
       }
 
-      // Tab 1 Quick stats
       document.getElementById('tab1-today-grams').textContent = todayGrams.toFixed(2);
       document.getElementById('tab1-today-count').textContent = todayCount;
       document.getElementById('tab1-last-time').textContent = lastTimeStr;
-
-      // Tab 2 Stats - Basic
       document.getElementById('tab2-stat-today').textContent = todayGrams.toFixed(2);
 
-      // Calculate Average Intervals between doses (30m - 12h gap)
       const chronoLogs = [...logs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       let totalIntervalMins = 0;
       let intervalCount = 0;
@@ -1116,7 +1116,6 @@
         const curr = new Date(chronoLogs[i].timestamp);
         const diffMins = Math.floor((curr - prev) / (1000 * 60));
 
-        // Filter valid intraday gaps (between 30 min and 12 hrs)
         if (diffMins >= 30 && diffMins <= 720) {
           totalIntervalMins += diffMins;
           intervalCount++;
@@ -1132,7 +1131,6 @@
       }
       document.getElementById('tab2-stat-interval').textContent = intervalText;
 
-      // Time since last dose
       let timeSinceText = '--';
       if (logs.length > 0) {
         const latestTime = new Date(logs[0].timestamp);
@@ -1152,7 +1150,6 @@
       }
       document.getElementById('tab2-stat-time-since').textContent = timeSinceText;
 
-      // Time Windows Distribution (Ráno, Odpoledne, Večer, Noc)
       let periods = { rano: 0, odpoledne: 0, vecer: 0, noc: 0 };
 
       logs.forEach(l => {
@@ -1179,7 +1176,6 @@
       document.getElementById('bar-vecer').style.width = `${pctVecer}%`;
       document.getElementById('bar-noc').style.width = `${pctNoc}%`;
 
-      // Determine top window badge
       let topLabel = '--';
       if (logs.length > 0) {
         let maxVal = periods.rano;
@@ -1196,9 +1192,8 @@
       const countBadge = document.getElementById('log-count-badge');
 
       countBadge.textContent = `${logs.length} záznamů`;
-
-      // TAB 2 Full Log list
       tab2Container.innerHTML = '';
+
       if (logs.length === 0) {
         tab2Container.innerHTML = `
           <div class="text-center py-6 text-slate-500 text-xs flex flex-col items-center justify-center gap-1.5 h-full">
@@ -1351,52 +1346,60 @@
       showToast('Data byla vyexportována');
     }
 
-    function importData(e) {
+    async function importData(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = async function(event) {
         try {
           const parsed = JSON.parse(event.target.result);
           if (Array.isArray(parsed)) {
-            logs = parsed;
-            saveLogs();
+            const rowsToInsert = parsed.map(item => ({
+              amount: parseFloat(item.amount),
+              note: item.note || '',
+              timestamp: item.timestamp || new Date().toISOString(),
+              user_id: currentUserId
+            }));
+
+            const { error } = await db.from('doses').insert(rowsToInsert);
+            if (error) throw error;
+
+            await loadLogs();
             closeExportModal();
-            showToast('Data byla úspěšně importována');
+            showToast('Data byla nahrána do databáze');
           }
         } catch (err) {
-          showToast('Chyba při čtení souboru');
+          console.error(err);
+          showToast('Chyba při importu dat');
         }
       };
       reader.readAsText(file);
     }
 
-    function confirmClearAll() {
-      logs = [];
-      saveLogs();
-      closeExportModal();
-      showToast('Všechna data byla smazána');
-    }
+    async function confirmClearAll() {
+      if (!confirm('Opravdu chcete smazat všechny své záznamy z databáze?')) return;
 
-    function getDemoData() {
-      const demo = [];
-      const now = new Date();
+      try {
+        const { error } = await db
+          .from('doses')
+          .delete()
+          .eq('user_id', currentUserId);
 
-      for (let i = 0; i < 4; i++) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        d.setHours(9 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
+        if (error) throw error;
 
-        demo.push({
-          id: 'demo_' + i,
-          amount: parseFloat((1.5 + Math.random() * 1.5).toFixed(2)),
-          note: i === 0 ? 'Ranní soustředění' : '',
-          timestamp: d.toISOString()
-        });
+        logs = [];
+        renderAll();
+        closeExportModal();
+        showToast('Všechny záznamy byly smazány');
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba při mazání záznamů');
       }
-      return demo;
     }
+
+    // Spuštění autentizační kontroly a inicializace aplikace
+    checkAuth();
   </script>
 </body>
 </html>
