@@ -110,6 +110,33 @@
     input[type="time"], input[type="date"] {
       color-scheme: dark;
     }
+
+    /* RANK Glow efekty */
+    .rank-glow-bronze {
+      box-shadow: 0 0 25px rgba(217, 119, 6, 0.35);
+      border-color: rgba(217, 119, 6, 0.5);
+    }
+    .rank-glow-silver {
+      box-shadow: 0 0 25px rgba(148, 163, 184, 0.35);
+      border-color: rgba(148, 163, 184, 0.5);
+    }
+    .rank-glow-gold {
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.45);
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+    .rank-glow-platina {
+      box-shadow: 0 0 35px rgba(45, 212, 191, 0.5);
+      border-color: rgba(45, 212, 191, 0.7);
+    }
+    .rank-glow-diamond {
+      box-shadow: 0 0 45px rgba(168, 85, 247, 0.6), 0 0 20px rgba(59, 130, 246, 0.5);
+      border-color: rgba(192, 132, 252, 0.8);
+      animation: diamond-pulse 2.5s infinite alternate;
+    }
+    @keyframes diamond-pulse {
+      0% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.5), 0 0 15px rgba(56, 189, 248, 0.4); }
+      100% { box-shadow: 0 0 45px rgba(217, 70, 239, 0.75), 0 0 25px rgba(96, 165, 250, 0.6); }
+    }
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
@@ -125,7 +152,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95" title="Zobrazit Changelog">
-              v0.9_3
+              v0.9_4
             </button>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Up to date</p>
@@ -133,8 +160,10 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2" title="Můj profil">
-          <i class="fa-solid fa-user text-xs"></i>
+        <!-- Tlačítko Profilu s fotkou nebo ikonou -->
+        <button onclick="openProfileModal()" id="header-avatar-btn" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-all overflow-hidden p-1" title="Můj profil">
+          <img id="header-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover rounded-lg hidden">
+          <i id="header-avatar-icon" class="fa-solid fa-user text-xs"></i>
         </button>
 
         <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2" title="Nastavení a správa">
@@ -438,24 +467,69 @@
 
   </div>
 
-  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-5 shadow-2xl relative flex flex-col items-center text-center">
-      <button onclick="closeProfileModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base">
+  <!-- Vylepšený Profile Modal (Rank, Datum, Lokální Fotka) -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-3xl p-5 shadow-2xl relative flex flex-col items-center text-center overflow-hidden">
+      
+      <!-- Close Button -->
+      <button onclick="closeProfileModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <div class="w-14 h-14 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-2xl mb-3 shadow-lg shadow-brand-500/10">
-        <i class="fa-solid fa-user-check"></i>
+      <!-- Avatar & Photo Upload Wrapper -->
+      <div class="relative group my-1">
+        <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 rank-glow-bronze bg-darkbg">
+          <img id="modal-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+          <i id="modal-avatar-icon" class="fa-solid fa-user text-2xl text-slate-400"></i>
+        </div>
+
+        <!-- Upload Camera Overlay Button -->
+        <label for="avatar-file-input" class="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-cardbg border border-borderbg text-brand-400 hover:text-white hover:bg-brand-500 transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-90" title="Nahrát profilovou fotku">
+          <i class="fa-solid fa-camera text-xs"></i>
+          <input type="file" id="avatar-file-input" accept="image/*" onchange="handleAvatarUpload(event)" class="hidden">
+        </label>
       </div>
 
-      <h3 class="text-sm font-bold text-white mb-0.5">Uživatelský profil</h3>
-      <p class="text-[11px] text-slate-400 mb-3">Jste přihlášeni jako:</p>
+      <!-- Delete photo link if exists -->
+      <button id="btn-remove-avatar" onclick="removeAvatar()" class="text-[10px] text-slate-500 hover:text-red-400 mt-1 mb-2 hidden transition-colors">
+        <i class="fa-solid fa-trash-can text-[9px] mr-1"></i> Odstranit fotku
+      </button>
 
-      <div class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-3 mb-4">
-        <p id="profile-user-email" class="text-xs font-mono font-bold text-brand-400 truncate">načítám...</p>
+      <!-- User Email & Join Date -->
+      <h3 id="profile-user-email" class="text-sm font-bold text-white truncate max-w-[240px] mt-1 mb-0.5">načítám...</h3>
+      <p class="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 mb-3.5">
+        <i class="fa-regular fa-calendar-check text-[10px] text-brand-400"></i> Členem od: <strong id="profile-created-date" class="text-slate-300 font-semibold">--</strong>
+      </p>
+
+      <!-- RANK Card Badge -->
+      <div id="profile-rank-card" class="w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90">
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span id="rank-icon-wrapper" class="w-6 h-6 rounded-lg flex items-center justify-center text-xs">
+              <i id="rank-icon" class="fa-solid fa-shield"></i>
+            </span>
+            <div>
+              <p class="text-[9px] uppercase font-bold tracking-widest text-slate-400 leading-none">Aktuální Rank</p>
+              <h4 id="rank-name" class="text-xs font-black tracking-wide uppercase leading-tight mt-0.5">BRONZE</h4>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="rank-total-grams" class="text-xs font-extrabold text-white font-mono">0.00</span> <span class="text-[10px] text-slate-400">g celkem</span>
+          </div>
+        </div>
+
+        <!-- Rank Progress Bar -->
+        <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-borderbg/80 mt-2">
+          <div id="rank-progress-bar" class="h-full rounded-full transition-all duration-700" style="width: 0%;"></div>
+        </div>
+        <div class="flex justify-between items-center text-[9px] text-slate-400 mt-1 font-medium">
+          <span id="rank-progress-current">0 g</span>
+          <span id="rank-progress-next">do Silver: 20 g</span>
+        </div>
       </div>
 
-      <button onclick="handleLogout()" class="w-full py-2.5 bg-red-500/15 hover:bg-red-500/25 text-red-400 font-bold text-xs rounded-xl border border-red-500/30 flex items-center justify-center gap-2 transition-all active:scale-98">
+      <!-- Log out button -->
+      <button onclick="handleLogout()" class="w-full py-2.5 bg-red-500/15 hover:bg-red-500/25 text-red-400 font-bold text-xs rounded-2xl border border-red-500/30 flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer">
         <i class="fa-solid fa-right-from-bracket text-xs"></i> Odhlásit se
       </button>
     </div>
@@ -547,9 +621,14 @@
             <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
               <span><strong>v0.9_2</strong> -> Zprovoznění <strong>zápisu dat</strong> systému & SQL databáze.</span>
-            </li><li class="flex items-start gap-1.5">
+            </li>
+            <li class="flex items-start gap-1.5">
               <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
               <span><strong>v0.9_3</strong> -> Zavedení <strong>leaderboard</strong>.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span><strong>v0.9_4</strong> -> Vylepšený <strong>profil uživatele</strong> s fotkou a <strong>RANK systémem</strong>.</span>
             </li>
           </ul>
         </div>
@@ -739,6 +818,7 @@
     
     let currentUserEmail = "";
     let currentUserId = null;
+    let currentUserCreatedAt = null;
     let logs = [];
     let targetIntervalHours = 4.0;
     let chartInstance = null;
@@ -766,11 +846,19 @@
 
       currentUserId = session.user.id;
       currentUserEmail = session.user.email;
+      currentUserCreatedAt = session.user.created_at;
+
       document.getElementById('profile-user-email').textContent = currentUserEmail;
+      if (currentUserCreatedAt) {
+        const d = new Date(currentUserCreatedAt);
+        document.getElementById('profile-created-date').textContent = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+      }
+
+      // Načtení profilového avataru
+      loadLocalAvatar();
       
       const bodyEl = document.getElementById('main-body');
       
-      // Pokud přicházíme zpět z leaderboardu, spustíme slide-in zleva a přepneme rovnou na tab statistik
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('from') === 'leaderboard') {
         bodyEl.classList.add('page-slide-in-left');
@@ -778,7 +866,6 @@
 
       bodyEl.style.display = 'flex';
 
-      // Inicializace aplikace po přihlášení
       loadSettings();
       setCurrentTime();
       setQuickAmount(2.50);
@@ -789,7 +876,199 @@
       }
     }
 
+    // ==========================================
+    // LOGIKA PROFILU, AVATARU & RANKU
+    // ==========================================
+
+    function getAvatarStorageKey() {
+      return `grammi_avatar_${currentUserId || 'default'}`;
+    }
+
+    function loadLocalAvatar() {
+      const savedAvatar = localStorage.getItem(getAvatarStorageKey());
+      const headerImg = document.getElementById('header-avatar-img');
+      const headerIcon = document.getElementById('header-avatar-icon');
+      const modalImg = document.getElementById('modal-avatar-img');
+      const modalIcon = document.getElementById('modal-avatar-icon');
+      const removeBtn = document.getElementById('btn-remove-avatar');
+
+      if (savedAvatar) {
+        headerImg.src = savedAvatar;
+        headerImg.classList.remove('hidden');
+        headerIcon.classList.add('hidden');
+
+        modalImg.src = savedAvatar;
+        modalImg.classList.remove('hidden');
+        modalIcon.classList.add('hidden');
+
+        removeBtn.classList.remove('hidden');
+      } else {
+        headerImg.src = '';
+        headerImg.classList.add('hidden');
+        headerIcon.classList.remove('hidden');
+
+        modalImg.src = '';
+        modalImg.classList.add('hidden');
+        modalIcon.classList.remove('hidden');
+
+        removeBtn.classList.add('hidden');
+      }
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Maximální velikost 2MB pro lokální úložiště
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Obrázek je moc velký (max 2MB)');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+        try {
+          localStorage.setItem(getAvatarStorageKey(), base64Data);
+          loadLocalAvatar();
+          showToast('Profilová fotka uložena');
+        } catch (err) {
+          showToast('Nepodařilo se uložit fotku do úložiště');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeAvatar() {
+      localStorage.removeItem(getAvatarStorageKey());
+      loadLocalAvatar();
+      showToast('Profilová fotka odstraněna');
+    }
+
+    function updateRankBadge() {
+      const totalGrams = logs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
+      
+      const rankCard = document.getElementById('profile-rank-card');
+      const rankAvatarFrame = document.getElementById('modal-avatar-frame');
+      const rankName = document.getElementById('rank-name');
+      const rankIcon = document.getElementById('rank-icon');
+      const rankIconWrapper = document.getElementById('rank-icon-wrapper');
+      const rankTotalGramsEl = document.getElementById('rank-total-grams');
+      const rankProgressBar = document.getElementById('rank-progress-bar');
+      const rankProgressCurrent = document.getElementById('rank-progress-current');
+      const rankProgressNext = document.getElementById('rank-progress-next');
+
+      rankTotalGramsEl.textContent = totalGrams.toFixed(2);
+      rankProgressCurrent.textContent = `${totalGrams.toFixed(1)} g`;
+
+      // Reset tříd glow efektů
+      rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
+      rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90";
+
+      let rankData = {
+        name: "BRONZE",
+        icon: "fa-shield",
+        colorClass: "text-amber-600",
+        bgIconClass: "bg-amber-600/20 text-amber-500",
+        borderClass: "border-amber-700/50",
+        glowClass: "rank-glow-bronze",
+        barColor: "bg-gradient-to-r from-amber-700 to-amber-500",
+        min: 0,
+        max: 20,
+        nextName: "Silver"
+      };
+
+      if (totalGrams <= 20) {
+        rankData = {
+          name: "BRONZE",
+          icon: "fa-shield",
+          colorClass: "text-amber-600",
+          bgIconClass: "bg-amber-600/20 text-amber-500",
+          borderClass: "border-amber-700/50",
+          glowClass: "rank-glow-bronze",
+          barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
+          min: 0,
+          max: 20,
+          nextName: "Silver"
+        };
+      } else if (totalGrams <= 50) {
+        rankData = {
+          name: "SILVER",
+          icon: "fa-medal",
+          colorClass: "text-slate-300",
+          bgIconClass: "bg-slate-300/20 text-slate-200",
+          borderClass: "border-slate-400/50",
+          glowClass: "rank-glow-silver",
+          barColor: "bg-gradient-to-r from-slate-400 to-slate-200",
+          min: 20,
+          max: 50,
+          nextName: "Gold"
+        };
+      } else if (totalGrams <= 100) {
+        rankData = {
+          name: "GOLD",
+          icon: "fa-crown",
+          colorClass: "text-amber-400",
+          bgIconClass: "bg-amber-400/20 text-amber-300",
+          borderClass: "border-amber-400/60",
+          glowClass: "rank-glow-gold",
+          barColor: "bg-gradient-to-r from-amber-500 to-amber-300",
+          min: 50,
+          max: 100,
+          nextName: "Platina"
+        };
+      } else if (totalGrams <= 500) {
+        rankData = {
+          name: "PLATINA",
+          icon: "fa-gem",
+          colorClass: "text-brand-400",
+          bgIconClass: "bg-brand-500/20 text-brand-300",
+          borderClass: "border-brand-400/60",
+          glowClass: "rank-glow-platina",
+          barColor: "bg-gradient-to-r from-teal-500 to-brand-400",
+          min: 100,
+          max: 500,
+          nextName: "Diamond"
+        };
+      } else {
+        rankData = {
+          name: "DIAMOND",
+          icon: "fa-bolt-lightning",
+          colorClass: "text-purple-400",
+          bgIconClass: "bg-purple-500/25 text-purple-300",
+          borderClass: "border-purple-400/70",
+          glowClass: "rank-glow-diamond",
+          barColor: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500",
+          min: 500,
+          max: 1000,
+          nextName: "MAX RANK"
+        };
+      }
+
+      // Vykreslení
+      rankName.textContent = rankData.name;
+      rankName.className = `text-xs font-black tracking-wide uppercase leading-tight mt-0.5 ${rankData.colorClass}`;
+      rankIcon.className = `fa-solid ${rankData.icon}`;
+      rankIconWrapper.className = `w-6 h-6 rounded-lg flex items-center justify-center text-xs ${rankData.bgIconClass}`;
+      
+      rankAvatarFrame.classList.add(rankData.glowClass);
+      rankCard.classList.add(rankData.borderClass);
+
+      // Výpočet procenta postupu
+      let pct = 100;
+      if (totalGrams < rankData.max) {
+        pct = Math.max(5, Math.min(100, Math.round(((totalGrams - rankData.min) / (rankData.max - rankData.min)) * 100)));
+        rankProgressNext.textContent = `do ${rankData.nextName}: ${rankData.max} g`;
+      } else {
+        rankProgressNext.textContent = `Dosaženo maxima! 👑`;
+      }
+
+      rankProgressBar.className = `h-full rounded-full transition-all duration-700 ${rankData.barColor}`;
+      rankProgressBar.style.width = `${pct}%`;
+    }
+
     function openProfileModal() {
+      updateRankBadge();
       document.getElementById('profile-modal').classList.remove('hidden');
     }
 
@@ -1126,6 +1405,7 @@
       renderStats();
       renderLogHistory();
       renderStatusCircle();
+      updateRankBadge();
       if (activeTab === 'stats') renderChart();
     }
 
@@ -1314,7 +1594,7 @@
 
           <div class="flex items-center gap-2">
             ${log.note ? `<span class="text-[10px] text-slate-400 max-w-[110px] truncate" title="${log.note}">${log.note}</span>` : ''}
-            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1">
+            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1 cursor-pointer">
               <i class="fa-regular fa-trash-can text-xs"></i>
             </button>
           </div>
