@@ -237,7 +237,6 @@
         attributionControl: false
       }).setView([49.8175, 15.4730], 7);
 
-      // Oficiální čistá tmavá vrstva CartoDB Dark Matter (bez agresivních CSs filtrů)
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         minZoom: 6,
@@ -316,14 +315,16 @@
     }
 
     // Smazání pouze polohy dané dávky (dávka zůstane v DB)
-    async function deleteDoseLocation(id) {
+    window.deleteDoseLocation = async function(id) {
       if (!confirm('Opravdu chcete odebrat záznam o poloze pro tuto dávku? Samotná dávka v historii zůstane.')) return;
 
       try {
-        const { error } = await db
+        const { data, error } = await db
           .from('doses')
           .update({ latitude: null, longitude: null })
-          .eq('id', id);
+          .eq('id', id)
+          .eq('user_id', currentUserId)
+          .select();
 
         if (error) throw error;
 
@@ -331,9 +332,9 @@
         await loadDoseMarkers();
       } catch (err) {
         console.error('Chyba při odstraňování lokace:', err);
-        alert('Nepodařilo se odebrat lokaci.');
+        alert('Nepodařilo se odebrat lokaci. Ujistěte se, že máte v Supabase povoleno pravidlo UPDATE pro tabulku doses.');
       }
-    }
+    };
 
     function resetMapBounds() {
       if (markersLayer && markersLayer.getLayers().length > 0) {
