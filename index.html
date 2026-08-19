@@ -178,11 +178,31 @@
   <!-- Načtení Supabase JS knihovny -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Načtení Supabase JS knihovny -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Konfigurace pro trvalé uložení na mobilních zařízeních / iOS WebApp
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+
+    // OKAMŽITÁ KONTROLA: Pokud už je uživatel přihlášen, přesměrovat rovnou na dashboard
+    async function checkExistingSession() {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        window.location.replace("dashboard.html");
+      }
+    }
+    checkExistingSession();
 
     async function handleLogin(event) {
       event.preventDefault();
@@ -213,14 +233,11 @@
         }
 
         if (data.session) {
-          sessionStorage.setItem("authToken", data.session.access_token);
-          sessionStorage.setItem("currentUser", data.user.email);
-
           showSuccess("Přihlášení úspěšné! Vstupuji...");
 
           setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 700);
+            window.location.replace("dashboard.html");
+          }, 400);
         }
       } catch (err) {
         showError("Chyba při komunikaci s databází.");

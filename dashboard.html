@@ -985,7 +985,14 @@
       'dev@grammi.app'
     ];
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
     const SETTINGS_KEY = 'grammi_settings_v1';
     
     let currentUserEmail = "";
