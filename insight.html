@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Grammi – AI Insights & Predikce</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            },
+            darkbg: '#0b0f17',
+            cardbg: '#141c2b',
+            borderbg: '#1e293b'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #f1f5f9;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #141c2b;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .ai-glow {
+      box-shadow: 0 0 25px rgba(45, 212, 191, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="h-dvh flex justify-center p-2.5 pb-5 sm:p-4 select-none antialiased">
+
+  <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+
+    <!-- Horní navigační lišta -->
+    <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <button onclick="window.location.href='dashboard.html'" class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors active:scale-95 cursor-pointer" title="Zpět na Dashboard">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+        <div>
+          <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
+            AI Insights
+            <span class="text-brand-400 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20">
+              <i class="fa-solid fa-brain mr-0.5"></i> Neural Engine
+            </span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Predikce a analýza trendů</p>
+        </div>
+      </div>
+
+      <button onclick="analyzeData()" class="w-9 h-9 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400 hover:bg-brand-500/25 transition-all active:scale-95 cursor-pointer" title="Přepočítat">
+        <i id="reload-icon" class="fa-solid fa-rotate text-xs"></i>
+      </button>
+    </header>
+
+    <!-- Hlavní obsah -->
+    <div class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5">
+
+      <!-- AI Status & Trend Karta -->
+      <div class="bg-cardbg border border-brand-500/30 rounded-2xl p-3.5 ai-glow shrink-0 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Směr vývoje trendu
+          </span>
+          <span id="trend-badge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">
+            Počítám...
+          </span>
+        </div>
+
+        <div class="flex items-baseline gap-2">
+          <p id="trend-delta" class="text-2xl font-black text-white leading-tight">-- %</p>
+          <span class="text-xs text-slate-400 font-medium">oproti předchozímu cyklu</span>
+        </div>
+
+        <p id="ai-summary-text" class="text-xs text-slate-300 mt-2 leading-relaxed bg-darkbg/60 p-2.5 rounded-xl border border-borderbg">
+          Analyzuji historická data a časové intervaly...
+        </p>
+      </div>
+
+      <!-- Metriky & Predikce -->
+      <div class="grid grid-cols-2 gap-2 shrink-0">
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
+            Predikce na zítra <i class="fa-solid fa-forward text-brand-400 text-[10px]"></i>
+          </p>
+          <p class="text-lg font-black text-white mt-0.5"><span id="metric-forecast-tomorrow">--</span> <span class="text-xs text-brand-400">g</span></p>
+          <p class="text-[9px] text-slate-500 mt-0.5">na základě lineární regrese</p>
+        </div>
+
+        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
+            Typický odstup <i class="fa-solid fa-clock-rotate-left text-brand-400 text-[10px]"></i>
+          </p>
+          <p class="text-lg font-black text-white mt-0.5"><span id="metric-optimal-interval">--</span></p>
+          <p class="text-[9px] text-slate-500 mt-0.5">medián mezi zápisy</p>
+        </div>
+      </div>
+
+      <!-- Prediktivní Graf (Historie + Výhled) -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-solid fa-chart-line text-brand-400"></i> Historie & Modelová Predikce
+          </h2>
+          <span class="text-[9px] text-slate-500 font-mono">+3 dny výhled</span>
+        </div>
+        <div class="h-36 w-full relative">
+          <canvas id="forecastChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chytrá doporučení (Pattern Recognition) -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 space-y-2 mb-1">
+        <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+          <i class="fa-solid fa-lightbulb text-amber-400"></i> Zjištěné vzorce chování
+        </h2>
+
+        <div id="patterns-list" class="space-y-1.5 text-xs text-slate-300">
+          <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2 flex items-center gap-2">
+            <i class="fa-solid fa-spinner fa-spin text-brand-400 text-xs"></i>
+            <span class="text-[11px] text-slate-400">Vyhodnocuji časové sloty a dny v týdnu...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tlačítko Zpět -->
+    <button 
+      type="button" 
+      onclick="window.location.href='dashboard.html'" 
+      class="w-full py-2.5 bg-darkbg hover:bg-slate-800 text-slate-300 font-bold rounded-xl border border-borderbg transition-all active:scale-[0.98] text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
+    >
+      <i class="fa-solid fa-house text-xs text-brand-400"></i> Návrat na hlavní panel
+    </button>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, storage: window.localStorage }
+    });
+
+    let forecastChartInstance = null;
+
+    function getDateKey(d) {
+      const date = new Date(d);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    // Lineární regrese: y = slope * x + intercept
+    function calculateLinearRegression(dataPoints) {
+      const n = dataPoints.length;
+      if (n === 0) return { slope: 0, intercept: 0 };
+
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+      dataPoints.forEach((pt, i) => {
+        sumX += i;
+        sumY += pt;
+        sumXY += i * pt;
+        sumXX += i * i;
+      });
+
+      const slope = (n * sumXY - sumX * sumY) / ((n * sumXX - sumX * sumX) || 1);
+      const intercept = (sumY - slope * sumX) / n;
+      return { slope, intercept };
+    }
+
+    async function analyzeData() {
+      const reloadIcon = document.getElementById('reload-icon');
+      if (reloadIcon) reloadIcon.classList.add('fa-spin');
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      const { data, error } = await db
+        .from('doses')
+        .select('amount, timestamp')
+        .order('timestamp', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        document.getElementById('ai-summary-text').textContent = "Zatím nemáte dostatek dat pro vytvoření spolehlivé predikce. Zapište alespoň několik dávek v průběhu týdne.";
+        if (reloadIcon) reloadIcon.classList.remove('fa-spin');
+        return;
+      }
+
+      // 1. Agregace po dnech (posledních 14 dní)
+      const dailyMap = {};
+      const dayCount = 10;
+      const now = new Date();
+
+      for (let i = dayCount - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(now.getDate() - i);
+        dailyMap[getDateKey(d)] = 0;
+      }
+
+      data.forEach(item => {
+        const key = getDateKey(item.timestamp);
+        if (dailyMap.hasOwnProperty(key)) {
+          dailyMap[key] += parseFloat(item.amount) || 0;
+        }
+      });
+
+      const labels = Object.keys(dailyMap).map(k => {
+        const parts = k.split('-');
+        return `${parts[2]}.${parts[1]}.`;
+      });
+      const historyValues = Object.values(dailyMap);
+
+      // 2. Výpočet lineární predikce (+3 dny do budoucna)
+      const { slope, intercept } = calculateLinearRegression(historyValues);
+      
+      const forecastLabels = [...labels];
+      const actualChartData = [...historyValues, null, null, null];
+      const trendLine = [];
+
+      for (let i = 0; i < historyValues.length + 3; i++) {
+        const val = Math.max(0, slope * i + intercept);
+        trendLine.push(parseFloat(val.toFixed(2)));
+        if (i >= historyValues.length) {
+          const futureDate = new Date();
+          futureDate.setDate(now.getDate() + (i - historyValues.length + 1));
+          forecastLabels.push(`${futureDate.getDate()}.${futureDate.getMonth() + 1}. (P)`);
+        }
+      }
+
+      const tomorrowForecast = Math.max(0, slope * historyValues.length + intercept);
+      document.getElementById('metric-forecast-tomorrow').textContent = tomorrowForecast.toFixed(2);
+
+      // 3. Trend delta & UI vyhodnocení
+      const recentAvg = historyValues.slice(-3).reduce((a,b)=>a+b,0) / 3;
+      const previousAvg = historyValues.slice(0, 3).reduce((a,b)=>a+b,0) / 3 || 1;
+      const deltaPercent = Math.round(((recentAvg - previousAvg) / previousAvg) * 100);
+
+      const trendBadge = document.getElementById('trend-badge');
+      const trendDelta = document.getElementById('trend-delta');
+      const aiSummary = document.getElementById('ai-summary-text');
+
+      trendDelta.textContent = `${deltaPercent > 0 ? '+' : ''}${deltaPercent}%`;
+
+      if (slope > 0.08) {
+        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/30";
+        trendBadge.textContent = "Rostoucí trend";
+        aiSummary.textContent = "Použití Gcek v posledních dnech vykazuje stoupající tendenci. Doporučujeme zvýšit cílový interval mezi jednotlivými zápisy.";
+      } else if (slope < -0.08) {
+        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        trendBadge.textContent = "Klesající trend";
+        aiSummary.textContent = "Výborně! Trend má stabilně klesající křivku, daří se vám držet spotřebu pod kontrolou.";
+      } else {
+        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-brand-500/20 text-brand-300 border border-brand-500/30";
+        trendBadge.textContent = "Stabilní stav";
+        aiSummary.textContent = "Zápisy i denní součty jsou v rovnováze bez výrazných anomálií či náhlých skoků.";
+      }
+
+      // 4. Detekce patternů (časové odstupy & rizikové hodiny)
+      const intervals = [];
+      const hourCounts = new Array(24).fill(0);
+
+      for (let i = 1; i < data.length; i++) {
+        const diffMins = Math.floor((new Date(data[i].timestamp) - new Date(data[i-1].timestamp)) / (1000 * 60));
+        if (diffMins >= 20 && diffMins <= 600) intervals.push(diffMins);
+      }
+
+      data.forEach(d => {
+        const h = new Date(d.timestamp).getHours();
+        hourCounts[h]++;
+      });
+
+      const maxHour = hourCounts.indexOf(Math.max(...hourCounts));
+      let medianInterval = intervals.length > 0 ? intervals.sort((a,b)=>a-b)[Math.floor(intervals.length/2)] : 240;
+      const hInt = Math.floor(medianInterval / 60);
+      const mInt = medianInterval % 60;
+      document.getElementById('metric-optimal-interval').textContent = `${hInt}h ${mInt}m`;
+
+      const patternsContainer = document.getElementById('patterns-list');
+      patternsContainer.innerHTML = `
+        <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-fire text-amber-400 text-xs"></i>
+            <div>
+              <span class="font-bold text-white text-[11px]">Kritické časové okno</span>
+              <p class="text-[10px] text-slate-400">Nejčastější zápisy probíhají kolem <strong>${maxHour}:00 - ${maxHour+1}:00</strong>.</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Peak</span>
+        </div>
+
+        <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bullseye text-brand-400 text-xs"></i>
+            <div>
+              <span class="font-bold text-white text-[11px]">Doporučený spacing</span>
+              <p class="text-[10px] text-slate-400">Ideální odstup mezi zápisy pro udržení rovnoměrného režimu je <strong>${(medianInterval / 60).toFixed(1)} h</strong>.</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">Optimal</span>
+        </div>
+      `;
+
+      // 5. Vykreslení Chart.js s predikcí
+      renderForecastChart(forecastLabels, actualChartData, trendLine);
+
+      if (reloadIcon) reloadIcon.classList.remove('fa-spin');
+    }
+
+    function renderForecastChart(labels, actualData, trendData) {
+      const ctx = document.getElementById('forecastChart').getContext('2d');
+      if (forecastChartInstance) forecastChartInstance.destroy();
+
+      forecastChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Skutečnost (g)',
+              data: actualData,
+              borderColor: '#2dd4bf',
+              backgroundColor: 'rgba(45, 212, 191, 0.15)',
+              borderWidth: 2.5,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 3,
+              pointBackgroundColor: '#2dd4bf'
+            },
+            {
+              label: 'AI Predikce / Trend',
+              data: trendData,
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              tension: 0.1,
+              fill: false,
+              pointRadius: 2,
+              pointBackgroundColor: '#f59e0b'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 }
+            },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#2dd4bf'
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 8 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 8 } }
+            }
+          }
+        }
+      });
+    }
+
+    analyzeData();
+  </script>
+</body>
+</html>

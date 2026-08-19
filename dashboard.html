@@ -172,7 +172,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.0
+              v1.1
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -474,6 +474,21 @@
           Mapa
         </span>
         <i class="fa-solid fa-arrow-right text-[11px] text-brand-400/80"></i>
+      </button>
+
+      <!-- Tlačítko pro Insights -->
+      <button 
+        type="button"
+        onclick="navigateToPage('insight.html')"
+        class="w-full py-2.5 px-3 bg-gradient-to-r from-purple-500/15 via-brand-500/15 to-purple-500/15 hover:from-purple-500/25 hover:via-brand-500/25 hover:to-purple-500/25 border border-purple-500/30 rounded-2xl text-xs font-extrabold text-purple-300 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0 cursor-pointer mb-0"
+      >
+        <span class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+            <i class="fa-solid fa-brain text-xs"></i>
+          </span>
+          Insights <strong>[BETA]</strong>
+        </span>
+        <i class="fa-solid fa-arrow-right text-[11px] text-purple-400/80"></i>
       </button>
 
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col mb-1">
@@ -794,9 +809,24 @@
         <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.0 <strong>[BETA]</strong>
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.1
             </span>
             <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>První testování funkce <strong>Insights</strong>.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.0 <strong>[BETA]</strong>
+            </span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">BETA</span>
           </div>
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
