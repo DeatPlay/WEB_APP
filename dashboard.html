@@ -1877,7 +1877,7 @@
         if (avgEl) avgEl.textContent = avg;
       } else {
         // Celkový počet dávek v danou hodinu ze VŠECH záznamů v historii
-        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin (počet dávek)`;
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin`;
 
         // Předpočítání počtu záznamů pro každou hodinu 0-23
         const hourlyCounts = new Array(24).fill(0);
@@ -1940,7 +1940,7 @@
                   if (currentChartMode === 'weekly') {
                     return ` Celkem za den: ${context.raw.toFixed(2)} g`;
                   }
-                  return ` Vzato celkem: ${context.raw}x`;
+                  return ` Počet: ${context.raw}x`;
                 }
               }
             }
