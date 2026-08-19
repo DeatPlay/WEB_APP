@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="view-transition" content="same-origin">
+  <title>Mapa | Grammi</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            },
+            darkbg: '#0b0f17',
+            cardbg: '#141c2b',
+            borderbg: '#1e293b'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #f1f5f9;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      display: none;
+    }
+
+    /* Plynulý vstup při příchodu zprava */
+    .page-slide-in-right {
+      animation: slideInFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(35px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Plynulý odsun doprava při návratu */
+    .page-slide-out-right {
+      transform: translateX(35px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+    }
+
+    /* Tmavý filtr pro dlaždice mapy v Grammi stylu */
+    .leaflet-tile-pane {
+      filter: brightness(0.65) invert(1) contrast(3.2) hue-rotate(200deg) saturate(0.25);
+    }
+    .leaflet-container {
+      background: #0b0f17;
+    }
+
+    /* Vlastní styl ovládacích prvků Leafletu */
+    .leaflet-bar {
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 12px !important;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+    }
+    .leaflet-bar a {
+      background-color: #141c2b !important;
+      color: #2dd4bf !important;
+      border-bottom: 1px solid #1e293b !important;
+    }
+    .leaflet-bar a:hover {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+
+    /* Ambient background glow */
+    .ambient-glow {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, rgba(11, 15, 23, 0) 70%);
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
+
+  <div class="ambient-glow"></div>
+
+  <div id="mapa-wrapper" class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden relative z-10 page-slide-in-right">
+
+    <!-- Top Header -->
+    <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <button onclick="navigateBack('dashboard.html?from=leaderboard')" class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-300 hover:text-white transition-colors active:scale-95 shadow-md cursor-pointer" title="Zpět na Dashboard">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <div>
+          <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
+            Mapa
+            <span class="text-brand-400 font-bold text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center gap-1">
+              <i class="fa-solid fa-location-dot text-[9px]"></i> Česko
+            </span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Lokace a přehled</p>
+        </div>
+      </div>
+
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-lg shadow-brand-500/20">
+        <i class="fa-solid fa-map"></i>
+      </div>
+    </header>
+
+    <!-- Mapa Card -->
+    <div class="bg-cardbg border border-borderbg rounded-2xl p-2 shadow-xl flex-1 flex flex-col overflow-hidden relative">
+      
+      <div id="map" class="w-full h-full rounded-xl overflow-hidden z-0"></div>
+
+      <!-- Plovoucí rychlé tlačítko pro reset pohledu -->
+      <button 
+        onclick="resetMapBounds()" 
+        class="absolute bottom-4 right-4 z-[400] px-3 py-1.5 bg-darkbg/90 hover:bg-slate-800 border border-borderbg text-brand-400 font-bold text-xs rounded-xl shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+        title="Vycentrovat na celou ČR"
+      >
+        <i class="fa-solid fa-arrows-to-dot text-[11px]"></i> Celá ČR
+      </button>
+    </div>
+
+    <!-- Zpět Button -->
+    <button 
+      type="button"
+      onclick="navigateBack('dashboard.html?from=leaderboard')" 
+      class="w-full py-2.5 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md shrink-0 mb-1 cursor-pointer"
+    >
+      <i class="fa-solid fa-arrow-left text-brand-400 text-xs"></i> Zpět do přehledu
+    </button>
+
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+
+    let map = null;
+
+    async function checkAuth() {
+      const { data: { session }, error } = await db.auth.getSession();
+
+      if (error || !session) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      document.getElementById('main-body').style.display = 'flex';
+      initMap();
+    }
+
+    function navigateBack(url) {
+      const wrapper = document.getElementById('mapa-wrapper');
+      wrapper.classList.remove('page-slide-in-right');
+      wrapper.classList.add('page-slide-out-right');
+      setTimeout(() => {
+        window.location.href = url;
+      }, 220);
+    }
+
+    function initMap() {
+      // Vycentrování zhruba na střed České republiky
+      map = L.map('map', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView([49.8175, 15.4730], 7);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        minZoom: 6
+      }).addTo(map);
+
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 200);
+    }
+
+    function resetMapBounds() {
+      if (map) {
+        map.setView([49.8175, 15.4730], 7);
+      }
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>
