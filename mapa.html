@@ -78,31 +78,35 @@
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
-    /* Čisté tónování mapy: Plochy = #0b0f17/#141c2b, Čáry = odstíny teal / cyan */
+    /* Barevný filtr mapy přesně dle předlohy (ledově modrá pevnina, hluboká modř vody, petrolejové cesty) */
     .grammi-map-tiles {
-      filter: invert(1) hue-rotate(170deg) saturate(3.5) brightness(0.62) contrast(1.5);
+      filter: hue-rotate(155deg) saturate(2.4) contrast(1.15) brightness(0.98);
     }
     .leaflet-container {
-      background-color: #0b0f17 !important;
+      background-color: #e5f6f8 !important;
       outline: none;
     }
 
-    /* Vlastní styl ovládacích prvků Leafletu */
+    /* Styl tlačítek zoomu a ovládání ve stylu moderních bílých karet */
     .leaflet-bar {
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      border-radius: 12px !important;
+      border: none !important;
+      border-radius: 14px !important;
       overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+      box-shadow: 0 10px 25px -5px rgba(2, 44, 58, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
     }
     .leaflet-bar a {
-      background-color: #141c2b !important;
-      color: #2dd4bf !important;
-      border-bottom: 1px solid #1e293b !important;
+      background-color: #ffffff !important;
+      color: #0f766e !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+      width: 34px !important;
+      height: 34px !important;
+      line-height: 34px !important;
+      font-weight: 800 !important;
       transition: all 0.2s ease;
     }
     .leaflet-bar a:hover {
-      background-color: #1e293b !important;
-      color: #ffffff !important;
+      background-color: #f0fdfa !important;
+      color: #0d9488 !important;
     }
 
     /* Ambient background glow */
@@ -148,17 +152,17 @@
     </header>
 
     <!-- Mapa Card -->
-    <div class="bg-cardbg border border-borderbg rounded-2xl p-2 shadow-xl flex-1 flex flex-col overflow-hidden relative">
+    <div class="bg-cardbg border border-borderbg rounded-3xl p-1.5 shadow-2xl flex-1 flex flex-col overflow-hidden relative">
       
-      <div id="map" class="w-full h-full rounded-xl overflow-hidden z-0"></div>
+      <div id="map" class="w-full h-full rounded-2xl overflow-hidden z-0"></div>
 
-      <!-- Plovoucí tlačítko pro vycentrování na ČR -->
+      <!-- Plovoucí bílé tlačítko pro vycentrování na ČR -->
       <button 
         onclick="resetMapBounds()" 
-        class="absolute bottom-4 right-4 z-[400] px-3 py-1.5 bg-darkbg/90 hover:bg-slate-800 border border-borderbg text-brand-400 font-bold text-xs rounded-xl shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+        class="absolute bottom-4 right-4 z-[400] px-3.5 py-2 bg-white hover:bg-teal-50 text-teal-800 font-extrabold text-xs rounded-xl shadow-lg border border-teal-100 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
         title="Vycentrovat na celou ČR"
       >
-        <i class="fa-solid fa-arrows-to-dot text-[11px]"></i> Celá ČR
+        <i class="fa-solid fa-location-crosshairs text-teal-600 text-xs"></i> Celá ČR
       </button>
     </div>
 
@@ -219,8 +223,8 @@
         attributionControl: false
       }).setView([49.8175, 15.4730], 7);
 
-      // Použití světlé vrstvy s invertním filtrem pro temné plochy a tyrkysové linie
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      // Použití světlé vrstvy CartoDB Voyager s upraveným filtrem pro ledově modrý nádech
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         className: 'grammi-map-tiles',
         maxZoom: 19,
         minZoom: 6,
