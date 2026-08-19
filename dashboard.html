@@ -31,7 +31,7 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -297,6 +297,22 @@
               <i class="fa-solid fa-rotate-left text-[10px]"></i> Teď
             </button>
           </div>
+
+          <!-- PŘEPÍNACÍ TLAČÍTKO: Zaznamenání polohy -->
+          <button 
+            type="button" 
+            id="btn-toggle-location" 
+            onclick="toggleLocationState()" 
+            class="w-full py-2 px-3 bg-darkbg/70 hover:bg-darkbg text-slate-400 border border-borderbg rounded-xl text-xs font-semibold flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <span class="flex items-center gap-2">
+              <i id="loc-btn-icon" class="fa-solid fa-location-dot text-slate-500 text-xs transition-colors"></i>
+              <span id="loc-btn-label">Zaznamenat polohu</span>
+            </span>
+            <span id="loc-btn-status" class="text-[10px] uppercase font-bold text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 transition-all">
+              Vypnuto
+            </span>
+          </button>
 
           <button 
             type="submit" 
@@ -900,6 +916,7 @@
     let currentChartMode = 'weekly';
     let activeTab = 'input';
     let isCustomTimeSet = false;
+    let isLocationEnabled = false;
     let cachedCoords = { lat: null, lng: null };
 
     function navigateToPage(url) {
@@ -910,25 +927,69 @@
       }, 240);
     }
 
-    // Předběžné načtení polohy na pozadí
-    function triggerLocationPreFetch() {
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          cachedCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        },
-        (err) => {
-          console.warn('Geolocation pre-fetch warning:', err.message);
-        },
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
-      );
+    // Přepínání stavu tlačítka polohy
+    function toggleLocationState() {
+      if (!isLocationEnabled) {
+        // Zkusíme polohu předběžně načíst a ověřit oprávnění
+        if (!navigator.geolocation) {
+          showToast('Geolokace není v tomto prohlížeči podporována');
+          return;
+        }
+
+        // Nastavíme dočasný stav ověřování
+        const status = document.getElementById('loc-btn-status');
+        if (status) status.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i>';
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            cachedCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            isLocationEnabled = true;
+            updateLocationButtonUI();
+          },
+          (err) => {
+            console.warn('Geolocation denied/failed:', err.message);
+            isLocationEnabled = false;
+            cachedCoords = { lat: null, lng: null };
+            updateLocationButtonUI();
+            showToast('Přístup k poloze byl zamítnut nebo selhal');
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+        );
+      } else {
+        // Vypnutí
+        isLocationEnabled = false;
+        cachedCoords = { lat: null, lng: null };
+        updateLocationButtonUI();
+      }
     }
 
-    // Získání GPS souřadnic s fallbackem
+    function updateLocationButtonUI() {
+      const btn = document.getElementById('btn-toggle-location');
+      const icon = document.getElementById('loc-btn-icon');
+      const status = document.getElementById('loc-btn-status');
+
+      if (!btn || !icon || !status) return;
+
+      if (isLocationEnabled) {
+        btn.className = "w-full py-2 px-3 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded-xl text-xs font-semibold flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-sm";
+        icon.className = "fa-solid fa-location-dot text-brand-400 text-xs transition-colors";
+        status.className = "text-[10px] uppercase font-bold text-brand-300 bg-brand-500/20 px-2 py-0.5 rounded-md border border-brand-500/30 transition-all";
+        status.textContent = "Zapnuto";
+      } else {
+        btn.className = "w-full py-2 px-3 bg-darkbg/70 hover:bg-darkbg text-slate-400 border border-borderbg rounded-xl text-xs font-semibold flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer";
+        icon.className = "fa-solid fa-location-dot text-slate-500 text-xs transition-colors";
+        status.className = "text-[10px] uppercase font-bold text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 transition-all";
+        status.textContent = "Vypnuto";
+      }
+    }
+
+    // Získání GPS souřadnic s automatickým návratem do šedého stavu při chybě
     function getCurrentLocation() {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
-          resolve(cachedCoords);
+          isLocationEnabled = false;
+          updateLocationButtonUI();
+          resolve({ lat: null, lng: null });
           return;
         }
 
@@ -939,14 +1000,18 @@
           },
           (err) => {
             console.warn('Geolocation error:', err.message);
-            resolve(cachedCoords);
+            isLocationEnabled = false;
+            cachedCoords = { lat: null, lng: null };
+            updateLocationButtonUI();
+            showToast('Polohu se nepodařilo získat');
+            resolve({ lat: null, lng: null });
           },
           { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
         );
       });
     }
 
-    // Uložení nového záznamu včetně GPS souřadnic
+    // Uložení nového záznamu
     async function handleFormSubmit(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('btn-submit-dose');
@@ -966,8 +1031,11 @@
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Ukládám...';
 
-      // Získání souřadnic
-      const coords = await getCurrentLocation();
+      // Zjištění polohy POUZE pokud je tlačítko aktivní
+      let coords = { lat: null, lng: null };
+      if (isLocationEnabled) {
+        coords = await getCurrentLocation();
+      }
 
       try {
         const { data, error } = await db
@@ -1002,6 +1070,11 @@
         }
 
         resetToNow();
+        
+        // Reset stavu tlačítka polohy na výchozí (vypnuto)
+        isLocationEnabled = false;
+        updateLocationButtonUI();
+
         showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
       } catch (err) {
         console.error(err);
@@ -1075,7 +1148,6 @@
       loadSettings();
       setCurrentTime();
       setQuickAmount(2.50);
-      triggerLocationPreFetch();
       await loadLogs();
 
       if (isFromLeaderboard) {
