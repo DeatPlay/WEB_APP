@@ -7,91 +7,23 @@
 
   <!-- Tailwind CSS & FontAwesome & Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              400: '#2dd4bf',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-              900: '#134e4a',
-            },
-            darkbg: '#0b0f17',
-            cardbg: '#141c2b',
-            borderbg: '#1e293b'
-          }
-        }
-      }
-    }
-  </script>
+  <script src="tailwind.config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #0b0f17;
-      color: #f1f5f9;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Ambient glow v pozadí vycentrované na obsah */
-    .ambient-glow {
-      position: absolute;
-      width: 380px;
-      height: 380px;
-      background: radial-gradient(circle, rgba(20, 184, 166, 0.14) 0%, rgba(11, 15, 23, 0) 70%);
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .spinner {
-      border: 2px solid rgba(15, 23, 42, 0.3);
-      border-radius: 50%;
-      border-top: 2px solid #0b0f17;
-      width: 15px;
-      height: 15px;
-      animation: spin 0.8s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+  
+  <!-- Vlastní styly -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="h-dvh flex justify-center p-4 pb-6 sm:p-6 sm:pb-8 select-none antialiased relative">
 
-  <!-- Jemné ambientní podsvícení -->
   <div class="ambient-glow"></div>
 
-  <!-- Vertikální kontejner -->
   <div class="w-full max-w-sm h-full flex flex-col justify-between relative z-10">
-
-    <!-- Horní odsazení pro vyvážení -->
     <div class="shrink-0 h-4"></div>
 
-    <!-- Centrální blok (Logo + Branding + Formulář) -->
     <div class="w-full my-auto flex flex-col gap-10">
-      
-      <!-- Branding a uvítání posunuté do středu -->
       <div class="flex flex-col items-center text-center">
         <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-3xl shadow-xl shadow-brand-500/20 mb-4 transition-transform duration-300 hover:scale-105">
           <i class="fa-solid fa-mortar-pestle"></i>
@@ -106,12 +38,9 @@
         <p class="text-xs text-slate-400 font-medium mt-2">Přihlaste se ke svému účtu</p>
       </div>
 
-      <!-- Stavové hlášky -->
       <div id="alertBox" class="hidden text-xs font-semibold py-3 px-4 rounded-2xl border transition-all text-center"></div>
 
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-        
-        <!-- Vstup: E-mail -->
         <div>
           <label for="email" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
             E-mail
@@ -132,7 +61,6 @@
           </div>
         </div>
 
-        <!-- Vstup: Heslo -->
         <div>
           <label for="password" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">
             Heslo
@@ -148,12 +76,11 @@
               placeholder="••••••••" 
               required 
               autocomplete="current-password"
-            class="w-full bg-cardbg/80 border border-borderbg rounded-2xl py-3 pl-11 pr-4 text-sm font-semibold text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner"
+              class="w-full bg-cardbg/80 border border-borderbg rounded-2xl py-3 pl-11 pr-4 text-sm font-semibold text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner"
             >
           </div>
         </div>
 
-        <!-- Tlačítko přihlášení -->
         <button 
           type="submit" 
           id="submitBtn" 
@@ -162,94 +89,16 @@
           <div id="btnSpinner" class="spinner"></div>
           <span id="btnText">Přihlásit se</span>
         </button>
-
       </form>
     </div>
 
-    <!-- Spodní část: Footer -->
     <div class="text-center pb-2 shrink-0">
-      <p class="text-[11px] text-slate-500 font-medium">
-        Grammi • DP
-      </p>
+      <p class="text-[11px] text-slate-500 font-medium">Grammi • DP</p>
     </div>
-
   </div>
 
-  <!-- Načtení Supabase JS knihovny -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
-
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function handleLogin(event) {
-      event.preventDefault();
-
-      const emailInput = document.getElementById("email").value.trim();
-      const passwordInput = document.getElementById("password").value;
-      const alertBox = document.getElementById("alertBox");
-      const submitBtn = document.getElementById("submitBtn");
-      const btnSpinner = document.getElementById("btnSpinner");
-      const btnText = document.getElementById("btnText");
-
-      alertBox.className = "hidden text-xs font-semibold py-3 px-4 rounded-2xl border transition-all text-center";
-      alertBox.textContent = "";
-
-      submitBtn.disabled = true;
-      btnSpinner.style.display = "inline-block";
-      btnText.textContent = "Ověřuji...";
-
-      try {
-        const { data, error } = await db.auth.signInWithPassword({
-          email: emailInput,
-          password: passwordInput,
-        });
-
-        if (error) {
-          showError("Neplatný e-mail nebo heslo.");
-          return;
-        }
-
-        if (data.session) {
-          sessionStorage.setItem("authToken", data.session.access_token);
-          sessionStorage.setItem("currentUser", data.user.email);
-
-          showSuccess("Přihlášení úspěšné! Vstupuji...");
-
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 700);
-        }
-      } catch (err) {
-        showError("Chyba při komunikaci s databází.");
-      } finally {
-        resetButton();
-      }
-    }
-
-    function showError(message) {
-      const alertBox = document.getElementById("alertBox");
-      alertBox.textContent = message;
-      alertBox.className = "text-xs font-semibold py-3 px-4 rounded-2xl border bg-red-500/10 border-red-500/25 text-red-400 block text-center";
-    }
-
-    function showSuccess(message) {
-      const alertBox = document.getElementById("alertBox");
-      alertBox.textContent = message;
-      alertBox.className = "text-xs font-semibold py-3 px-4 rounded-2xl border bg-brand-500/10 border-brand-500/25 text-brand-400 block text-center";
-    }
-
-    function resetButton() {
-      const submitBtn = document.getElementById("submitBtn");
-      const btnSpinner = document.getElementById("btnSpinner");
-      const btnText = document.getElementById("btnText");
-
-      submitBtn.disabled = false;
-      btnSpinner.style.display = "none";
-      btnText.textContent = "Přihlásit se";
-    }
-  </script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>
