@@ -908,6 +908,87 @@
       }, 240);
     }
 
+    // Pomocná funkce pro získání GPS souřadnic ze zařízení
+    function getCurrentLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve({ lat: null, lng: null });
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => resolve({ lat: null, lng: null }),
+          { enableHighAccuracy: true, timeout: 4000, maximumAge: 60000 }
+        );
+      });
+    }
+
+    // Uložení nového záznamu včetně GPS souřadnic do databáze
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-dose');
+      const amountInput = document.getElementById('input-amount');
+      const noteInput = document.getElementById('input-note');
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) return;
+
+      let chosenDate = dateInput.value || getDateKey(new Date());
+      let chosenTime = timeInput.value || '12:00';
+      const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
+      const note = noteInput ? noteInput.value.trim() : '';
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ukládám...';
+
+      // Zjištění GPS lokace při odeslání
+      const coords = await getCurrentLocation();
+
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .insert([{
+            amount: amount,
+            note: note,
+            timestamp: customTimestamp,
+            user_id: currentUserId,
+            latitude: coords.lat,
+            longitude: coords.lng
+          }])
+          .select();
+
+        if (error) {
+          console.error('Chyba při vkládání:', error);
+          showToast('Chyba při ukládání do DB');
+          return;
+        }
+
+        if (data && data[0]) {
+          logs.unshift({
+            id: data[0].id,
+            amount: parseFloat(data[0].amount),
+            note: data[0].note || '',
+            timestamp: data[0].timestamp,
+            latitude: data[0].latitude,
+            longitude: data[0].longitude
+          });
+          sortLogs();
+          renderAll();
+        }
+
+        resetToNow();
+        showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba sítě při ukládání');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-sm"></i> Přidat';
+      }
+    }
+
     function checkDevStatus(user) {
       const isDevEmail = DEV_EMAILS.includes(user.email);
       const isDevMeta = user.user_metadata && user.user_metadata.role === 'developer';

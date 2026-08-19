@@ -54,23 +54,15 @@
       transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
     }
 
-    /* Plynulý vstup při příchodu zprava */
     .page-slide-in-right {
       animation: slideInFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     @keyframes slideInFromRight {
-      from {
-        transform: translateX(35px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      from { transform: translateX(35px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
 
-    /* Plynulý odsun doprava při návratu */
     .page-slide-out-right {
       transform: translateX(35px);
       opacity: 0;
@@ -78,7 +70,6 @@
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
-    /* Vyladěný kontrast tmavé mapy */
     .leaflet-container {
       background-color: #0b0f17 !important;
       outline: none;
@@ -87,7 +78,25 @@
       filter: contrast(1.15) brightness(0.95);
     }
 
-    /* Ovládací prvky zoomu */
+    /* Vlastní styl Popup okna na mapě */
+    .leaflet-popup-content-wrapper {
+      background: #141c2b !important;
+      color: #f1f5f9 !important;
+      border: 1px solid #1e293b !important;
+      border-radius: 16px !important;
+      box-shadow: 0 16px 35px -5px rgba(0, 0, 0, 0.75) !important;
+      padding: 4px 6px !important;
+    }
+    .leaflet-popup-tip {
+      background: #141c2b !important;
+      border: 1px solid #1e293b !important;
+    }
+    .leaflet-popup-close-button {
+      color: #64748b !important;
+      padding: 6px !important;
+    }
+
+    /* Ovládání Zoomu */
     .leaflet-bar {
       border: 1px solid rgba(255, 255, 255, 0.12) !important;
       border-radius: 14px !important;
@@ -102,14 +111,12 @@
       height: 34px !important;
       line-height: 34px !important;
       font-weight: 800 !important;
-      transition: all 0.2s ease;
     }
     .leaflet-bar a:hover {
       background-color: #1e293b !important;
       color: #ffffff !important;
     }
 
-    /* Ambient background glow */
     .ambient-glow {
       position: absolute;
       width: 320px;
@@ -137,17 +144,17 @@
         </button>
         <div>
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
-            Mapa
-            <span class="text-brand-400 font-bold text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center gap-1">
-              <i class="fa-solid fa-location-dot text-[9px]"></i> Česko
+            Mapa dávek
+            <span id="markers-count-badge" class="text-brand-400 font-bold text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center gap-1">
+              <i class="fa-solid fa-location-dot text-[9px]"></i> 0 bodů
             </span>
           </h1>
-          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Lokace a přehled</p>
+          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Zaznamenané lokace</p>
         </div>
       </div>
 
       <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-lg shadow-brand-500/20">
-        <i class="fa-solid fa-map"></i>
+        <i class="fa-solid fa-map-location-dot"></i>
       </div>
     </header>
 
@@ -155,14 +162,16 @@
     <div class="bg-cardbg border border-borderbg rounded-3xl p-1.5 shadow-2xl flex-1 flex flex-col overflow-hidden relative">
       <div id="map" class="w-full h-full rounded-2xl overflow-hidden z-0"></div>
 
-      <!-- Plovoucí tlačítko pro vycentrování na ČR -->
-      <button 
-        onclick="resetMapBounds()" 
-        class="absolute bottom-4 right-4 z-[400] px-3.5 py-2 bg-cardbg/95 hover:bg-slate-800 border border-brand-500/30 text-brand-400 font-extrabold text-xs rounded-xl shadow-2xl backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
-        title="Vycentrovat na celou ČR"
-      >
-        <i class="fa-solid fa-location-crosshairs text-brand-400 text-xs"></i> Celá ČR
-      </button>
+      <!-- Tlačítka rychlé akce na mapě -->
+      <div class="absolute bottom-4 right-4 z-[400] flex items-center gap-2">
+        <button 
+          onclick="resetMapBounds()" 
+          class="px-3 py-2 bg-cardbg/95 hover:bg-slate-800 border border-brand-500/30 text-brand-400 font-extrabold text-xs rounded-xl shadow-2xl backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+          title="Zobrazit všechny body nebo ČR"
+        >
+          <i class="fa-solid fa-expand text-brand-400 text-xs"></i> Vše
+        </button>
+      </div>
     </div>
 
     <!-- Zpět Button -->
@@ -193,6 +202,8 @@
     });
 
     let map = null;
+    let currentUserId = null;
+    let markersLayer = null;
 
     async function checkAuth() {
       try {
@@ -201,10 +212,12 @@
           window.location.replace("index.html");
           return;
         }
+        currentUserId = session.user.id;
       } catch(e) {}
 
       document.getElementById('main-body').style.display = 'flex';
       initMap();
+      await loadDoseMarkers();
     }
 
     function navigateBack(url) {
@@ -231,13 +244,73 @@
         subdomains: 'abcd'
       }).addTo(map);
 
+      markersLayer = L.featureGroup().addTo(map);
+
       setTimeout(() => {
         map.invalidateSize();
       }, 250);
     }
 
+    // Načtení bodů s GPS souřadnicemi a jejich zobrazení na mapě
+    async function loadDoseMarkers() {
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .select('id, amount, note, timestamp, latitude, longitude')
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .order('timestamp', { ascending: false });
+
+        if (error) throw error;
+
+        markersLayer.clearLayers();
+        const badge = document.getElementById('markers-count-badge');
+        if (badge) badge.innerHTML = `<i class="fa-solid fa-location-dot text-[9px]"></i> ${(data || []).length} bodů`;
+
+        if (!data || data.length === 0) return;
+
+        data.forEach(dose => {
+          const d = new Date(dose.timestamp);
+          const dateStr = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
+          const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+          // Zářící tyrkysový bod
+          const circle = L.circleMarker([dose.latitude, dose.longitude], {
+            radius: 8,
+            fillColor: '#2dd4bf',
+            color: '#134e4a',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+          });
+
+          const popupContent = `
+            <div class="text-xs p-1">
+              <div class="flex items-center justify-between gap-3 border-b border-slate-700/60 pb-1.5 mb-1.5">
+                <span class="font-extrabold text-white text-sm">${parseFloat(dose.amount).toFixed(2)} <span class="text-brand-400 font-semibold text-xs">g</span></span>
+                <span class="text-[10px] text-slate-400 font-mono">${dateStr} • ${timeStr}</span>
+              </div>
+              ${dose.note ? `<p class="text-[11px] text-slate-300 italic mb-0.5"><i class="fa-regular fa-comment text-[9px] text-brand-400 mr-1"></i>${dose.note}</p>` : ''}
+            </div>
+          `;
+
+          circle.bindPopup(popupContent);
+          markersLayer.addLayer(circle);
+        });
+
+        // Automatické přiblížení na zapsané body
+        if (data.length > 0) {
+          map.fitBounds(markersLayer.getBounds(), { padding: [40, 40], maxZoom: 14 });
+        }
+      } catch (err) {
+        console.error('Chyba při načítání bodů na mapě:', err);
+      }
+    }
+
     function resetMapBounds() {
-      if (map) {
+      if (markersLayer && markersLayer.getLayers().length > 0) {
+        map.fitBounds(markersLayer.getBounds(), { padding: [40, 40], maxZoom: 14 });
+      } else if (map) {
         map.setView([49.8175, 15.4730], 7);
       }
     }
