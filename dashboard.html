@@ -31,6 +31,7 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -899,6 +900,7 @@
     let currentChartMode = 'weekly';
     let activeTab = 'input';
     let isCustomTimeSet = false;
+    let cachedCoords = { lat: null, lng: null };
 
     function navigateToPage(url) {
       const container = document.getElementById('main-body');
@@ -908,22 +910,43 @@
       }, 240);
     }
 
-    // Pomocná funkce pro získání GPS souřadnic ze zařízení
+    // Předběžné načtení polohy na pozadí
+    function triggerLocationPreFetch() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          cachedCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        },
+        (err) => {
+          console.warn('Geolocation pre-fetch warning:', err.message);
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+      );
+    }
+
+    // Získání GPS souřadnic s fallbackem
     function getCurrentLocation() {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
-          resolve({ lat: null, lng: null });
+          resolve(cachedCoords);
           return;
         }
+
         navigator.geolocation.getCurrentPosition(
-          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-          (err) => resolve({ lat: null, lng: null }),
-          { enableHighAccuracy: true, timeout: 4000, maximumAge: 60000 }
+          (pos) => {
+            cachedCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            resolve(cachedCoords);
+          },
+          (err) => {
+            console.warn('Geolocation error:', err.message);
+            resolve(cachedCoords);
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
         );
       });
     }
 
-    // Uložení nového záznamu včetně GPS souřadnic do databáze
+    // Uložení nového záznamu včetně GPS souřadnic
     async function handleFormSubmit(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('btn-submit-dose');
@@ -941,9 +964,9 @@
       const note = noteInput ? noteInput.value.trim() : '';
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ukládám...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Ukládám...';
 
-      // Zjištění GPS lokace při odeslání
+      // Získání souřadnic
       const coords = await getCurrentLocation();
 
       try {
@@ -1052,6 +1075,7 @@
       loadSettings();
       setCurrentTime();
       setQuickAmount(2.50);
+      triggerLocationPreFetch();
       await loadLogs();
 
       if (isFromLeaderboard) {
@@ -1547,7 +1571,7 @@
       try {
         const { data, error } = await db
           .from('doses')
-          .select('id, amount, note, timestamp')
+          .select('id, amount, note, timestamp, latitude, longitude')
           .order('timestamp', { ascending: false });
 
         if (error) {
@@ -1559,7 +1583,9 @@
             id: row.id,
             amount: parseFloat(row.amount),
             note: row.note || '',
-            timestamp: row.timestamp
+            timestamp: row.timestamp,
+            latitude: row.latitude,
+            longitude: row.longitude
           }));
         }
       } catch (err) {
@@ -1572,62 +1598,6 @@
 
     function sortLogs() {
       logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      const submitBtn = document.getElementById('btn-submit-dose');
-      const amountInput = document.getElementById('input-amount');
-      const noteInput = document.getElementById('input-note');
-      const timeInput = document.getElementById('input-time');
-      const dateInput = document.getElementById('input-date');
-
-      const amount = parseFloat(amountInput.value);
-      if (isNaN(amount) || amount <= 0) return;
-
-      let chosenDate = dateInput.value || getDateKey(new Date());
-      let chosenTime = timeInput.value || '12:00';
-      const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
-      const note = noteInput ? noteInput.value.trim() : '';
-
-      submitBtn.disabled = true;
-
-      try {
-        const { data, error } = await db
-          .from('doses')
-          .insert([{
-            amount: amount,
-            note: note,
-            timestamp: customTimestamp,
-            user_id: currentUserId
-          }])
-          .select();
-
-        if (error) {
-          console.error('Chyba při vkládání:', error);
-          showToast('Chyba při ukládání do DB');
-          return;
-        }
-
-        if (data && data[0]) {
-          logs.unshift({
-            id: data[0].id,
-            amount: parseFloat(data[0].amount),
-            note: data[0].note || '',
-            timestamp: data[0].timestamp
-          });
-          sortLogs();
-          renderAll();
-        }
-
-        resetToNow();
-        showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
-      } catch (err) {
-        console.error(err);
-        showToast('Chyba sítě při ukládání');
-      } finally {
-        submitBtn.disabled = false;
-      }
     }
 
     async function deleteLog(id) {
@@ -1844,6 +1814,7 @@
           </div>
 
           <div class="flex items-center gap-2">
+            ${log.latitude ? `<i class="fa-solid fa-location-dot text-[10px] text-brand-400" title="Lokace uložena"></i>` : ''}
             ${log.note ? `<span class="text-[10px] text-slate-400 max-w-[110px] truncate" title="${log.note}">${log.note}</span>` : ''}
             <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1 cursor-pointer">
               <i class="fa-regular fa-trash-can text-xs"></i>
@@ -1997,7 +1968,9 @@
               amount: parseFloat(item.amount),
               note: item.note || '',
               timestamp: item.timestamp || new Date().toISOString(),
-              user_id: currentUserId
+              user_id: currentUserId,
+              latitude: item.latitude || null,
+              longitude: item.longitude || null
             }));
 
             const { error } = await db.from('doses').insert(rowsToInsert);
