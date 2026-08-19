@@ -54,7 +54,7 @@
       display: none;
     }
 
-    /* Plynulý vstup při příchodu zprava */
+    /* Plynulý přechod */
     .page-slide-in-right {
       animation: slideInFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
@@ -70,7 +70,6 @@
       }
     }
 
-    /* Plynulý odsun doprava při návratu */
     .page-slide-out-right {
       transform: translateX(35px);
       opacity: 0;
@@ -78,26 +77,23 @@
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
-    /* Barevný filtr mapy přesně dle předlohy (ledově modrá pevnina, hluboká modř vody, petrolejové cesty) */
-    .grammi-map-tiles {
-      filter: hue-rotate(155deg) saturate(2.4) contrast(1.15) brightness(0.98);
-    }
+    /* Čistý tmavý podklad pro mapu */
     .leaflet-container {
-      background-color: #e5f6f8 !important;
+      background-color: #0b0f17 !important;
       outline: none;
     }
 
-    /* Styl tlačítek zoomu a ovládání ve stylu moderních bílých karet */
+    /* Tlačítka zoomu */
     .leaflet-bar {
-      border: none !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
       border-radius: 14px !important;
       overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(2, 44, 58, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7) !important;
     }
     .leaflet-bar a {
-      background-color: #ffffff !important;
-      color: #0f766e !important;
-      border-bottom: 1px solid #e2e8f0 !important;
+      background-color: #141c2b !important;
+      color: #2dd4bf !important;
+      border-bottom: 1px solid #1e293b !important;
       width: 34px !important;
       height: 34px !important;
       line-height: 34px !important;
@@ -105,11 +101,11 @@
       transition: all 0.2s ease;
     }
     .leaflet-bar a:hover {
-      background-color: #f0fdfa !important;
-      color: #0d9488 !important;
+      background-color: #1e293b !important;
+      color: #ffffff !important;
     }
 
-    /* Ambient background glow */
+    /* Ambient glow */
     .ambient-glow {
       position: absolute;
       width: 320px;
@@ -153,16 +149,15 @@
 
     <!-- Mapa Card -->
     <div class="bg-cardbg border border-borderbg rounded-3xl p-1.5 shadow-2xl flex-1 flex flex-col overflow-hidden relative">
-      
       <div id="map" class="w-full h-full rounded-2xl overflow-hidden z-0"></div>
 
-      <!-- Plovoucí bílé tlačítko pro vycentrování na ČR -->
+      <!-- Plovoucí tlačítko pro vycentrování na ČR -->
       <button 
         onclick="resetMapBounds()" 
-        class="absolute bottom-4 right-4 z-[400] px-3.5 py-2 bg-white hover:bg-teal-50 text-teal-800 font-extrabold text-xs rounded-xl shadow-lg border border-teal-100 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+        class="absolute bottom-4 right-4 z-[400] px-3.5 py-2 bg-cardbg/95 hover:bg-slate-800 border border-brand-500/30 text-brand-400 font-extrabold text-xs rounded-xl shadow-2xl backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
         title="Vycentrovat na celou ČR"
       >
-        <i class="fa-solid fa-location-crosshairs text-teal-600 text-xs"></i> Celá ČR
+        <i class="fa-solid fa-location-crosshairs text-brand-400 text-xs"></i> Celá ČR
       </button>
     </div>
 
@@ -217,15 +212,14 @@
     }
 
     function initMap() {
-      // Vycentrování na střed České republiky
+      // Vycentrování na střed ČR
       map = L.map('map', {
         zoomControl: true,
         attributionControl: false
       }).setView([49.8175, 15.4730], 7);
 
-      // Použití světlé vrstvy CartoDB Voyager s upraveným filtrem pro ledově modrý nádech
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        className: 'grammi-map-tiles',
+      // Oficiální čistá tmavá vrstva CartoDB Dark Matter (bez agresivních CSS filtrů)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         minZoom: 6,
         subdomains: 'abcd'
