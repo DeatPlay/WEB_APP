@@ -78,17 +78,18 @@
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
-    /* Tmavý filtr pro dlaždice mapy v Grammi stylu */
-    .leaflet-tile-pane {
-      filter: brightness(0.65) invert(1) contrast(3.2) hue-rotate(200deg) saturate(0.25);
+    /* Grammi Theme pro mapové dlaždice - tónování do tmavě modré a teal */
+    .grammi-map-tiles {
+      filter: brightness(0.9) contrast(1.15) hue-rotate(195deg) saturate(0.65);
     }
     .leaflet-container {
-      background: #0b0f17;
+      background-color: #0b0f17 !important;
+      outline: none;
     }
 
     /* Vlastní styl ovládacích prvků Leafletu */
     .leaflet-bar {
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
       border-radius: 12px !important;
       overflow: hidden;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
@@ -97,6 +98,7 @@
       background-color: #141c2b !important;
       color: #2dd4bf !important;
       border-bottom: 1px solid #1e293b !important;
+      transition: all 0.2s ease;
     }
     .leaflet-bar a:hover {
       background-color: #1e293b !important;
@@ -150,7 +152,7 @@
       
       <div id="map" class="w-full h-full rounded-xl overflow-hidden z-0"></div>
 
-      <!-- Plovoucí rychlé tlačítko pro reset pohledu -->
+      <!-- Plovoucí tlačítko pro vycentrování na ČR -->
       <button 
         onclick="resetMapBounds()" 
         class="absolute bottom-4 right-4 z-[400] px-3 py-1.5 bg-darkbg/90 hover:bg-slate-800 border border-borderbg text-brand-400 font-bold text-xs rounded-xl shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
@@ -211,15 +213,18 @@
     }
 
     function initMap() {
-      // Vycentrování zhruba na střed České republiky
+      // Vycentrování na střed České republiky
       map = L.map('map', {
         zoomControl: true,
         attributionControl: false
       }).setView([49.8175, 15.4730], 7);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        minZoom: 6
+      // Tmavé dlaždice CartoDB s aplikovanou vlastní Grammi barevnou paletou
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
+        className: 'grammi-map-tiles',
+        maxZoom: 19,
+        minZoom: 6,
+        subdomains: 'abcd'
       }).addTo(map);
 
       setTimeout(() => {
