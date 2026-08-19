@@ -6,17 +6,165 @@
   <meta name="view-transition" content="same-origin">
   <title>Grammi</title>
 
-  <!-- Tailwind CSS & FontAwesome & Google Fonts & Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="tailwind.config.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            },
+            darkbg: '#0b0f17',
+            cardbg: '#141c2b',
+            borderbg: '#1e293b'
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Vlastní styly -->
-  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #f1f5f9;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      display: none; /* Skryto do doby, než se ověří přihlášení */
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
+    }
+
+    /* Plynulý slide-out vlevo při odchodu na Leaderboard */
+    .page-slide-out-left {
+      transform: translateX(-35px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Plynulý slide-in zleva při návratu z Leaderboardu */
+    .page-slide-in-left {
+      animation: slideInFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideInFromLeft {
+      from {
+        transform: translateX(-35px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Scrollbar customization */
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #141c2b;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    /* Apple Liquid Glass Aesthetics */
+    .liquid-glass-nav {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6),
+                  inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-pill {
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.95) 0%, rgba(20, 184, 166, 0.9) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.45),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.75),
+                  inset 0 -1px 1px 0 rgba(0, 0, 0, 0.2);
+      transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Glass Inputs */
+    input[type="time"], input[type="date"] {
+      color-scheme: dark;
+    }
+
+    /* Čisté záření samotného textu ranku v záhlaví (bez rámečku) */
+    .rank-text-glow-bronze {
+      color: #f59e0b;
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.65), 0 0 20px rgba(217, 119, 6, 0.4);
+    }
+    .rank-text-glow-silver {
+      color: #e2e8f0;
+      text-shadow: 0 0 10px rgba(226, 232, 240, 0.65), 0 0 20px rgba(148, 163, 184, 0.4);
+    }
+    .rank-text-glow-gold {
+      color: #fbbf24;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.8), 0 0 24px rgba(245, 158, 11, 0.5);
+    }
+    .rank-text-glow-platina {
+      color: #2dd4bf;
+      text-shadow: 0 0 12px rgba(45, 212, 191, 0.8), 0 0 24px rgba(20, 184, 166, 0.5);
+    }
+    .rank-text-glow-diamond {
+      color: #c084fc;
+      text-shadow: 0 0 14px rgba(192, 132, 252, 0.9), 0 0 28px rgba(168, 85, 247, 0.6), 0 0 40px rgba(56, 189, 248, 0.4);
+      animation: diamond-text-pulse 2.2s infinite alternate;
+    }
+    @keyframes diamond-text-pulse {
+      0% { text-shadow: 0 0 10px rgba(192, 132, 252, 0.7), 0 0 20px rgba(168, 85, 247, 0.5); }
+      100% { text-shadow: 0 0 18px rgba(217, 70, 239, 0.95), 0 0 32px rgba(96, 165, 250, 0.7); }
+    }
+
+    /* Glow efekty pro rámečky */
+    .rank-glow-bronze {
+      box-shadow: 0 0 15px rgba(217, 119, 6, 0.35);
+      border-color: rgba(217, 119, 6, 0.5);
+    }
+    .rank-glow-silver {
+      box-shadow: 0 0 15px rgba(148, 163, 184, 0.35);
+      border-color: rgba(148, 163, 184, 0.5);
+    }
+    .rank-glow-gold {
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.45);
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+    .rank-glow-platina {
+      box-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+      border-color: rgba(45, 212, 191, 0.7);
+    }
+    .rank-glow-diamond {
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 12px rgba(59, 130, 246, 0.5);
+      border-color: rgba(192, 132, 252, 0.8);
+      animation: diamond-pulse 2.5s infinite alternate;
+    }
+    @keyframes diamond-pulse {
+      0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 8px rgba(56, 189, 248, 0.4); }
+      100% { box-shadow: 0 0 25px rgba(217, 70, 239, 0.75), 0 0 14px rgba(96, 165, 250, 0.6); }
+    }
+  </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
 
@@ -33,6 +181,7 @@
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
               v0.9_4
             </button>
+            <!-- DEV Odznak v hlavičce -->
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
             </span>
@@ -42,15 +191,18 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <!-- Zářící text Ranku (kliknutím otevře info o všech rancích) -->
         <div onclick="openRanksModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Zobrazit všechny Ranky">
           <i id="header-rank-icon" class="fa-solid fa-shield text-[11px]"></i>
           <span id="header-rank-text" class="text-xs font-black uppercase tracking-wider leading-none">BRONZE</span>
         </div>
 
+        <!-- Tlačítko Profilu -->
         <button onclick="openProfileModal()" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors p-2 cursor-pointer active:scale-95" title="Můj profil">
           <i class="fa-solid fa-user text-xs"></i>
         </button>
 
+        <!-- Tlačítko Nastavení -->
         <button onclick="openExportModal('config')" class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-colors p-2 cursor-pointer active:scale-95" title="Nastavení a správa">
           <i class="fa-solid fa-sliders text-xs"></i>
         </button>
@@ -290,6 +442,7 @@
         </div>
       </div>
 
+      <!-- Tlačítko Leaderboard s plynulým přechodem -->
       <button 
         type="button"
         onclick="navigateToPage('leaderboard.html')"
@@ -304,6 +457,7 @@
         <i class="fa-solid fa-arrow-right text-[11px] text-amber-400/80"></i>
       </button>
 
+      <!-- Rozklikávací Historie (Accordion) -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col mb-1">
         <button 
           type="button" 
@@ -320,7 +474,8 @@
         </button>
 
         <div id="tab2-log-container-wrapper" class="hidden mt-2.5 pt-2.5 border-t border-borderbg/60">
-          <div id="tab2-log-container" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
+          <div id="tab2-log-container" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1">
+          </div>
         </div>
       </div>
     </div>
@@ -346,15 +501,19 @@
         <i class="fa-solid fa-chart-pie text-sm"></i> Statistiky
       </button>
     </nav>
+
   </div>
 
-  <!-- Modal Okna -->
+  <!-- NOVÉ OKNO: Systém Ranků & Úrovní -->
   <div id="ranks-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+      
+      <!-- Close Button -->
       <button onclick="closeRanksModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
+      <!-- Header -->
       <div class="text-center mb-3.5 shrink-0">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-brand-400 flex items-center justify-center text-slate-950 text-xl font-black mx-auto mb-2 shadow-lg shadow-amber-500/20">
           <i class="fa-solid fa-shield-halved"></i>
@@ -363,7 +522,10 @@
         <p class="text-xs text-slate-400 mt-0.5">Váš celkový součet: <strong id="ranks-modal-user-grams" class="text-brand-400 font-extrabold font-mono">0.00 g</strong></p>
       </div>
 
+      <!-- Seznam Ranků -->
       <div class="space-y-2 overflow-y-auto custom-scroll pr-1 flex-1">
+        
+        <!-- 1. BRONZE -->
         <div id="rank-card-bronze" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-amber-700/20 border border-amber-600/30 flex items-center justify-center text-amber-500 text-sm shadow-sm">
@@ -382,6 +544,7 @@
           </div>
         </div>
 
+        <!-- 2. SILVER -->
         <div id="rank-card-silver" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-slate-400/20 border border-slate-300/30 flex items-center justify-center text-slate-300 text-sm shadow-sm">
@@ -400,6 +563,7 @@
           </div>
         </div>
 
+        <!-- 3. GOLD -->
         <div id="rank-card-gold" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-sm shadow-sm">
@@ -418,6 +582,7 @@
           </div>
         </div>
 
+        <!-- 4. PLATINA -->
         <div id="rank-card-platina" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-400 text-sm shadow-sm">
@@ -436,6 +601,7 @@
           </div>
         </div>
 
+        <!-- 5. DIAMOND -->
         <div id="rank-card-diamond" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-400 text-sm shadow-sm">
@@ -453,22 +619,27 @@
             <span class="text-xs font-black text-white">501 – 1000+</span> <span class="text-[10px] text-slate-400">g</span>
           </div>
         </div>
+
       </div>
 
+      <!-- Bottom Button -->
       <button onclick="closeRanksModal()" class="w-full py-2.5 mt-3 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer shrink-0">
         Rozumím
       </button>
     </div>
   </div>
 
+  <!-- Profile Modal -->
   <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-3xl p-5 shadow-2xl relative flex flex-col items-center text-center overflow-hidden">
+      
       <button onclick="closeProfileModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
+      <!-- Avatar & Upload -->
       <div class="relative group my-1">
-        <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 rank-glow-bronze bg-darkbg">
+        <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 rank-glow-bron -bronze bg-darkbg">
           <img id="modal-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
           <i id="modal-avatar-icon" class="fa-solid fa-user text-2xl text-slate-400"></i>
         </div>
@@ -485,6 +656,7 @@
 
       <div class="flex items-center justify-center gap-1.5 mt-1 mb-0.5 max-w-full">
         <h3 id="profile-user-email" class="text-sm font-bold text-white truncate max-w-[200px]">načítám...</h3>
+        <!-- DEV Odznak v profilovém okně -->
         <span id="profile-dev-badge" class="hidden text-amber-300 bg-amber-500/20 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded uppercase items-center gap-1 shrink-0">
           <i class="fa-solid fa-code text-[8px]"></i> DEV
         </span>
@@ -494,6 +666,7 @@
         <i class="fa-regular fa-calendar-check text-[10px] text-brand-400"></i> Členem od: <strong id="profile-created-date" class="text-slate-300 font-semibold">--</strong>
       </p>
 
+      <!-- RANK Card Badge (kliknutím také otevře přehled všech ranků) -->
       <div onclick="closeProfileModal(); openRanksModal();" id="profile-rank-card" class="w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group">
         <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-1.5">
@@ -512,6 +685,7 @@
           </div>
         </div>
 
+        <!-- Rank Progress Bar -->
         <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-borderbg/80 mt-2">
           <div id="rank-progress-bar" class="h-full rounded-full transition-all duration-700" style="width: 0%;"></div>
         </div>
@@ -726,6 +900,7 @@
             </li>
           </ul>
         </div>
+
       </div>
     </div>
   </div>
@@ -798,9 +973,1051 @@
     <span id="toast-msg">Záznam byl přidán</span>
   </div>
 
-  <!-- Skripty -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <script src="dashboard.js"></script>
+
+  <script>
+    const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
+
+    // Seznam e-mailů s právy DEV odznaku
+    const DEV_EMAILS = [
+      'admin@grammi.app',
+      'dev@grammi.app'
+    ];
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SETTINGS_KEY = 'grammi_settings_v1';
+    
+    let currentUserEmail = "";
+    let currentUserId = null;
+    let currentUserCreatedAt = null;
+    let logs = [];
+    let targetIntervalHours = 4.0;
+    let chartInstance = null;
+    let currentChartMode = 'weekly';
+    let activeTab = 'input';
+    let isCustomTimeSet = false;
+
+    function navigateToPage(url) {
+      const container = document.getElementById('main-body');
+      container.classList.add('page-slide-out-left');
+      setTimeout(() => {
+        window.location.href = url;
+      }, 240);
+    }
+
+    function checkDevStatus(user) {
+      const isDevEmail = DEV_EMAILS.includes(user.email);
+      const isDevMeta = user.user_metadata && user.user_metadata.role === 'developer';
+      const isDev = isDevEmail || isDevMeta;
+
+      const headerBadge = document.getElementById('header-dev-badge');
+      const profileBadge = document.getElementById('profile-dev-badge');
+
+      if (isDev) {
+        if (headerBadge) headerBadge.classList.remove('hidden');
+        if (profileBadge) {
+          profileBadge.classList.remove('hidden');
+          profileBadge.classList.add('inline-flex');
+        }
+      } else {
+        if (headerBadge) headerBadge.classList.add('hidden');
+        if (profileBadge) {
+          profileBadge.classList.add('hidden');
+          profileBadge.classList.remove('inline-flex');
+        }
+      }
+    }
+
+    async function checkAuth() {
+      const { data: { session }, error } = await db.auth.getSession();
+
+      if (error || !session) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      currentUserId = session.user.id;
+      currentUserEmail = session.user.email;
+      currentUserCreatedAt = session.user.created_at;
+
+      document.getElementById('profile-user-email').textContent = currentUserEmail;
+      if (currentUserCreatedAt) {
+        const d = new Date(currentUserCreatedAt);
+        document.getElementById('profile-created-date').textContent = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+      }
+
+      checkDevStatus(session.user);
+      loadLocalAvatar();
+      
+      const bodyEl = document.getElementById('main-body');
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFromLeaderboard = urlParams.get('from') === 'leaderboard';
+      
+      if (isFromLeaderboard) {
+        bodyEl.classList.add('page-slide-in-left');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      bodyEl.style.display = 'flex';
+
+      loadSettings();
+      setCurrentTime();
+      setQuickAmount(2.50);
+      await loadLogs();
+
+      if (isFromLeaderboard) {
+        switchTab('stats');
+      }
+    }
+
+    // ==========================================
+    // LOGIKA PROFILU, AVATARU & RANKU
+    // ==========================================
+
+    function getAvatarStorageKey() {
+      return `grammi_avatar_${currentUserId || 'default'}`;
+    }
+
+    function loadLocalAvatar() {
+      const savedAvatar = localStorage.getItem(getAvatarStorageKey());
+      const modalImg = document.getElementById('modal-avatar-img');
+      const modalIcon = document.getElementById('modal-avatar-icon');
+      const removeBtn = document.getElementById('btn-remove-avatar');
+
+      if (savedAvatar) {
+        modalImg.src = savedAvatar;
+        modalImg.classList.remove('hidden');
+        modalIcon.classList.add('hidden');
+        removeBtn.classList.remove('hidden');
+      } else {
+        modalImg.src = '';
+        modalImg.classList.add('hidden');
+        modalIcon.classList.remove('hidden');
+        removeBtn.classList.add('hidden');
+      }
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Obrázek je moc velký (max 2MB)');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+        try {
+          localStorage.setItem(getAvatarStorageKey(), base64Data);
+          loadLocalAvatar();
+          showToast('Profilová fotka uložena');
+        } catch (err) {
+          showToast('Nepodařilo se uložit fotku do úložiště');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeAvatar() {
+      localStorage.removeItem(getAvatarStorageKey());
+      loadLocalAvatar();
+      showToast('Profilová fotka odstraněna');
+    }
+
+    function updateRankBadge() {
+      const totalGrams = logs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
+      
+      const headerRankBadge = document.getElementById('header-rank-badge');
+      const headerRankIcon = document.getElementById('header-rank-icon');
+      const headerRankText = document.getElementById('header-rank-text');
+
+      const rankCard = document.getElementById('profile-rank-card');
+      const rankAvatarFrame = document.getElementById('modal-avatar-frame');
+      const rankName = document.getElementById('rank-name');
+      const rankIcon = document.getElementById('rank-icon');
+      const rankIconWrapper = document.getElementById('rank-icon-wrapper');
+      const rankTotalGramsEl = document.getElementById('rank-total-grams');
+      const rankProgressBar = document.getElementById('rank-progress-bar');
+      const rankProgressCurrent = document.getElementById('rank-progress-current');
+      const rankProgressNext = document.getElementById('rank-progress-next');
+
+      rankTotalGramsEl.textContent = totalGrams.toFixed(2);
+      rankProgressCurrent.textContent = `${totalGrams.toFixed(1)} g`;
+
+      // Aktualizace v okně všech ranků
+      const ranksModalGrams = document.getElementById('ranks-modal-user-grams');
+      if (ranksModalGrams) ranksModalGrams.textContent = `${totalGrams.toFixed(2)} g`;
+
+      // Reset tříd
+      rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
+      rankCard.className = "w-full rounded-2xl p-3 border mb-4 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group";
+      headerRankBadge.className = "flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1";
+
+      let rankKey = 'bronze';
+      let rankData = {
+        name: "BRONZE",
+        icon: "fa-shield",
+        colorClass: "text-amber-500",
+        bgIconClass: "bg-amber-600/20 text-amber-500",
+        borderClass: "border-amber-700/50",
+        textGlowClass: "rank-text-glow-bronze",
+        glowClass: "rank-glow-bronze",
+        barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
+        min: 0,
+        max: 20,
+        nextName: "Silver"
+      };
+
+      if (totalGrams <= 20) {
+        rankKey = 'bronze';
+        rankData = {
+          name: "BRONZE",
+          icon: "fa-shield",
+          colorClass: "text-amber-500",
+          bgIconClass: "bg-amber-600/20 text-amber-500",
+          borderClass: "border-amber-700/50",
+          textGlowClass: "rank-text-glow-bronze",
+          glowClass: "rank-glow-bronze",
+          barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
+          min: 0,
+          max: 20,
+          nextName: "Silver"
+        };
+      } else if (totalGrams <= 50) {
+        rankKey = 'silver';
+        rankData = {
+          name: "SILVER",
+          icon: "fa-medal",
+          colorClass: "text-slate-300",
+          bgIconClass: "bg-slate-300/20 text-slate-200",
+          borderClass: "border-slate-400/50",
+          textGlowClass: "rank-text-glow-silver",
+          glowClass: "rank-glow-silver",
+          barColor: "bg-gradient-to-r from-slate-400 to-slate-200",
+          min: 20,
+          max: 50,
+          nextName: "Gold"
+        };
+      } else if (totalGrams <= 100) {
+        rankKey = 'gold';
+        rankData = {
+          name: "GOLD",
+          icon: "fa-crown",
+          colorClass: "text-amber-400",
+          bgIconClass: "bg-amber-400/20 text-amber-300",
+          borderClass: "border-amber-400/60",
+          textGlowClass: "rank-text-glow-gold",
+          glowClass: "rank-glow-gold",
+          barColor: "bg-gradient-to-r from-amber-500 to-amber-300",
+          min: 50,
+          max: 100,
+          nextName: "Platina"
+        };
+      } else if (totalGrams <= 500) {
+        rankKey = 'platina';
+        rankData = {
+          name: "PLATINA",
+          icon: "fa-gem",
+          colorClass: "text-brand-400",
+          bgIconClass: "bg-brand-500/20 text-brand-300",
+          borderClass: "border-brand-400/60",
+          textGlowClass: "rank-text-glow-platina",
+          glowClass: "rank-glow-platina",
+          barColor: "bg-gradient-to-r from-teal-500 to-brand-400",
+          min: 100,
+          max: 500,
+          nextName: "Diamond"
+        };
+      } else {
+        rankKey = 'diamond';
+        rankData = {
+          name: "DIAMOND",
+          icon: "fa-bolt-lightning",
+          colorClass: "text-purple-400",
+          bgIconClass: "bg-purple-500/25 text-purple-300",
+          borderClass: "border-purple-400/70",
+          textGlowClass: "rank-text-glow-diamond",
+          glowClass: "rank-glow-diamond",
+          barColor: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500",
+          min: 500,
+          max: 1000,
+          nextName: "MAX RANK"
+        };
+      }
+
+      // Vykreslení do horní lišty
+      headerRankBadge.classList.add(rankData.textGlowClass);
+      headerRankText.textContent = rankData.name;
+      headerRankIcon.className = `fa-solid ${rankData.icon} text-[11px]`;
+
+      // Vykreslení do modalu profilu
+      rankName.textContent = rankData.name;
+      rankName.className = `text-xs font-black tracking-wide uppercase leading-tight mt-0.5 ${rankData.colorClass}`;
+      rankIcon.className = `fa-solid ${rankData.icon}`;
+      rankIconWrapper.className = `w-6 h-6 rounded-lg flex items-center justify-center text-xs ${rankData.bgIconClass}`;
+      
+      rankAvatarFrame.classList.add(rankData.glowClass);
+      rankCard.classList.add(rankData.borderClass);
+
+      // Výpočet procenta postupu
+      let pct = 100;
+      if (totalGrams < rankData.max) {
+        pct = Math.max(5, Math.min(100, Math.round(((totalGrams - rankData.min) / (rankData.max - rankData.min)) * 100)));
+        rankProgressNext.textContent = `do ${rankData.nextName}: ${rankData.max} g`;
+      } else {
+        rankProgressNext.textContent = `Dosaženo maxima! 👑`;
+      }
+
+      rankProgressBar.className = `h-full rounded-full transition-all duration-700 ${rankData.barColor}`;
+      rankProgressBar.style.width = `${pct}%`;
+
+      // Nastavení aktivního tagu v okně všech ranků
+      highlightActiveRankInModal(rankKey);
+    }
+
+    function highlightActiveRankInModal(activeKey) {
+      const rankKeys = ['bronze', 'silver', 'gold', 'platina', 'diamond'];
+      
+      rankKeys.forEach(key => {
+        const card = document.getElementById(`rank-card-${key}`);
+        const tag = document.getElementById(`rank-tag-${key}`);
+        
+        if (card && tag) {
+          // Reset stylu karty
+          card.className = "bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+          tag.classList.add('hidden');
+
+          if (key === activeKey) {
+            tag.classList.remove('hidden');
+            if (key === 'bronze') card.className = "bg-darkbg/90 border border-amber-600/60 rank-glow-bronze rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'silver') card.className = "bg-darkbg/90 border border-slate-300/60 rank-glow-silver rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'gold') card.className = "bg-darkbg/90 border border-amber-400/70 rank-glow-gold rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'platina') card.className = "bg-darkbg/90 border border-brand-400/80 rank-glow-platina rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+            if (key === 'diamond') card.className = "bg-darkbg/90 border border-purple-400/90 rank-glow-diamond rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
+          }
+        }
+      });
+    }
+
+    function openRanksModal() {
+      updateRankBadge();
+      document.getElementById('ranks-modal').classList.remove('hidden');
+    }
+
+    function closeRanksModal() {
+      document.getElementById('ranks-modal').classList.add('hidden');
+    }
+
+    function openProfileModal() {
+      updateRankBadge();
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    async function handleLogout() {
+      await db.auth.signOut();
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace("index.html");
+    }
+
+    function toggleHistoryAccordion() {
+      const wrapper = document.getElementById('tab2-log-container-wrapper');
+      const icon = document.getElementById('history-accordion-icon');
+      
+      const isHidden = wrapper.classList.contains('hidden');
+      if (isHidden) {
+        wrapper.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+      } else {
+        wrapper.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    function loadSettings() {
+      try {
+        const stored = localStorage.getItem(SETTINGS_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.targetIntervalHours) {
+            targetIntervalHours = parseFloat(parsed.targetIntervalHours) || 4.0;
+          }
+        }
+      } catch(e) {}
+      
+      const inputEl = document.getElementById('setting-target-hours');
+      if (inputEl) inputEl.value = targetIntervalHours.toFixed(1);
+    }
+
+    function toggleChartMode() {
+      currentChartMode = currentChartMode === 'weekly' ? 'daily' : 'weekly';
+      renderChart();
+    }
+
+    function openExportModal(defaultSubTab = 'config') {
+      document.getElementById('settings-modal').classList.remove('hidden');
+      switchSettingsTab(defaultSubTab);
+    }
+
+    function closeExportModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function switchSettingsTab(subTab) {
+      const configTab = document.getElementById('settings-tab-config');
+      const changelogTab = document.getElementById('settings-tab-changelog');
+      const btnConfig = document.getElementById('settings-tab-btn-config');
+      const btnChangelog = document.getElementById('settings-tab-btn-changelog');
+
+      if (subTab === 'config') {
+        configTab.classList.remove('hidden');
+        changelogTab.classList.add('hidden');
+
+        btnConfig.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5";
+        btnChangelog.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+      } else {
+        configTab.classList.add('hidden');
+        changelogTab.classList.remove('hidden');
+
+        btnChangelog.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center gap-1.5";
+        btnConfig.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+      }
+    }
+
+    function updateTargetIntervalSetting(val) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num <= 0) return;
+      targetIntervalHours = num;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ targetIntervalHours }));
+      renderAll();
+    }
+
+    function setCurrentTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+      const badge = document.getElementById('current-time-badge');
+
+      if (timeInput) timeInput.value = `${hours}:${mins}`;
+      if (dateInput) dateInput.value = getDateKey(now);
+      if (badge) badge.textContent = `${hours}:${mins}`;
+    }
+
+    function openCustomTimeModal() {
+      document.getElementById('custom-time-modal').classList.remove('hidden');
+    }
+
+    function closeCustomTimeModal() {
+      document.getElementById('custom-time-modal').classList.add('hidden');
+    }
+
+    function setQuickModalDate(preset) {
+      const dateInput = document.getElementById('input-date');
+      const now = new Date();
+
+      if (preset === 'now') {
+        setCurrentTime();
+      } else if (preset === 'yesterday') {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (dateInput) dateInput.value = getDateKey(yesterday);
+      }
+    }
+
+    function confirmCustomTime() {
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+      const noteInput = document.getElementById('input-note');
+      const label = document.getElementById('custom-time-label');
+      const resetBtn = document.getElementById('btn-reset-now');
+
+      const timeVal = timeInput.value;
+      const dateVal = dateInput.value;
+      const noteVal = noteInput.value.trim();
+
+      const todayKey = getDateKey(new Date());
+      const isToday = dateVal === todayKey;
+
+      const dateObj = new Date(dateVal);
+      const dateFormatted = isToday ? 'Dnes' : `${dateObj.getDate()}.${dateObj.getMonth() + 1}.`;
+
+      let textLabel = `${dateFormatted} v ${timeVal}`;
+      if (noteVal) {
+        textLabel += ` (${noteVal})`;
+      }
+
+      label.textContent = textLabel;
+      label.classList.add('text-brand-400');
+      resetBtn.classList.remove('hidden');
+      isCustomTimeSet = true;
+
+      closeCustomTimeModal();
+    }
+
+    function resetToNow() {
+      setCurrentTime();
+      const noteInput = document.getElementById('input-note');
+      if (noteInput) noteInput.value = '';
+
+      const label = document.getElementById('custom-time-label');
+      const resetBtn = document.getElementById('btn-reset-now');
+
+      label.textContent = 'Zapsat jiný den / čas';
+      label.classList.remove('text-brand-400');
+      resetBtn.classList.add('hidden');
+      isCustomTimeSet = false;
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      const tabInput = document.getElementById('tab-input');
+      const tabStats = document.getElementById('tab-stats');
+      const btnInput = document.getElementById('nav-btn-input');
+      const btnStats = document.getElementById('nav-btn-stats');
+      const liquidPill = document.getElementById('liquid-pill');
+
+      if (tab === 'input') {
+        tabInput.classList.remove('hidden');
+        tabStats.classList.add('hidden');
+
+        liquidPill.style.transform = 'translateX(0%)';
+        btnInput.className = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950";
+        btnStats.className = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white";
+      } else {
+        tabInput.classList.add('hidden');
+        tabStats.classList.remove('hidden');
+
+        liquidPill.style.transform = 'translateX(100%)';
+        btnStats.className = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950";
+        btnInput.className = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white";
+
+        renderChart();
+      }
+    }
+
+    function setQuickAmount(val) {
+      const input = document.getElementById('input-amount');
+      const slider = document.getElementById('input-slider');
+      const numVal = parseFloat(val).toFixed(2);
+      if (input) input.value = numVal;
+      if (slider) slider.value = numVal;
+    }
+
+    function syncInputFromSlider(val) {
+      const input = document.getElementById('input-amount');
+      if (input) input.value = parseFloat(val).toFixed(2);
+    }
+
+    function syncSliderFromInput(val) {
+      const slider = document.getElementById('input-slider');
+      if (slider && val) slider.value = val;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+      }, 2200);
+    }
+
+    // Načtení dat přímo z PostgreSQL (Supabase)
+    async function loadLogs() {
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .select('id, amount, note, timestamp')
+          .order('timestamp', { ascending: false });
+
+        if (error) {
+          console.error('Chyba čtení databáze:', error);
+          showToast('Chyba při načítání databáze');
+          logs = [];
+        } else {
+          logs = (data || []).map(row => ({
+            id: row.id,
+            amount: parseFloat(row.amount),
+            note: row.note || '',
+            timestamp: row.timestamp
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+        logs = [];
+      }
+      sortLogs();
+      renderAll();
+    }
+
+    function sortLogs() {
+      logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
+    // Uložení nového záznamu do databáze
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-dose');
+      const amountInput = document.getElementById('input-amount');
+      const noteInput = document.getElementById('input-note');
+      const timeInput = document.getElementById('input-time');
+      const dateInput = document.getElementById('input-date');
+
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) return;
+
+      let chosenDate = dateInput.value || getDateKey(new Date());
+      let chosenTime = timeInput.value || '12:00';
+      const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
+      const note = noteInput ? noteInput.value.trim() : '';
+
+      submitBtn.disabled = true;
+
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .insert([{
+            amount: amount,
+            note: note,
+            timestamp: customTimestamp,
+            user_id: currentUserId
+          }])
+          .select();
+
+        if (error) {
+          console.error('Chyba při vkládání:', error);
+          showToast('Chyba při ukládání do DB');
+          return;
+        }
+
+        if (data && data[0]) {
+          logs.unshift({
+            id: data[0].id,
+            amount: parseFloat(data[0].amount),
+            note: data[0].note || '',
+            timestamp: data[0].timestamp
+          });
+          sortLogs();
+          renderAll();
+        }
+
+        resetToNow();
+        showToast(`Přidáno ${amount.toFixed(2)}g v ${chosenTime}`);
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba sítě při ukládání');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    // Smazání záznamu z databáze
+    async function deleteLog(id) {
+      try {
+        const { error } = await db
+          .from('doses')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.error('Chyba mazání:', error);
+          showToast('Chyba při mazání záznamu');
+          return;
+        }
+
+        logs = logs.filter(item => item.id !== id);
+        renderAll();
+        showToast('Záznam smazán');
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba komunikace při mazání');
+      }
+    }
+
+    function renderAll() {
+      renderStats();
+      renderLogHistory();
+      renderStatusCircle();
+      updateRankBadge();
+      if (activeTab === 'stats') renderChart();
+    }
+
+    function getDateKey(d) {
+      const date = new Date(d);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function renderStatusCircle() {
+      const circleEl = document.getElementById('status-circle');
+      const iconEl = document.getElementById('status-icon');
+      const percentEl = document.getElementById('status-percent');
+      const elapsedEl = document.getElementById('status-elapsed-time');
+      const targetIntervalEl = document.getElementById('status-target-interval');
+
+      targetIntervalEl.textContent = `${targetIntervalHours.toFixed(1)} h`;
+
+      if (logs.length === 0) {
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/20";
+        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+        percentEl.textContent = '100%';
+        elapsedEl.textContent = '--h --m';
+        return;
+      }
+
+      const latestTime = new Date(logs[0].timestamp);
+      const now = new Date();
+      const elapsedMins = Math.max(0, Math.floor((now - latestTime) / (1000 * 60)));
+      const targetMins = targetIntervalHours * 60;
+      
+      const pct = Math.min(100, Math.round((elapsedMins / targetMins) * 100));
+
+      const hElapsed = Math.floor(elapsedMins / 60);
+      const mElapsed = String(elapsedMins % 60).padStart(2, '0');
+      const timeElapsedText = `${hElapsed}h ${mElapsed}m`;
+
+      percentEl.textContent = `${pct}%`;
+      elapsedEl.textContent = timeElapsedText;
+
+      if (pct <= 50) {
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-red-500 bg-red-500/10 text-red-400 shadow-red-500/30 scale-95";
+        iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      } else if (pct <= 95) {
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-amber-400 bg-amber-400/10 text-amber-400 shadow-amber-400/30";
+        iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
+      } else {
+        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/30 scale-105";
+        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+      }
+    }
+
+    function renderStats() {
+      const todayKey = getDateKey(new Date());
+      let todayGrams = 0;
+      let todayCount = 0;
+      let lastTimeStr = '--:--';
+
+      const todayLogs = logs.filter(l => getDateKey(l.timestamp) === todayKey);
+
+      todayLogs.forEach(l => {
+        todayGrams += l.amount;
+        todayCount++;
+      });
+
+      if (todayLogs.length > 0) {
+        const latest = new Date(todayLogs[0].timestamp);
+        lastTimeStr = `${String(latest.getHours()).padStart(2, '0')}:${String(latest.getMinutes()).padStart(2, '0')}`;
+      }
+
+      document.getElementById('tab1-today-grams').textContent = todayGrams.toFixed(2);
+      document.getElementById('tab1-today-count').textContent = todayCount;
+      document.getElementById('tab1-last-time').textContent = lastTimeStr;
+      document.getElementById('tab2-stat-today').textContent = todayGrams.toFixed(2);
+
+      const chronoLogs = [...logs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      let totalIntervalMins = 0;
+      let intervalCount = 0;
+
+      for (let i = 1; i < chronoLogs.length; i++) {
+        const prev = new Date(chronoLogs[i - 1].timestamp);
+        const curr = new Date(chronoLogs[i].timestamp);
+        const diffMins = Math.floor((curr - prev) / (1000 * 60));
+
+        if (diffMins >= 30 && diffMins <= 720) {
+          totalIntervalMins += diffMins;
+          intervalCount++;
+        }
+      }
+
+      let intervalText = '--';
+      if (intervalCount > 0) {
+        const avgMins = Math.round(totalIntervalMins / intervalCount);
+        const h = Math.floor(avgMins / 60);
+        const m = avgMins % 60;
+        intervalText = h > 0 ? `${h}h ${m}m` : `${m}m`;
+      }
+      document.getElementById('tab2-stat-interval').textContent = intervalText;
+
+      let timeSinceText = '--';
+      if (logs.length > 0) {
+        const latestTime = new Date(logs[0].timestamp);
+        const now = new Date();
+        const diffMins = Math.max(0, Math.floor((now - latestTime) / (1000 * 60)));
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+
+        if (h >= 24) {
+          const days = Math.floor(h / 24);
+          timeSinceText = `${days}d zpět`;
+        } else if (h > 0) {
+          timeSinceText = `${h}h ${m}m`;
+        } else {
+          timeSinceText = `${m} min`;
+        }
+      }
+      document.getElementById('tab2-stat-time-since').textContent = timeSinceText;
+
+      let periods = { rano: 0, odpoledne: 0, vecer: 0, noc: 0 };
+
+      logs.forEach(l => {
+        const hour = new Date(l.timestamp).getHours();
+        if (hour >= 5 && hour < 11) periods.rano++;
+        else if (hour >= 11 && hour < 17) periods.odpoledne++;
+        else if (hour >= 17 && hour < 22) periods.vecer++;
+        else periods.noc++;
+      });
+
+      const totalLogs = logs.length || 1;
+      const pctRano = logs.length > 0 ? Math.round((periods.rano / totalLogs) * 100) : 0;
+      const pctOdpoledne = logs.length > 0 ? Math.round((periods.odpoledne / totalLogs) * 100) : 0;
+      const pctVecer = logs.length > 0 ? Math.round((periods.vecer / totalLogs) * 100) : 0;
+      const pctNoc = logs.length > 0 ? Math.round((periods.noc / totalLogs) * 100) : 0;
+
+      document.getElementById('pct-rano').textContent = `${pctRano}%`;
+      document.getElementById('pct-odpoledne').textContent = `${pctOdpoledne}%`;
+      document.getElementById('pct-vecer').textContent = `${pctVecer}%`;
+      document.getElementById('pct-noc').textContent = `${pctNoc}%`;
+
+      document.getElementById('bar-rano').style.width = `${pctRano}%`;
+      document.getElementById('bar-odpoledne').style.width = `${pctOdpoledne}%`;
+      document.getElementById('bar-vecer').style.width = `${pctVecer}%`;
+      document.getElementById('bar-noc').style.width = `${pctNoc}%`;
+
+      let topLabel = '--';
+      if (logs.length > 0) {
+        let maxVal = periods.rano;
+        topLabel = 'Nejčastěji: Ráno';
+        if (periods.odpoledne > maxVal) { maxVal = periods.odpoledne; topLabel = 'Nejčastěji: Odpoledne'; }
+        if (periods.vecer > maxVal) { maxVal = periods.vecer; topLabel = 'Nejčastěji: Večer'; }
+        if (periods.noc > maxVal) { maxVal = periods.noc; topLabel = 'Nejčastěji: Noc'; }
+      }
+      document.getElementById('tab2-top-window-badge').textContent = topLabel;
+    }
+
+    function renderLogHistory() {
+      const tab2Container = document.getElementById('tab2-log-container');
+      const countBadge = document.getElementById('log-count-badge');
+
+      countBadge.textContent = `${logs.length} záznamů`;
+      tab2Container.innerHTML = '';
+
+      if (logs.length === 0) {
+        tab2Container.innerHTML = `
+          <div class="text-center py-6 text-slate-500 text-xs flex flex-col items-center justify-center gap-1.5 h-full">
+            <i class="fa-solid fa-inbox text-xl text-slate-600 mb-0.5"></i>
+            Zatím nemáte žádné záznamy.
+          </div>
+        `;
+        return;
+      }
+
+      logs.forEach((log) => {
+        const d = new Date(log.timestamp);
+        const dateFormatted = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
+        const timeFormatted = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+        const el = document.createElement('div');
+        el.className = 'bg-darkbg/70 border border-borderbg/80 rounded-xl p-2 flex justify-between items-center text-xs';
+        el.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div>
+              <span class="font-bold text-white text-sm">${log.amount.toFixed(2)} <span class="text-[10px] font-normal text-slate-400">g</span></span>
+              <span class="text-[10px] text-slate-500 block">${dateFormatted} • ${timeFormatted}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            ${log.note ? `<span class="text-[10px] text-slate-400 max-w-[110px] truncate" title="${log.note}">${log.note}</span>` : ''}
+            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1 cursor-pointer">
+              <i class="fa-regular fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
+        tab2Container.appendChild(el);
+      });
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById('weeklyChart').getContext('2d');
+      const titleEl = document.getElementById('chart-title-text');
+      const labels = [];
+      const totals = [];
+
+      if (currentChartMode === 'weekly') {
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)`;
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = getDateKey(d);
+
+          const dayLabel = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
+          labels.push(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1));
+
+          const sum = logs
+            .filter(l => getDateKey(l.timestamp) === key)
+            .reduce((acc, curr) => acc + curr.amount, 0);
+
+          totals.push(sum);
+        }
+
+        const sumTotal = totals.reduce((a, b) => a + b, 0);
+        const avg = (sumTotal / 7).toFixed(2);
+        const avgEl = document.getElementById('tab2-stat-avg');
+        if (avgEl) avgEl.textContent = avg;
+      } else {
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Dnešní průběh po hodinách (g)`;
+        const todayKey = getDateKey(new Date());
+        const todayLogs = logs.filter(l => getDateKey(l.timestamp) === todayKey);
+
+        for (let hour = 0; hour < 24; hour++) {
+          labels.push(`${String(hour).padStart(2, '0')}:00`);
+          const sum = todayLogs
+            .filter(l => new Date(l.timestamp).getHours() === hour)
+            .reduce((acc, curr) => acc + curr.amount, 0);
+          totals.push(sum);
+        }
+      }
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Gramy',
+            data: totals,
+            backgroundColor: totals.map((val, idx) => {
+              if (currentChartMode === 'weekly') {
+                return idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)';
+              } else {
+                return val > 0 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.5)';
+              }
+            }),
+            borderColor: totals.map((val, idx) => {
+              if (currentChartMode === 'weekly') {
+                return idx === 6 ? '#14b8a6' : '#334155';
+              } else {
+                return val > 0 ? '#14b8a6' : '#1e293b';
+              }
+            }),
+            borderWidth: 1.5,
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#2dd4bf',
+              displayColors: false,
+              callbacks: {
+                label: (context) => ` Celkem: ${context.raw.toFixed(2)} g`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 9, weight: '600' },
+                maxRotation: 0,
+                autoSkip: currentChartMode === 'daily',
+                autoSkipPadding: 8
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `grammi_export_${getDateKey(new Date())}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Data byla vyexportována');
+    }
+
+    async function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (Array.isArray(parsed)) {
+            const rowsToInsert = parsed.map(item => ({
+              amount: parseFloat(item.amount),
+              note: item.note || '',
+              timestamp: item.timestamp || new Date().toISOString(),
+              user_id: currentUserId
+            }));
+
+            const { error } = await db.from('doses').insert(rowsToInsert);
+            if (error) throw error;
+
+            await loadLogs();
+            closeExportModal();
+            showToast('Data byla nahrána do databáze');
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Chyba při importu dat');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function confirmClearAll() {
+      if (!confirm('Opravdu chcete smazat všechny své záznamy z databáze?')) return;
+
+      try {
+        const { error } = await db
+          .from('doses')
+          .delete()
+          .eq('user_id', currentUserId);
+
+        if (error) throw error;
+
+        logs = [];
+        renderAll();
+        closeExportModal();
+        showToast('Všechny záznamy byly smazány');
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba při mazání záznamů');
+      }
+    }
+
+    // Spuštění autentizační kontroly a inicializace aplikace
+    checkAuth();
+  </script>
 </body>
 </html>
