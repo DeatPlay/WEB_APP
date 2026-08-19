@@ -274,7 +274,6 @@
           const dateStr = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
           const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
-          // Zářící tyrkysový bod
           const circle = L.circleMarker([dose.latitude, dose.longitude], {
             radius: 8,
             fillColor: '#2dd4bf',
@@ -290,7 +289,17 @@
                 <span class="font-extrabold text-white text-sm">${parseFloat(dose.amount).toFixed(2)} <span class="text-brand-400 font-semibold text-xs">g</span></span>
                 <span class="text-[10px] text-slate-400 font-mono">${dateStr} • ${timeStr}</span>
               </div>
-              ${dose.note ? `<p class="text-[11px] text-slate-300 italic mb-0.5"><i class="fa-regular fa-comment text-[9px] text-brand-400 mr-1"></i>${dose.note}</p>` : ''}
+              ${dose.note ? `<p class="text-[11px] text-slate-300 italic mb-1"><i class="fa-regular fa-comment text-[9px] text-brand-400 mr-1"></i>${dose.note}</p>` : ''}
+              
+              <div class="flex justify-end pt-1.5 mt-1 border-t border-slate-700/50">
+                <button 
+                  onclick="deleteDoseLocation('${dose.id}')" 
+                  class="text-slate-400 hover:text-red-400 text-[10px] flex items-center gap-1.5 py-1 px-2 rounded-lg bg-slate-800/60 hover:bg-red-500/10 border border-slate-700/60 hover:border-red-500/30 transition-all cursor-pointer"
+                  title="Odebrat pouze polohu"
+                >
+                  <i class="fa-regular fa-trash-can text-red-400 text-[10px]"></i> Smazat lokaci
+                </button>
+              </div>
             </div>
           `;
 
@@ -298,12 +307,31 @@
           markersLayer.addLayer(circle);
         });
 
-        // Automatické přiblížení na zapsané body
         if (data.length > 0) {
           map.fitBounds(markersLayer.getBounds(), { padding: [40, 40], maxZoom: 14 });
         }
       } catch (err) {
         console.error('Chyba při načítání bodů na mapě:', err);
+      }
+    }
+
+    // Smazání pouze polohy dané dávky (dávka zůstane v DB)
+    async function deleteDoseLocation(id) {
+      if (!confirm('Opravdu chcete odebrat záznam o poloze pro tuto dávku? Samotná dávka v historii zůstane.')) return;
+
+      try {
+        const { error } = await db
+          .from('doses')
+          .update({ latitude: null, longitude: null })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        map.closePopup();
+        await loadDoseMarkers();
+      } catch (err) {
+        console.error('Chyba při odstraňování lokace:', err);
+        alert('Nepodařilo se odebrat lokaci.');
       }
     }
 
