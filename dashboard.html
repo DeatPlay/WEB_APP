@@ -1876,19 +1876,19 @@
         const avgEl = document.getElementById('tab2-stat-avg');
         if (avgEl) avgEl.textContent = avg;
       } else {
-        // Celkový součet gramů v danou hodinu ze VŠECH dnů v historii
-        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin (g)`;
+        // Celkový počet dávek v danou hodinu ze VŠECH záznamů v historii
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin (počet dávek)`;
 
-        // Předpočítání součtů pro každou hodinu 0-23
-        const hourlySums = new Array(24).fill(0);
+        // Předpočítání počtu záznamů pro každou hodinu 0-23
+        const hourlyCounts = new Array(24).fill(0);
         logs.forEach(l => {
           const hour = new Date(l.timestamp).getHours();
-          hourlySums[hour] += (parseFloat(l.amount) || 0);
+          hourlyCounts[hour] += 1;
         });
 
         for (let hour = 0; hour < 24; hour++) {
           labels.push(`${String(hour).padStart(2, '0')}:00`);
-          totals.push(hourlySums[hour]);
+          totals.push(hourlyCounts[hour]);
         }
       }
 
@@ -1902,13 +1902,12 @@
         data: {
           labels: labels,
           datasets: [{
-            label: 'Gramy',
+            label: currentChartMode === 'weekly' ? 'Gramy' : 'Počet dávek',
             data: totals,
             backgroundColor: totals.map((val, idx) => {
               if (currentChartMode === 'weekly') {
                 return idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)';
               } else {
-                // Zvýrazní nejvytíženější hodinu výraznější barvou
                 if (val > 0 && val === maxVal) return 'rgba(45, 212, 191, 0.95)';
                 return val > 0 ? 'rgba(20, 184, 166, 0.75)' : 'rgba(30, 41, 59, 0.4)';
               }
@@ -1937,7 +1936,12 @@
               bodyColor: '#2dd4bf',
               displayColors: false,
               callbacks: {
-                label: (context) => ` Celkem v tuto hodinu: ${context.raw.toFixed(2)} g`
+                label: (context) => {
+                  if (currentChartMode === 'weekly') {
+                    return ` Celkem za den: ${context.raw.toFixed(2)} g`;
+                  }
+                  return ` Vzato celkem: ${context.raw}x`;
+                }
               }
             }
           },
@@ -1955,7 +1959,11 @@
             y: {
               beginAtZero: true,
               grid: { color: 'rgba(30, 41, 59, 0.5)' },
-              ticks: { color: '#64748b', font: { size: 9 } }
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 9 },
+                precision: currentChartMode === 'daily' ? 0 : undefined // Zajistí celá čísla na ose Y při počtu dávek
+              }
             }
           }
         }
