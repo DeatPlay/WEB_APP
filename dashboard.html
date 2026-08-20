@@ -157,6 +157,26 @@
       0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 8px rgba(56, 189, 248, 0.4); }
       100% { box-shadow: 0 0 25px rgba(217, 70, 239, 0.75), 0 0 14px rgba(96, 165, 250, 0.6); }
     }
+
+    /* Plynulá expanze pomocí CSS Grid */
+    .expandable-grid {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .expandable-grid.expanded {
+      grid-template-rows: 1fr;
+    }
+    .expandable-inner {
+      overflow: hidden;
+    }
+
+    /* Carousel posun grafů */
+    .chart-slider-track {
+      display: flex;
+      width: 200%;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
@@ -172,7 +192,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.1
+              v1.1_2
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -379,12 +399,20 @@
         </div>
       </div>
 
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+      <!-- ROZŠIŘITELNÝ WIDGET: Časová okna -->
+      <div 
+        id="widget-time-windows"
+        onclick="toggleTimeWindowsExpanded(event)"
+        class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 cursor-pointer transition-all duration-300 hover:border-brand-500/40 select-none"
+      >
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
             <i class="fa-regular fa-clock text-brand-400"></i> Časová okna
           </h2>
-          <span id="tab2-top-window-badge" class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md">--</span>
+          <div class="flex items-center gap-1.5">
+            <span id="tab2-top-window-badge" class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md transition-colors">--</span>
+            <i id="time-windows-chevron" class="fa-solid fa-chevron-down text-slate-400 text-[10px] transition-transform duration-300"></i>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2 text-[11px]">
@@ -428,22 +456,59 @@
             </div>
           </div>
         </div>
+
+        <!-- Rozbalovací sekce s animovaným Grid obalem -->
+        <div id="hourly-chart-grid" class="expandable-grid">
+          <div class="expandable-inner">
+            <div id="hourly-chart-content" class="mt-3 pt-3 border-t border-borderbg/60 opacity-0 -translate-y-2 transition-all duration-300 ease-out">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin
+              </p>
+              <div class="h-32 w-full relative">
+                <canvas id="hourlyChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+      <!-- Spodní widget: Plynule posuvný Carousel dvou grafů -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 overflow-hidden">
         <div class="flex justify-between items-center mb-1.5">
-          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 cursor-pointer" title="Přepnout graf">
+          <button 
+            type="button" 
+            onclick="switchMainChart('prev')" 
+            class="w-6 h-6 rounded-lg bg-darkbg hover:bg-slate-800 border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-all active:scale-90 cursor-pointer shadow-sm z-10" 
+            title="Přepnout graf"
+          >
             <i class="fa-solid fa-chevron-left text-[10px]"></i>
           </button>
-          <h2 id="chart-title-text" class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+          
+          <h2 id="main-chart-title" class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider transition-opacity duration-200">
             <i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)
           </h2>
-          <button type="button" onclick="toggleChartMode()" class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 cursor-pointer" title="Přepnout graf">
+
+          <button 
+            type="button" 
+            onclick="switchMainChart('next')" 
+            class="w-6 h-6 rounded-lg bg-darkbg hover:bg-slate-800 border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-all active:scale-90 cursor-pointer shadow-sm z-10" 
+            title="Přepnout graf"
+          >
             <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
-        <div class="h-28 w-full relative">
-          <canvas id="weeklyChart"></canvas>
+
+        <div class="w-full relative overflow-hidden">
+          <div id="main-chart-slider" class="chart-slider-track">
+            <!-- 1. Týdenní graf -->
+            <div class="w-1/2 h-28 pr-1 relative">
+              <canvas id="weeklyChart"></canvas>
+            </div>
+            <!-- 2. Dnešní rozpis podle hodin v gramech -->
+            <div class="w-1/2 h-28 pl-1 relative">
+              <canvas id="todayHourlyChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -650,7 +715,7 @@
     </div>
   </div>
 
-  <!-- Profile Modal (S editací Přezdívky) -->
+  <!-- Profile Modal -->
   <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-3xl p-5 shadow-2xl relative flex flex-col items-center text-center overflow-hidden">
       
@@ -658,7 +723,6 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- Avatar & Upload -->
       <div class="relative group my-1">
         <div id="modal-avatar-frame" class="w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg">
           <img id="modal-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
@@ -861,7 +925,7 @@
       <div class="space-y-2.5">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Čas dávky</label>
+            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Čas Gcka</label>
             <input 
               type="time" 
               id="input-time" 
@@ -870,7 +934,7 @@
             >
           </div>
           <div>
-            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Datum dávky</label>
+            <label class="block text-[10px] font-semibold text-slate-400 mb-1">Datum Gcka</label>
             <input 
               type="date" 
               id="input-date" 
@@ -942,11 +1006,14 @@
     let currentDisplayName = "";
     let logs = [];
     let targetIntervalHours = 4.0;
-    let chartInstance = null;
-    let currentChartMode = 'weekly';
+    let weeklyChartInstance = null;
+    let todayHourlyChartInstance = null;
+    let mainChartMode = 'weekly'; // 'weekly' | 'today_hours'
+    let hourlyChartInstance = null;
     let activeTab = 'input';
     let isCustomTimeSet = false;
     let isLocationEnabled = false;
+    let isTimeWindowsExpanded = false;
     let cachedCoords = { lat: null, lng: null };
 
     function navigateToPage(url) {
@@ -957,16 +1024,91 @@
       }, 240);
     }
 
-    // Přepínání stavu tlačítka polohy
+    // Plynulý posuvný carousel pro grafy
+    function switchMainChart(direction = 'next') {
+      const slider = document.getElementById('main-chart-slider');
+      const titleEl = document.getElementById('main-chart-title');
+
+      mainChartMode = mainChartMode === 'weekly' ? 'today_hours' : 'weekly';
+
+      titleEl.style.opacity = '0';
+      setTimeout(() => {
+        if (mainChartMode === 'weekly') {
+          titleEl.innerHTML = `<i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)`;
+        } else {
+          titleEl.innerHTML = `<i class="fa-solid fa-clock text-brand-400"></i> Dnešní Gcka (g / h)`;
+        }
+        titleEl.style.opacity = '1';
+      }, 150);
+
+      if (mainChartMode === 'weekly') {
+        slider.style.transform = 'translateX(0%)';
+      } else {
+        slider.style.transform = 'translateX(-50%)';
+      }
+    }
+
+    // Animované otevření/zavření widgetu Časová okna
+    function toggleTimeWindowsExpanded(e) {
+      if (e) e.stopPropagation();
+      isTimeWindowsExpanded = !isTimeWindowsExpanded;
+      updateTimeWindowsUI();
+    }
+
+    function closeTimeWindows() {
+      if (!isTimeWindowsExpanded) return;
+      isTimeWindowsExpanded = false;
+      updateTimeWindowsUI();
+    }
+
+    function updateTimeWindowsUI() {
+      const widget = document.getElementById('widget-time-windows');
+      const chevron = document.getElementById('time-windows-chevron');
+      const gridWrapper = document.getElementById('hourly-chart-grid');
+      const content = document.getElementById('hourly-chart-content');
+
+      if (!widget || !chevron || !gridWrapper || !content) return;
+
+      if (isTimeWindowsExpanded) {
+        gridWrapper.classList.add('expanded');
+        chevron.style.transform = 'rotate(180deg)';
+        widget.classList.add('border-brand-500/50', 'shadow-2xl');
+
+        setTimeout(() => {
+          content.classList.remove('opacity-0', '-translate-y-2');
+          content.classList.add('opacity-100', 'translate-y-0');
+          renderHourlyChart();
+        }, 80);
+      } else {
+        content.classList.remove('opacity-100', 'translate-y-0');
+        content.classList.add('opacity-0', '-translate-y-2');
+        gridWrapper.classList.remove('expanded');
+        chevron.style.transform = 'rotate(0deg)';
+        widget.classList.remove('border-brand-500/50', 'shadow-2xl');
+      }
+    }
+
+    // Zavření při kliknutí mimo
+    document.addEventListener('click', (e) => {
+      const widget = document.getElementById('widget-time-windows');
+      if (widget && !widget.contains(e.target) && isTimeWindowsExpanded) {
+        closeTimeWindows();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isTimeWindowsExpanded) {
+        closeTimeWindows();
+      }
+    });
+
     function toggleLocationState() {
       if (!isLocationEnabled) {
-        // Zkusíme polohu předběžně načíst a ověřit oprávnění
         if (!navigator.geolocation) {
           showToast('Geolokace není v tomto prohlížeči podporována');
           return;
         }
 
-        // Nastavíme dočasný stav ověřování
         const status = document.getElementById('loc-btn-status');
         if (status) status.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i>';
 
@@ -986,7 +1128,6 @@
           { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
         );
       } else {
-        // Vypnutí
         isLocationEnabled = false;
         cachedCoords = { lat: null, lng: null };
         updateLocationButtonUI();
@@ -1013,7 +1154,6 @@
       }
     }
 
-    // Získání GPS souřadnic s automatickým návratem do šedého stavu při chybě
     function getCurrentLocation() {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -1041,7 +1181,6 @@
       });
     }
 
-    // Uložení nového záznamu
     async function handleFormSubmit(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('btn-submit-dose');
@@ -1061,7 +1200,6 @@
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Ukládám...';
 
-      // Zjištění polohy POUZE pokud je tlačítko aktivní
       let coords = { lat: null, lng: null };
       if (isLocationEnabled) {
         coords = await getCurrentLocation();
@@ -1101,7 +1239,6 @@
 
         resetToNow();
         
-        // Reset stavu tlačítka polohy na výchozí (vypnuto)
         isLocationEnabled = false;
         updateLocationButtonUI();
 
@@ -1492,11 +1629,6 @@
       if (inputEl) inputEl.value = targetIntervalHours.toFixed(1);
     }
 
-    function toggleChartMode() {
-      currentChartMode = currentChartMode === 'weekly' ? 'daily' : 'weekly';
-      renderChart();
-    }
-
     function openExportModal(defaultSubTab = 'config') {
       document.getElementById('settings-modal').classList.remove('hidden');
       switchSettingsTab(defaultSubTab);
@@ -1637,7 +1769,10 @@
         btnStats.className = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-950";
         btnInput.className = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-colors duration-300 text-slate-400 hover:text-white";
 
-        renderChart();
+        renderMainCharts();
+        if (isTimeWindowsExpanded) {
+          renderHourlyChart();
+        }
       }
     }
 
@@ -1729,7 +1864,12 @@
       renderLogHistory();
       renderStatusCircle();
       updateRankBadge();
-      if (activeTab === 'stats') renderChart();
+      if (activeTab === 'stats') {
+        renderMainCharts();
+        if (isTimeWindowsExpanded) {
+          renderHourlyChart();
+        }
+      }
     }
 
     function getDateKey(d) {
@@ -1927,74 +2067,124 @@
       });
     }
 
-    function renderChart() {
-      const ctx = document.getElementById('weeklyChart').getContext('2d');
-      const titleEl = document.getElementById('chart-title-text');
+    function renderMainCharts() {
+      renderWeeklyChart();
+      renderTodayHourlyChart();
+    }
+
+    function renderWeeklyChart() {
+      const canvas = document.getElementById('weeklyChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
       const labels = [];
       const totals = [];
 
-      if (currentChartMode === 'weekly') {
-        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-column text-brand-400"></i> Týdenní přehled (g)`;
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          const key = getDateKey(d);
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = getDateKey(d);
 
-          const dayLabel = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
-          labels.push(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1));
+        const dayLabel = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
+        labels.push(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1));
 
-          const sum = logs
-            .filter(l => getDateKey(l.timestamp) === key)
-            .reduce((acc, curr) => acc + curr.amount, 0);
+        const sum = logs
+          .filter(l => getDateKey(l.timestamp) === key)
+          .reduce((acc, curr) => acc + curr.amount, 0);
 
-          totals.push(sum);
-        }
-
-        const sumTotal = totals.reduce((a, b) => a + b, 0);
-        const avg = (sumTotal / 7).toFixed(2);
-        const avgEl = document.getElementById('tab2-stat-avg');
-        if (avgEl) avgEl.textContent = avg;
-      } else {
-        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-chart-line text-brand-400"></i> Celkový přehled podle hodin`;
-
-        const hourlyCounts = new Array(24).fill(0);
-        logs.forEach(l => {
-          const hour = new Date(l.timestamp).getHours();
-          hourlyCounts[hour] += 1;
-        });
-
-        for (let hour = 0; hour < 24; hour++) {
-          labels.push(`${String(hour).padStart(2, '0')}:00`);
-          totals.push(hourlyCounts[hour]);
-        }
+        totals.push(sum);
       }
 
-      if (chartInstance) chartInstance.destroy();
+      const sumTotal = totals.reduce((a, b) => a + b, 0);
+      const avg = (sumTotal / 7).toFixed(2);
+      const avgEl = document.getElementById('tab2-stat-avg');
+      if (avgEl) avgEl.textContent = avg;
 
-      const maxVal = Math.max(...totals);
+      if (weeklyChartInstance) weeklyChartInstance.destroy();
 
-      chartInstance = new Chart(ctx, {
+      weeklyChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: labels,
           datasets: [{
-            label: currentChartMode === 'weekly' ? 'Gramy' : 'Počet dávek',
+            label: 'Gramy',
             data: totals,
-            backgroundColor: totals.map((val, idx) => {
-              if (currentChartMode === 'weekly') {
-                return idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)';
-              } else {
-                if (val > 0 && val === maxVal) return 'rgba(45, 212, 191, 0.95)';
-                return val > 0 ? 'rgba(20, 184, 166, 0.75)' : 'rgba(30, 41, 59, 0.4)';
+            backgroundColor: totals.map((val, idx) => idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)'),
+            borderColor: totals.map((val, idx) => idx === 6 ? '#14b8a6' : '#334155'),
+            borderWidth: 1.5,
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#2dd4bf',
+              displayColors: false,
+              callbacks: {
+                label: (context) => ` Celkem za den: ${context.raw.toFixed(2)} g`
               }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 9, weight: '600' } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTodayHourlyChart() {
+      const canvas = document.getElementById('todayHourlyChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const labels = [];
+      const totals = [];
+
+      const todayKey = getDateKey(new Date());
+      const hourlyGrams = new Array(24).fill(0);
+
+      logs
+        .filter(l => getDateKey(l.timestamp) === todayKey)
+        .forEach(l => {
+          const hour = new Date(l.timestamp).getHours();
+          hourlyGrams[hour] += l.amount;
+        });
+
+      for (let hour = 0; hour < 24; hour++) {
+        labels.push(`${String(hour).padStart(2, '0')}:00`);
+        totals.push(hourlyGrams[hour]);
+      }
+
+      if (todayHourlyChartInstance) todayHourlyChartInstance.destroy();
+
+      const maxVal = Math.max(...totals);
+
+      todayHourlyChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Dnešní Gcka',
+            data: totals,
+            backgroundColor: totals.map(val => {
+              if (val > 0 && val === maxVal) return 'rgba(45, 212, 191, 0.95)';
+              return val > 0 ? 'rgba(20, 184, 166, 0.75)' : 'rgba(30, 41, 59, 0.35)';
             }),
-            borderColor: totals.map((val, idx) => {
-              if (currentChartMode === 'weekly') {
-                return idx === 6 ? '#14b8a6' : '#334155';
-              } else {
-                if (val > 0 && val === maxVal) return '#2dd4bf';
-                return val > 0 ? '#14b8a6' : '#1e293b';
-              }
+            borderColor: totals.map(val => {
+              if (val > 0 && val === maxVal) return '#2dd4bf';
+              return val > 0 ? '#14b8a6' : '#1e293b';
             }),
             borderWidth: 1.5,
             borderRadius: 4,
@@ -2012,12 +2202,7 @@
               bodyColor: '#2dd4bf',
               displayColors: false,
               callbacks: {
-                label: (context) => {
-                  if (currentChartMode === 'weekly') {
-                    return ` Celkem za den: ${context.raw.toFixed(2)} g`;
-                  }
-                  return ` Počet: ${context.raw}x`;
-                }
+                label: (context) => ` Gcek: ${context.raw.toFixed(2)} g`
               }
             }
           },
@@ -2026,10 +2211,88 @@
               grid: { display: false },
               ticks: { 
                 color: '#64748b', 
-                font: { size: 9, weight: '600' },
+                font: { size: 8, weight: '600' },
                 maxRotation: 0,
-                autoSkip: currentChartMode === 'daily',
-                autoSkipPadding: 8
+                autoSkip: true,
+                autoSkipPadding: 6
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderHourlyChart() {
+      const canvas = document.getElementById('hourlyChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const labels = [];
+      const totals = [];
+
+      const hourlyCounts = new Array(24).fill(0);
+      logs.forEach(l => {
+        const hour = new Date(l.timestamp).getHours();
+        hourlyCounts[hour] += 1;
+      });
+
+      for (let hour = 0; hour < 24; hour++) {
+        labels.push(`${String(hour).padStart(2, '0')}:00`);
+        totals.push(hourlyCounts[hour]);
+      }
+
+      if (hourlyChartInstance) hourlyChartInstance.destroy();
+
+      const maxVal = Math.max(...totals);
+
+      hourlyChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Počet dávek',
+            data: totals,
+            backgroundColor: totals.map(val => {
+              if (val > 0 && val === maxVal) return 'rgba(45, 212, 191, 0.95)';
+              return val > 0 ? 'rgba(20, 184, 166, 0.75)' : 'rgba(30, 41, 59, 0.4)';
+            }),
+            borderColor: totals.map(val => {
+              if (val > 0 && val === maxVal) return '#2dd4bf';
+              return val > 0 ? '#14b8a6' : '#1e293b';
+            }),
+            borderWidth: 1.5,
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#2dd4bf',
+              displayColors: false,
+              callbacks: {
+                label: (context) => ` Počet: ${context.raw}x`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 8, weight: '600' },
+                maxRotation: 0,
+                autoSkip: true,
+                autoSkipPadding: 6
               }
             },
             y: {
@@ -2038,7 +2301,7 @@
               ticks: { 
                 color: '#64748b', 
                 font: { size: 9 },
-                precision: currentChartMode === 'daily' ? 0 : undefined
+                precision: 0
               }
             }
           }
