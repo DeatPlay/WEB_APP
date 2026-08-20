@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Grammi – AI Insights & Predikce</title>
+  <title>Grammi - Insights & Trendy</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -31,7 +31,7 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.crossorigin">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -46,7 +46,36 @@
       color: #f1f5f9;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      display: none;
+      opacity: 0;
+      transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.24s ease;
     }
+
+    /* Příjezd zprava při otevření Insights */
+    .page-slide-in-right {
+      display: flex !important;
+      animation: slideInFromRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(45px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Odjezd doprava při návratu na Dashboard */
+    .page-slide-out-right {
+      display: flex !important;
+      transform: translateX(45px) !important;
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+
     .custom-scroll::-webkit-scrollbar {
       width: 4px;
     }
@@ -57,117 +86,299 @@
       background: #334155;
       border-radius: 4px;
     }
-    .ai-glow {
-      box-shadow: 0 0 25px rgba(45, 212, 191, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    .liquid-glass-nav {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+    }
+
+    .info-drawer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .info-drawer.expanded {
+      grid-template-rows: 1fr;
+    }
+    .info-drawer-inner {
+      overflow: hidden;
     }
   </style>
 </head>
-<body class="h-dvh flex justify-center p-2.5 pb-5 sm:p-4 select-none antialiased">
+<body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
 
   <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
 
-    <!-- Horní navigační lišta -->
+    <!-- Header -->
     <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
       <div class="flex items-center gap-2.5">
-        <button onclick="window.location.href='dashboard.html'" class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors active:scale-95 cursor-pointer" title="Zpět na Dashboard">
+        <button 
+          type="button"
+          onclick="navigateToDashboard()" 
+          class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 cursor-pointer shadow-md"
+          title="Zpět na přehled"
+        >
           <i class="fa-solid fa-arrow-left text-xs"></i>
         </button>
         <div>
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
-            AI Insights
-            <span class="text-brand-400 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20">
-              <i class="fa-solid fa-brain mr-0.5"></i> Neural Engine
+            Insights & Trendy
+            <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase">
+              BETA
             </span>
           </h1>
-          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Predikce a analýza trendů</p>
+          <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Analytický engine a vzorce</p>
         </div>
       </div>
 
-      <button onclick="analyzeData()" class="w-9 h-9 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400 hover:bg-brand-500/25 transition-all active:scale-95 cursor-pointer" title="Přepočítat">
-        <i id="reload-icon" class="fa-solid fa-rotate text-xs"></i>
-      </button>
+      <div class="flex items-center gap-2">
+        <button 
+          type="button"
+          onclick="loadInsightsData()" 
+          class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white transition-colors p-2 cursor-pointer active:scale-95 shadow-sm"
+          title="Aktualizovat statistiky"
+        >
+          <i class="fa-solid fa-rotate-right text-xs" id="reload-icon"></i>
+        </button>
+      </div>
     </header>
 
-    <!-- Hlavní obsah -->
-    <div class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5">
+    <!-- Scrollable Body -->
+    <main class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-1">
 
-      <!-- AI Status & Trend Karta -->
-      <div class="bg-cardbg border border-brand-500/30 rounded-2xl p-3.5 ai-glow shrink-0 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Směr vývoje trendu
-          </span>
-          <span id="trend-badge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">
-            Počítám...
-          </span>
-        </div>
-
-        <div class="flex items-baseline gap-2">
-          <p id="trend-delta" class="text-2xl font-black text-white leading-tight">-- %</p>
-          <span class="text-xs text-slate-400 font-medium">oproti předchozímu cyklu</span>
-        </div>
-
-        <p id="ai-summary-text" class="text-xs text-slate-300 mt-2 leading-relaxed bg-darkbg/60 p-2.5 rounded-xl border border-borderbg">
-          Analyzuji historická data a časové intervaly...
-        </p>
-      </div>
-
-      <!-- Metriky & Predikce -->
-      <div class="grid grid-cols-2 gap-2 shrink-0">
-        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
-          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
-            Predikce na zítra <i class="fa-solid fa-forward text-brand-400 text-[10px]"></i>
+      <!-- HLAVNÍ METRIKY (KPIs) -->
+      <section class="grid grid-cols-2 gap-2 shrink-0">
+        <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-md relative overflow-hidden">
+          <div class="absolute -right-2 -bottom-2 opacity-5 text-4xl text-brand-400 pointer-events-none">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+            Průměr / Medián
+            <span class="text-brand-400 font-mono text-[9px]">G/dávka</span>
           </p>
-          <p class="text-lg font-black text-white mt-0.5"><span id="metric-forecast-tomorrow">--</span> <span class="text-xs text-brand-400">g</span></p>
-          <p class="text-[9px] text-slate-500 mt-0.5">na základě lineární regrese</p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <p class="text-xl font-black text-white"><span id="stat-mean">0.00</span><span class="text-xs text-brand-400 ml-0.5">G</span></p>
+            <p class="text-xs font-bold text-slate-400">(med: <span id="stat-median" class="text-purple-400">0.00</span>)</p>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-0.5">Variabilita σ: <strong id="stat-std" class="text-slate-300 font-mono">0.00</strong> G</p>
         </div>
 
-        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
-          <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
-            Typický odstup <i class="fa-solid fa-clock-rotate-left text-brand-400 text-[10px]"></i>
+        <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-md relative overflow-hidden">
+          <div class="absolute -right-2 -bottom-2 opacity-5 text-4xl text-teal-400 pointer-events-none">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+            Měsíční Adherence
+            <span class="text-teal-400 font-mono text-[9px]">30 dní</span>
           </p>
-          <p class="text-lg font-black text-white mt-0.5"><span id="metric-optimal-interval">--</span></p>
-          <p class="text-[9px] text-slate-500 mt-0.5">medián mezi zápisy</p>
+          <p class="text-xl font-black text-white mt-1">
+            <span id="stat-adherence">0%</span>
+          </p>
+          <p class="text-[10px] text-slate-500 mt-0.5">Rozestup Δt: <strong id="stat-avg-interval" class="text-slate-300 font-mono">--</strong></p>
         </div>
-      </div>
+      </section>
 
-      <!-- Prediktivní Graf (Historie + Výhled) -->
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0">
+      <!-- 1. GRAF: DYNAMICKÝ TREND -->
+      <section class="bg-cardbg border border-borderbg rounded-2xl p-3.5 shadow-xl shrink-0">
         <div class="flex justify-between items-center mb-1.5">
-          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
-            <i class="fa-solid fa-chart-line text-brand-400"></i> Historie & Modelová Predikce
-          </h2>
-          <span class="text-[9px] text-slate-500 font-mono">+3 dny výhled</span>
-        </div>
-        <div class="h-36 w-full relative">
-          <canvas id="forecastChart"></canvas>
-        </div>
-      </div>
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-wave-square text-brand-400"></i> Křivka spotřeby
+            </h2>
+            <button type="button" onclick="toggleDrawer('info-trend')" class="w-5 h-5 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors text-[10px] cursor-pointer" title="Co tento graf znamená?">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
 
-      <!-- Chytrá doporučení (Pattern Recognition) -->
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 space-y-2 mb-1">
-        <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
-          <i class="fa-solid fa-lightbulb text-amber-400"></i> Zjištěné vzorce chování
-        </h2>
-
-        <div id="patterns-list" class="space-y-1.5 text-xs text-slate-300">
-          <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2 flex items-center gap-2">
-            <i class="fa-solid fa-spinner fa-spin text-brand-400 text-xs"></i>
-            <span class="text-[11px] text-slate-400">Vyhodnocuji časové sloty a dny v týdnu...</span>
+          <div class="flex bg-darkbg p-0.5 rounded-xl border border-borderbg text-[10px] font-bold">
+            <button type="button" onclick="setTimeframe(7)" id="tf-7" class="px-2 py-1 rounded-lg transition-all text-slate-400 hover:text-white">7d</button>
+            <button type="button" onclick="setTimeframe(30)" id="tf-30" class="px-2 py-1 rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30">30d</button>
+            <button type="button" onclick="setTimeframe(90)" id="tf-90" class="px-2 py-1 rounded-lg transition-all text-slate-400 hover:text-white">90d</button>
           </div>
         </div>
-      </div>
 
-    </div>
+        <!-- AI Věta o vývoji -->
+        <div class="bg-darkbg/80 border border-borderbg rounded-xl p-2.5 mb-2 flex items-start gap-2 text-[11px] text-slate-300">
+          <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-xs mt-0.5 shrink-0"></i>
+          <span id="ai-insight-trend" class="leading-tight text-slate-300">Analyzuji vývoj spotřeby...</span>
+        </div>
 
-    <!-- Tlačítko Zpět -->
-    <button 
-      type="button" 
-      onclick="window.location.href='dashboard.html'" 
-      class="w-full py-2.5 bg-darkbg hover:bg-slate-800 text-slate-300 font-bold rounded-xl border border-borderbg transition-all active:scale-[0.98] text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
-    >
-      <i class="fa-solid fa-house text-xs text-brand-400"></i> Návrat na hlavní panel
-    </button>
+        <div id="info-trend" class="info-drawer">
+          <div class="info-drawer-inner">
+            <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1.5 leading-relaxed">
+              <p><strong class="text-brand-400">Plná tyrkysová čára:</strong> Klouzavý průměr (Rolling Avg), který vyhlazuje denní excesy a ukazuje reálný směr.</p>
+              <p><strong class="text-amber-400">Přerušovaná čára:</strong> Lineární regresní trend. Směřuje-li nahoru, dlouhodobě roste.</p>
+              <p><strong class="text-slate-400">Tmavé sloupce:</strong> Skutečný celkový součet Gcek v daném kalendářním dni.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-44 w-full relative mt-0.5">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 2. GRAF: CIRKADIÁNNÍ VLNA -->
+      <section class="bg-cardbg border border-borderbg rounded-2xl p-3.5 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-sun text-amber-400"></i> Denní profil
+            </h2>
+            <button type="button" onclick="toggleDrawer('info-circadian')" class="w-5 h-5 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-amber-400 transition-colors text-[10px] cursor-pointer" title="Co tento graf znamená?">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
+          <span class="text-[10px] text-brand-400 font-bold bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md">
+            Špička: <span id="stat-peak-hour" class="font-mono">--:00</span>
+          </span>
+        </div>
+
+        <!-- AI Věta o vývoji -->
+        <div class="bg-darkbg/80 border border-borderbg rounded-xl p-2.5 mb-2 flex items-start gap-2 text-[11px] text-slate-300">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs mt-0.5 shrink-0"></i>
+          <span id="ai-insight-circadian" class="leading-tight text-slate-300">Analyzuji denní rytmus...</span>
+        </div>
+
+        <div id="info-circadian" class="info-drawer">
+          <div class="info-drawer-inner">
+            <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1 leading-relaxed">
+              <p><strong class="text-amber-400">Křivka dne (00:00–23:00):</strong> Sumarizuje všechny vaše historické zápisy podle denní doby.</p>
+              <p>Pomáhá identifikovat, zda zapisujete převážně jako ranní stimulant, pro odpolední fokus, nebo před spaním.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-40 w-full relative">
+          <canvas id="circadianChart"></canvas>
+        </div>
+
+        <div class="grid grid-cols-4 gap-1 text-center mt-2 pt-2 border-t border-borderbg/60 text-[9px] font-semibold text-slate-400">
+          <span class="border-b-2 border-indigo-500/40 pb-0.5">Noc (22-5h)</span>
+          <span class="border-b-2 border-amber-500/40 pb-0.5">Ráno (5-11h)</span>
+          <span class="border-b-2 border-teal-500/40 pb-0.5">Odp. (11-17h)</span>
+          <span class="border-b-2 border-purple-500/40 pb-0.5">Večer (17-22h)</span>
+        </div>
+      </section>
+
+      <!-- 3. TÝDENNÍ RADAR -->
+      <section class="bg-cardbg border border-borderbg rounded-2xl p-3.5 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-compass text-teal-400"></i> Týdenní symetrie
+            </h2>
+            <button type="button" onclick="toggleDrawer('info-radar')" class="w-5 h-5 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-teal-400 transition-colors text-[10px] cursor-pointer" title="Co tento graf znamená?">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
+          <span class="text-[9px] text-slate-400 font-mono">Průměrný den (g)</span>
+        </div>
+
+        <!-- AI Věta o vývoji -->
+        <div class="bg-darkbg/80 border border-borderbg rounded-xl p-2.5 mb-2 flex items-start gap-2 text-[11px] text-slate-300">
+          <i class="fa-solid fa-wand-magic-sparkles text-teal-400 text-xs mt-0.5 shrink-0"></i>
+          <span id="ai-insight-radar" class="leading-tight text-slate-300">Analyzuji rozložení v týdnu...</span>
+        </div>
+
+        <div id="info-radar" class="info-drawer">
+          <div class="info-drawer-inner">
+            <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1 leading-relaxed">
+              <p><strong class="text-teal-400">Radarový polygon:</strong> Znázorňuje průměrnou spotřebu přepočtenou na jednotlivé dny v týdnu (Po–Ne).</p>
+              <p>Symetrický kruh značí vyrovnaný režim. Výběžky odhalují specifické dny s vysokou zátěží (např. tréninkové dny nebo víkendy).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-48 w-full relative flex items-center justify-center">
+          <canvas id="weekdayRadarChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 4. GRAF: SPOTŘEBA VS INTERVALY -->
+      <section class="bg-cardbg border border-borderbg rounded-2xl p-3.5 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-chart-column text-purple-400"></i> Objem vs. Rozestupy
+            </h2>
+            <button type="button" onclick="toggleDrawer('info-dual')" class="w-5 h-5 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-purple-400 transition-colors text-[10px] cursor-pointer" title="Co tento graf znamená?">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
+          <span class="text-[9px] text-slate-400">Posledních 14 dní</span>
+        </div>
+
+        <!-- AI Věta o vývoji -->
+        <div class="bg-darkbg/80 border border-borderbg rounded-xl p-2.5 mb-2 flex items-start gap-2 text-[11px] text-slate-300">
+          <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-xs mt-0.5 shrink-0"></i>
+          <span id="ai-insight-dual" class="leading-tight text-slate-300">Analyzuji dynamiku dávek a pauz...</span>
+        </div>
+
+        <div id="info-dual" class="info-drawer">
+          <div class="info-drawer-inner">
+            <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1 leading-relaxed">
+              <p><strong class="text-teal-400">Sloupce (Levá osa):</strong> Denní součet Gcek.</p>
+              <p><strong class="text-purple-400">Fialová linka (Pravá osa):</strong> Průměrný časový odstup $\Delta t$ mezi jednotlivými zápisy v hodinách.</p>
+              <p>Ukazuje korelaci: zapisujete více Gcek kvůli kratším rozestupům, nebo kvůli větším jednorázovým zápisům?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-40 w-full relative">
+          <canvas id="dualAxisChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 5. GRAF: KUMULATIVNÍ TRAJEKTORIE -->
+      <section class="bg-cardbg border border-borderbg rounded-2xl p-3.5 shadow-xl shrink-0">
+        <div class="flex justify-between items-center mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-chart-line text-brand-400"></i> Kumulativní trajektorie
+            </h2>
+            <button type="button" onclick="toggleDrawer('info-cumul')" class="w-5 h-5 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-brand-400 transition-colors text-[10px] cursor-pointer" title="Co tento graf znamená?">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
+          <span class="text-xs font-black text-white font-mono"><span id="stat-total-grams">0.00</span> G</span>
+        </div>
+
+        <!-- AI Věta o vývoji -->
+        <div class="bg-darkbg/80 border border-borderbg rounded-xl p-2.5 mb-2 flex items-start gap-2 text-[11px] text-slate-300">
+          <i class="fa-solid fa-wand-magic-sparkles text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span id="ai-insight-cumul" class="leading-tight text-slate-300">Analyzuji tempo celkové trajektorie...</span>
+        </div>
+
+        <div id="info-cumul" class="info-drawer">
+          <div class="info-drawer-inner">
+            <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1 leading-relaxed">
+              <p><strong class="text-purple-300">Kumulativní křivka:</strong> Postupný součet veškerého zapsaného množství od prvního zápisu.</p>
+              <p>Strmější úsek znamená období zrychlené spotřeby, plošší úsek naopak fázi pauzy (deload) či šetření zapisování.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-36 w-full relative">
+          <canvas id="cumulativeChart"></canvas>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Navigation Footer -->
+    <nav class="liquid-glass-nav rounded-2xl p-2 shrink-0 mb-1">
+      <button 
+        type="button" 
+        onclick="navigateToDashboard()" 
+        class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl text-xs uppercase tracking-wide flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md cursor-pointer"
+      >
+        <i class="fa-solid fa-house text-xs"></i> Zpět na Dashboard
+      </button>
+    </nav>
 
   </div>
 
@@ -177,205 +388,239 @@
     const SUPABASE_ANON_KEY = "sb_publishable_rYu-TFnQacUrnmdNVRZ3Zw_wR3r_u4W";
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, storage: window.localStorage }
+      auth: {
+        persistSession: true,
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
     });
 
-    let forecastChartInstance = null;
+    let currentUserId = null;
+    let logs = [];
+    let selectedTimeframe = 30;
+
+    let trendChartInstance = null;
+    let circadianChartInstance = null;
+    let weekdayRadarInstance = null;
+    let dualAxisChartInstance = null;
+    let cumulativeChartInstance = null;
+
+    function toggleDrawer(id) {
+      const drawer = document.getElementById(id);
+      if (drawer) {
+        drawer.classList.toggle('expanded');
+      }
+    }
+
+    function navigateToDashboard() {
+      const container = document.getElementById('main-body');
+      container.classList.remove('page-slide-in-right');
+      container.classList.add('page-slide-out-right');
+      
+      setTimeout(() => {
+        window.location.href = "dashboard.html?from=insights";
+      }, 220);
+    }
+
+    async function checkAuth() {
+      const { data: { session }, error } = await db.auth.getSession();
+      if (error || !session) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      currentUserId = session.user.id;
+      const bodyEl = document.getElementById('main-body');
+      bodyEl.classList.add('page-slide-in-right');
+
+      await loadInsightsData();
+    }
+
+    async function loadInsightsData() {
+      const reloadIcon = document.getElementById('reload-icon');
+      if (reloadIcon) reloadIcon.classList.add('fa-spin');
+
+      try {
+        const { data, error } = await db
+          .from('doses')
+          .select('id, amount, note, timestamp')
+          .order('timestamp', { ascending: true });
+
+        if (error) {
+          console.error(error);
+          logs = [];
+        } else {
+          logs = (data || []).map(r => ({
+            id: r.id,
+            amount: parseFloat(r.amount) || 0,
+            note: r.note || '',
+            timestamp: r.timestamp
+          }));
+        }
+
+        renderAllInsights();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (reloadIcon) reloadIcon.classList.remove('fa-spin');
+      }
+    }
+
+    function setTimeframe(days) {
+      selectedTimeframe = days;
+      [7, 30, 90].forEach(d => {
+        const btn = document.getElementById(`tf-${d}`);
+        if (d === days) {
+          btn.className = "px-2 py-1 rounded-lg transition-all bg-brand-500/20 text-brand-400 border border-brand-500/30";
+        } else {
+          btn.className = "px-2 py-1 rounded-lg transition-all text-slate-400 hover:text-white";
+        }
+      });
+      renderTrendChart();
+    }
 
     function getDateKey(d) {
       const date = new Date(d);
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
 
-    // Lineární regrese: y = slope * x + intercept
-    function calculateLinearRegression(dataPoints) {
-      const n = dataPoints.length;
-      if (n === 0) return { slope: 0, intercept: 0 };
+    function renderAllInsights() {
+      if (!logs || logs.length === 0) return;
 
-      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-      dataPoints.forEach((pt, i) => {
-        sumX += i;
-        sumY += pt;
-        sumXY += i * pt;
-        sumXX += i * i;
-      });
+      const amounts = logs.map(l => l.amount);
+      const totalGrams = amounts.reduce((a, b) => a + b, 0);
 
-      const slope = (n * sumXY - sumX * sumY) / ((n * sumXX - sumX * sumX) || 1);
-      const intercept = (sumY - slope * sumX) / n;
-      return { slope, intercept };
-    }
+      const mean = totalGrams / amounts.length;
+      const sorted = [...amounts].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      const variance = amounts.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / amounts.length;
+      const stdDev = Math.sqrt(variance);
 
-    async function analyzeData() {
-      const reloadIcon = document.getElementById('reload-icon');
-      if (reloadIcon) reloadIcon.classList.add('fa-spin');
+      document.getElementById('stat-mean').textContent = mean.toFixed(2);
+      document.getElementById('stat-median').textContent = median.toFixed(2);
+      document.getElementById('stat-std').textContent = stdDev.toFixed(2);
+      document.getElementById('stat-total-grams').textContent = totalGrams.toFixed(2);
 
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        window.location.replace("index.html");
-        return;
-      }
-
-      const { data, error } = await db
-        .from('doses')
-        .select('amount, timestamp')
-        .order('timestamp', { ascending: true });
-
-      if (error || !data || data.length === 0) {
-        document.getElementById('ai-summary-text').textContent = "Zatím nemáte dostatek dat pro vytvoření spolehlivé predikce. Zapište alespoň několik dávek v průběhu týdne.";
-        if (reloadIcon) reloadIcon.classList.remove('fa-spin');
-        return;
-      }
-
-      // 1. Agregace po dnech (posledních 14 dní)
-      const dailyMap = {};
-      const dayCount = 10;
       const now = new Date();
-
-      for (let i = dayCount - 1; i >= 0; i--) {
+      const last30 = new Set();
+      for (let i = 0; i < 30; i++) {
         const d = new Date();
         d.setDate(now.getDate() - i);
-        dailyMap[getDateKey(d)] = 0;
+        last30.add(getDateKey(d));
       }
+      const active30 = new Set(logs.filter(l => last30.has(getDateKey(l.timestamp))).map(l => getDateKey(l.timestamp)));
+      document.getElementById('stat-adherence').textContent = `${Math.round((active30.size / 30) * 100)}%`;
 
-      data.forEach(item => {
-        const key = getDateKey(item.timestamp);
-        if (dailyMap.hasOwnProperty(key)) {
-          dailyMap[key] += parseFloat(item.amount) || 0;
-        }
-      });
-
-      const labels = Object.keys(dailyMap).map(k => {
-        const parts = k.split('-');
-        return `${parts[2]}.${parts[1]}.`;
-      });
-      const historyValues = Object.values(dailyMap);
-
-      // 2. Výpočet lineární predikce (+3 dny do budoucna)
-      const { slope, intercept } = calculateLinearRegression(historyValues);
-      
-      const forecastLabels = [...labels];
-      const actualChartData = [...historyValues, null, null, null];
-      const trendLine = [];
-
-      for (let i = 0; i < historyValues.length + 3; i++) {
-        const val = Math.max(0, slope * i + intercept);
-        trendLine.push(parseFloat(val.toFixed(2)));
-        if (i >= historyValues.length) {
-          const futureDate = new Date();
-          futureDate.setDate(now.getDate() + (i - historyValues.length + 1));
-          forecastLabels.push(`${futureDate.getDate()}.${futureDate.getMonth() + 1}. (P)`);
+      let totalMins = 0, count = 0;
+      for (let i = 1; i < logs.length; i++) {
+        const diff = Math.floor((new Date(logs[i].timestamp) - new Date(logs[i - 1].timestamp)) / 60000);
+        if (diff >= 30 && diff <= 720) {
+          totalMins += diff;
+          count++;
         }
       }
-
-      const tomorrowForecast = Math.max(0, slope * historyValues.length + intercept);
-      document.getElementById('metric-forecast-tomorrow').textContent = tomorrowForecast.toFixed(2);
-
-      // 3. Trend delta & UI vyhodnocení
-      const recentAvg = historyValues.slice(-3).reduce((a,b)=>a+b,0) / 3;
-      const previousAvg = historyValues.slice(0, 3).reduce((a,b)=>a+b,0) / 3 || 1;
-      const deltaPercent = Math.round(((recentAvg - previousAvg) / previousAvg) * 100);
-
-      const trendBadge = document.getElementById('trend-badge');
-      const trendDelta = document.getElementById('trend-delta');
-      const aiSummary = document.getElementById('ai-summary-text');
-
-      trendDelta.textContent = `${deltaPercent > 0 ? '+' : ''}${deltaPercent}%`;
-
-      if (slope > 0.08) {
-        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/30";
-        trendBadge.textContent = "Rostoucí trend";
-        aiSummary.textContent = "Použití Gcek v posledních dnech vykazuje stoupající tendenci. Doporučujeme zvýšit cílový interval mezi jednotlivými zápisy.";
-      } else if (slope < -0.08) {
-        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-        trendBadge.textContent = "Klesající trend";
-        aiSummary.textContent = "Výborně! Trend má stabilně klesající křivku, daří se vám držet spotřebu pod kontrolou.";
-      } else {
-        trendBadge.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-brand-500/20 text-brand-300 border border-brand-500/30";
-        trendBadge.textContent = "Stabilní stav";
-        aiSummary.textContent = "Zápisy i denní součty jsou v rovnováze bez výrazných anomálií či náhlých skoků.";
+      if (count > 0) {
+        const avgM = Math.round(totalMins / count);
+        const h = Math.floor(avgM / 60);
+        const m = avgM % 60;
+        document.getElementById('stat-avg-interval').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
       }
 
-      // 4. Detekce patternů (časové odstupy & rizikové hodiny)
-      const intervals = [];
-      const hourCounts = new Array(24).fill(0);
-
-      for (let i = 1; i < data.length; i++) {
-        const diffMins = Math.floor((new Date(data[i].timestamp) - new Date(data[i-1].timestamp)) / (1000 * 60));
-        if (diffMins >= 20 && diffMins <= 600) intervals.push(diffMins);
-      }
-
-      data.forEach(d => {
-        const h = new Date(d.timestamp).getHours();
-        hourCounts[h]++;
-      });
-
-      const maxHour = hourCounts.indexOf(Math.max(...hourCounts));
-      let medianInterval = intervals.length > 0 ? intervals.sort((a,b)=>a-b)[Math.floor(intervals.length/2)] : 240;
-      const hInt = Math.floor(medianInterval / 60);
-      const mInt = medianInterval % 60;
-      document.getElementById('metric-optimal-interval').textContent = `${hInt}h ${mInt}m`;
-
-      const patternsContainer = document.getElementById('patterns-list');
-      patternsContainer.innerHTML = `
-        <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2.5 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i class="fa-solid fa-fire text-amber-400 text-xs"></i>
-            <div>
-              <span class="font-bold text-white text-[11px]">Kritické časové okno</span>
-              <p class="text-[10px] text-slate-400">Nejčastější zápisy probíhají kolem <strong>${maxHour}:00 - ${maxHour+1}:00</strong>.</p>
-            </div>
-          </div>
-          <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Peak</span>
-        </div>
-
-        <div class="bg-darkbg/70 border border-borderbg/80 rounded-xl p-2.5 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i class="fa-solid fa-bullseye text-brand-400 text-xs"></i>
-            <div>
-              <span class="font-bold text-white text-[11px]">Doporučený spacing</span>
-              <p class="text-[10px] text-slate-400">Ideální odstup mezi zápisy pro udržení rovnoměrného režimu je <strong>${(medianInterval / 60).toFixed(1)} h</strong>.</p>
-            </div>
-          </div>
-          <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">Optimal</span>
-        </div>
-      `;
-
-      // 5. Vykreslení Chart.js s predikcí
-      renderForecastChart(forecastLabels, actualChartData, trendLine);
-
-      if (reloadIcon) reloadIcon.classList.remove('fa-spin');
+      renderTrendChart();
+      renderCircadianChart();
+      renderWeekdayRadar();
+      renderDualAxisChart();
+      renderCumulativeChart();
     }
 
-    function renderForecastChart(labels, actualData, trendData) {
-      const ctx = document.getElementById('forecastChart').getContext('2d');
-      if (forecastChartInstance) forecastChartInstance.destroy();
+    // 1. TREND
+    function renderTrendChart() {
+      const canvas = document.getElementById('trendChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
 
-      forecastChartInstance = new Chart(ctx, {
+      const dates = [];
+      const totals = [];
+
+      for (let i = selectedTimeframe - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = getDateKey(d);
+        dates.push(d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' }));
+        const sum = logs.filter(l => getDateKey(l.timestamp) === key).reduce((acc, c) => acc + c.amount, 0);
+        totals.push(sum);
+      }
+
+      const windowSize = selectedTimeframe === 7 ? 3 : 7;
+      const rollingAvg = totals.map((val, idx, arr) => {
+        const start = Math.max(0, idx - windowSize + 1);
+        const slice = arr.slice(start, idx + 1);
+        return parseFloat((slice.reduce((a, b) => a + b, 0) / slice.length).toFixed(2));
+      });
+
+      let n = totals.length;
+      let sX = 0, sY = 0, sXY = 0, sXX = 0;
+      for (let x = 0; x < n; x++) {
+        sX += x; sY += totals[x]; sXY += x * totals[x]; sXX += x * x;
+      }
+      let slope = (n * sXY - sX * sY) / (n * sXX - sX * sX);
+      let intercept = (sY - slope * sX) / n;
+      const regLine = totals.map((_, x) => parseFloat((slope * x + intercept).toFixed(2)));
+
+      const aiTrendEl = document.getElementById('ai-insight-trend');
+      const diffGrams = (slope * n).toFixed(2);
+      if (slope > 0.02) {
+        aiTrendEl.innerHTML = `Příjem za posledních <strong>${selectedTimeframe} dní</strong> roste přibližně o <strong class="text-amber-400">+${Math.abs(diffGrams)} g</strong> v čase – sledujte nárůst.`;
+      } else if (slope < -0.02) {
+        aiTrendEl.innerHTML = `Příjem za posledních <strong>${selectedTimeframe} dní</strong> úspěšně klesá o <strong class="text-teal-400">-${Math.abs(diffGrams)} g</strong> – režim se konsoliduje.`;
+      } else {
+        aiTrendEl.innerHTML = `Dávkování v horizontu <strong>${selectedTimeframe} dní</strong> je stabilní s minimálními výkyvy bez známek eskalace.`;
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 160);
+      grad.addColorStop(0, 'rgba(45, 212, 191, 0.35)');
+      grad.addColorStop(1, 'rgba(45, 212, 191, 0.0)');
+
+      if (trendChartInstance) trendChartInstance.destroy();
+
+      trendChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels,
+          labels: dates,
           datasets: [
             {
-              label: 'Skutečnost (g)',
-              data: actualData,
+              label: 'Klouzavý průměr',
+              data: rollingAvg,
               borderColor: '#2dd4bf',
-              backgroundColor: 'rgba(45, 212, 191, 0.15)',
-              borderWidth: 2.5,
-              tension: 0.3,
+              backgroundColor: grad,
               fill: true,
-              pointRadius: 3,
-              pointBackgroundColor: '#2dd4bf'
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointRadius: selectedTimeframe === 7 ? 3 : 0,
+              pointBackgroundColor: '#2dd4bf',
+              order: 1
             },
             {
-              label: 'AI Predikce / Trend',
-              data: trendData,
-              borderColor: '#f59e0b',
-              borderWidth: 2,
-              borderDash: [5, 5],
-              tension: 0.1,
+              label: 'Trend',
+              data: regLine,
+              borderColor: 'rgba(251, 191, 36, 0.75)',
+              borderDash: [4, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
               fill: false,
-              pointRadius: 2,
-              pointBackgroundColor: '#f59e0b'
+              order: 2
+            },
+            {
+              type: 'bar',
+              label: 'Denní zápis',
+              data: totals,
+              backgroundColor: 'rgba(30, 41, 59, 0.5)',
+              borderColor: 'rgba(51, 65, 85, 0.7)',
+              borderWidth: 1,
+              borderRadius: 3,
+              order: 3
             }
           ]
         },
@@ -385,18 +630,20 @@
           plugins: {
             legend: {
               display: true,
-              labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 }
+              position: 'top',
+              labels: { boxWidth: 8, color: '#94a3b8', font: { size: 9, weight: '600' } }
             },
             tooltip: {
               backgroundColor: '#1e293b',
               titleColor: '#f8fafc',
-              bodyColor: '#2dd4bf'
+              bodyColor: '#2dd4bf',
+              displayColors: false
             }
           },
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#64748b', font: { size: 8 } }
+              ticks: { color: '#64748b', font: { size: 8 }, maxTicksLimit: 7 }
             },
             y: {
               beginAtZero: true,
@@ -408,7 +655,333 @@
       });
     }
 
-    analyzeData();
+    // 2. CIRKADIÁNNÍ VLNA
+    function renderCircadianChart() {
+      const canvas = document.getElementById('circadianChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+      const hourlyGrams = new Array(24).fill(0);
+
+      logs.forEach(l => {
+        const h = new Date(l.timestamp).getHours();
+        hourlyGrams[h] += l.amount;
+      });
+
+      let maxH = 0, maxVal = 0;
+      hourlyGrams.forEach((v, idx) => {
+        if (v > maxVal) { maxVal = v; maxH = idx; }
+      });
+      document.getElementById('stat-peak-hour').textContent = `${String(maxH).padStart(2, '0')}:00`;
+
+      const totalGramsAll = hourlyGrams.reduce((a, b) => a + b, 0) || 1;
+      const peakPercent = Math.round((maxVal / totalGramsAll) * 100);
+      let periodName = "ráno";
+      if (maxH >= 11 && maxH < 17) periodName = "odpoledne";
+      else if (maxH >= 17 && maxH < 22) periodName = "večer";
+      else if (maxH >= 22 || maxH < 5) periodName = "v noci";
+
+      const aiCircadianEl = document.getElementById('ai-insight-circadian');
+      aiCircadianEl.innerHTML = `Váš vrchol nastává v <strong class="text-amber-400">${maxH}:00 (${periodName})</strong>, kdy probíhá <strong class="text-white">${peakPercent}%</strong> veškerého objemu.`;
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 150);
+      grad.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
+      grad.addColorStop(0.5, 'rgba(20, 184, 166, 0.25)');
+      grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+
+      if (circadianChartInstance) circadianChartInstance.destroy();
+
+      circadianChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: hours,
+          datasets: [{
+            label: 'Celkem v hodině (g)',
+            data: hourlyGrams.map(v => parseFloat(v.toFixed(2))),
+            borderColor: '#fbbf24',
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.45,
+            borderWidth: 2.5,
+            pointRadius: 2,
+            pointBackgroundColor: '#fbbf24'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              bodyColor: '#fbbf24',
+              displayColors: false,
+              callbacks: {
+                label: (c) => ` Spotřeba v ${c.label}: ${c.raw} g`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(30, 41, 59, 0.35)' },
+              ticks: { color: '#64748b', font: { size: 8 }, maxTicksLimit: 8 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 8 } }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. RADAR DNŮ V TÝDNU
+    function renderWeekdayRadar() {
+      const canvas = document.getElementById('weekdayRadarChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const days = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
+      const sums = new Array(7).fill(0);
+      const daySets = [new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set()];
+
+      logs.forEach(l => {
+        const d = new Date(l.timestamp);
+        let idx = d.getDay() - 1;
+        if (idx === -1) idx = 6;
+        sums[idx] += l.amount;
+        daySets[idx].add(getDateKey(d));
+      });
+
+      const avgs = sums.map((s, i) => parseFloat((s / (daySets[i].size || 1)).toFixed(2)));
+
+      const workdaysAvg = (avgs.slice(0, 5).reduce((a, b) => a + b, 0) / 5) || 0;
+      const weekendAvg = ((avgs[5] + avgs[6]) / 2) || 0;
+      const maxDayIdx = avgs.indexOf(Math.max(...avgs));
+
+      const aiRadarEl = document.getElementById('ai-insight-radar');
+      if (weekendAvg > workdaysAvg * 1.25) {
+        aiRadarEl.innerHTML = `O víkendech máte o <strong class="text-teal-400">${Math.round((weekendAvg/workdaysAvg - 1)*100)}% vyšší</strong> průměrný příjem než v týdnu, nejvýraznější je <strong class="text-white">${days[maxDayIdx]}</strong>.`;
+      } else if (workdaysAvg > weekendAvg * 1.25) {
+        aiRadarEl.innerHTML = `V pracovních dnech je příjem vyšší o <strong class="text-teal-400">${Math.round((workdaysAvg/weekendAvg - 1)*100)}%</strong>, nejvyšší zátěž připadá na <strong class="text-white">${days[maxDayIdx]}</strong>.`;
+      } else {
+        aiRadarEl.innerHTML = `Týdenní rozložení je velmi vyrovnané, s mírným vrcholem v <strong class="text-teal-400">${days[maxDayIdx]}</strong> (${avgs[maxDayIdx]} g).`;
+      }
+
+      if (weekdayRadarInstance) weekdayRadarInstance.destroy();
+
+      weekdayRadarInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
+          datasets: [{
+            label: 'Průměr na den (G)',
+            data: avgs,
+            backgroundColor: 'rgba(20, 184, 166, 0.25)',
+            borderColor: '#2dd4bf',
+            borderWidth: 2,
+            pointBackgroundColor: '#2dd4bf',
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              bodyColor: '#2dd4bf',
+              displayColors: false,
+              callbacks: {
+                label: (c) => ` ${days[c.dataIndex]}: ${c.raw} G`
+              }
+            }
+          },
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(51, 65, 85, 0.4)' },
+              grid: { color: 'rgba(30, 41, 59, 0.6)' },
+              pointLabels: { color: '#94a3b8', font: { size: 10, weight: '700' } },
+              ticks: { display: false, backdropColor: 'transparent' }
+            }
+          }
+        }
+      });
+    }
+
+    // 4. DVOUOSÝ GRAF
+    function renderDualAxisChart() {
+      const canvas = document.getElementById('dualAxisChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const days14 = [];
+      const grams14 = [];
+      const intervals14 = [];
+
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = getDateKey(d);
+        days14.push(d.toLocaleDateString('cs-CZ', { weekday: 'short', day: 'numeric' }));
+
+        const dayLogs = logs.filter(l => getDateKey(l.timestamp) === key);
+        const sum = dayLogs.reduce((acc, c) => acc + c.amount, 0);
+        grams14.push(sum);
+
+        let dMins = 0, cCount = 0;
+        for (let j = 1; j < dayLogs.length; j++) {
+          const diff = Math.floor((new Date(dayLogs[j].timestamp) - new Date(dayLogs[j - 1].timestamp)) / 60000);
+          if (diff >= 30 && diff <= 720) { dMins += diff; cCount++; }
+        }
+        intervals14.push(cCount > 0 ? parseFloat((dMins / cCount / 60).toFixed(1)) : 0);
+      }
+
+      const nonZeroIntervals = intervals14.filter(v => v > 0);
+      const avgInterval14 = nonZeroIntervals.length > 0 ? (nonZeroIntervals.reduce((a, b) => a + b, 0) / nonZeroIntervals.length).toFixed(1) : "--";
+      const aiDualEl = document.getElementById('ai-insight-dual');
+      aiDualEl.innerHTML = `V posledních 14 dnech držíte průměrný rozestup <strong class="text-purple-400">${avgInterval14} h</strong> mezi zápisy bez sklonu k řetězení.`;
+
+      if (dualAxisChartInstance) dualAxisChartInstance.destroy();
+
+      dualAxisChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: days14,
+          datasets: [
+            {
+              type: 'line',
+              label: 'Rozestup (h)',
+              data: intervals14,
+              borderColor: '#c084fc',
+              borderWidth: 2,
+              yAxisID: 'y1',
+              tension: 0.2,
+              pointRadius: 2.5,
+              pointBackgroundColor: '#c084fc'
+            },
+            {
+              type: 'bar',
+              label: 'Gcka (G)',
+              data: grams14,
+              backgroundColor: 'rgba(20, 184, 166, 0.65)',
+              borderRadius: 3,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: { boxWidth: 8, color: '#94a3b8', font: { size: 9 } }
+            },
+            tooltip: {
+              backgroundColor: '#1e293b'
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 7.5 } }
+            },
+            y: {
+              type: 'linear',
+              position: 'left',
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#14b8a6', font: { size: 8 } }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: true,
+              grid: { display: false },
+              ticks: { color: '#c084fc', font: { size: 8 } }
+            }
+          }
+        }
+      });
+    }
+
+    // 5. KUMULATIVNÍ TRAJEKTORIE
+    function renderCumulativeChart() {
+      const canvas = document.getElementById('cumulativeChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const labels = [];
+      const data = [];
+      let sum = 0;
+
+      logs.forEach(l => {
+        sum += l.amount;
+        labels.push(new Date(l.timestamp).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' }));
+        data.push(parseFloat(sum.toFixed(2)));
+      });
+
+      const firstDate = new Date(logs[0].timestamp);
+      const lastDate = new Date(logs[logs.length - 1].timestamp);
+      const diffDays = Math.max(1, Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)));
+      const dailyVelocity = (sum / diffDays).toFixed(2);
+      const projectedMonth = (dailyVelocity * 30).toFixed(0);
+
+      const aiCumulEl = document.getElementById('ai-insight-cumul');
+      aiCumulEl.innerHTML = `Průměrné kumulativní tempo činí <strong class="text-brand-400">${dailyVelocity} G/den</strong>, což odpovídá projekci <strong class="text-white">~${projectedMonth} G</strong> za měsíc.`;
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 140);
+      grad.addColorStop(0, 'rgba(192, 132, 252, 0.35)');
+      grad.addColorStop(1, 'rgba(192, 132, 252, 0.0)');
+
+      if (cumulativeChartInstance) cumulativeChartInstance.destroy();
+
+      cumulativeChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Kumulativní Gcka',
+            data: data,
+            borderColor: '#c084fc',
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.25,
+            borderWidth: 2,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              bodyColor: '#c084fc',
+              displayColors: false
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 8 }, maxTicksLimit: 6 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(30, 41, 59, 0.5)' },
+              ticks: { color: '#64748b', font: { size: 8 } }
+            }
+          }
+        }
+      });
+    }
+
+    checkAuth();
   </script>
 </body>
 </html>
