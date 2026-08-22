@@ -192,7 +192,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.1_3
+              v1.1_4
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -227,7 +227,7 @@
           </div>
           <div>
             <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Dnes celkem</p>
-            <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-grams">0.00</span> <span class="text-xs text-brand-400">g</span></p>
+            <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-grams">0.00</span> <span class="text-xs text-brand-400">G</span></p>
           </div>
         </div>
 
@@ -270,11 +270,11 @@
                 oninput="syncSliderFromInput(this.value)"
                 class="w-full bg-darkbg border border-borderbg rounded-xl py-2 pl-3 pr-10 text-xl font-extrabold text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
               >
-              <span class="absolute right-3.5 font-bold text-slate-500 text-sm pointer-events-none">g</span>
+              <span class="absolute right-3.5 font-bold text-slate-500 text-sm pointer-events-none">G</span>
             </div>
 
             <div class="mt-1.5 flex items-center gap-2 bg-darkbg/60 p-1.5 rounded-xl border border-borderbg/60">
-              <span class="text-[10px] text-slate-500 font-mono font-bold">0.50g</span>
+              <span class="text-[10px] text-slate-500 font-mono font-bold">0.50G</span>
               <input 
                 type="range" 
                 id="input-slider" 
@@ -285,14 +285,14 @@
                 oninput="syncInputFromSlider(this.value)"
                 class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
               >
-              <span class="text-[10px] text-slate-500 font-mono font-bold">4.00g</span>
+              <span class="text-[10px] text-slate-500 font-mono font-bold">4.00G</span>
             </div>
 
             <div class="grid grid-cols-4 gap-1.5 mt-1.5">
-              <button type="button" onclick="setQuickAmount(1.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+1.50g</button>
-              <button type="button" onclick="setQuickAmount(2.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.00g</button>
-              <button type="button" onclick="setQuickAmount(2.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.50g</button>
-              <button type="button" onclick="setQuickAmount(3.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+3.00g</button>
+              <button type="button" onclick="setQuickAmount(1.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+1.50G</button>
+              <button type="button" onclick="setQuickAmount(2.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.00G</button>
+              <button type="button" onclick="setQuickAmount(2.5)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+2.50G</button>
+              <button type="button" onclick="setQuickAmount(3.0)" class="py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/50">+3.00G</button>
             </div>
           </div>
 
@@ -379,11 +379,11 @@
       <div class="grid grid-cols-2 gap-2 shrink-0">
         <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
           <p class="text-[10px] font-semibold uppercase text-slate-400">Dnes celkem</p>
-          <p class="text-lg font-black text-white"><span id="tab2-stat-today">0.00</span> <span class="text-xs text-brand-400">g</span></p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-today">0.00</span> <span class="text-xs text-brand-400">G</span></p>
         </div>
         <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
           <p class="text-[10px] font-semibold uppercase text-slate-400">Týdenní průměr</p>
-          <p class="text-lg font-black text-white"><span id="tab2-stat-avg">0.00</span> <span class="text-xs text-brand-400">g/den</span></p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-avg">0.00</span> <span class="text-xs text-brand-400">G/den</span></p>
         </div>
         <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
           <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
@@ -391,11 +391,12 @@
           </p>
           <p class="text-lg font-black text-white"><span id="tab2-stat-interval">--</span></p>
         </div>
-        <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
+        <!-- WIDGET: Denní maximum (dynamická záře a styl podle limitu) -->
+        <div id="tab2-widget-daily-limit" onclick="openExportModal('config')" class="bg-cardbg border border-borderbg rounded-xl p-2.5 cursor-pointer transition-all duration-300 active:scale-95 group">
           <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
-            Od poslední <i class="fa-solid fa-stopwatch text-[10px] text-brand-400"></i>
+            Denní limit <i class="fa-solid fa-bullseye text-[10px] text-brand-400 group-hover:rotate-45 transition-transform"></i>
           </p>
-          <p class="text-lg font-black text-white"><span id="tab2-stat-time-since">--</span></p>
+          <p class="text-lg font-black text-white"><span id="tab2-stat-daily-limit">--</span></p>
         </div>
       </div>
 
@@ -829,6 +830,29 @@
       <div id="settings-tab-config" class="space-y-3 overflow-y-auto custom-scroll pr-0.5">
         <p class="text-xs text-slate-400">Možnosti přizpůsobení a export/import dat.</p>
 
+        <!-- Nastavení denního maxima -->
+        <div class="bg-darkbg border border-borderbg rounded-xl p-3">
+          <label class="block text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-bullseye text-brand-400"></i> Denní limit Gcek
+          </label>
+          <div class="flex items-center gap-2 mt-2">
+            <input 
+              type="number" 
+              id="setting-daily-limit" 
+              step="0.1" 
+              min="0.1" 
+              max="50" 
+              value="5.0" 
+              onchange="updateDailyLimitSetting(this.value)"
+              class="w-24 bg-cardbg border border-borderbg rounded-xl py-1.5 px-3 text-sm font-extrabold text-white text-center focus:outline-none focus:border-brand-500"
+            >
+            <span class="text-xs font-semibold text-slate-400">G / den</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1.5 leading-normal">
+            Ukazuje, kolik Gcek zbývá do splnění limitu nebo o kolik byl překročen.
+          </p>
+        </div>
+
         <div class="bg-darkbg border border-borderbg rounded-xl p-3">
           <label class="block text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5">
             <i class="fa-solid fa-hourglass-half text-brand-400"></i> Interval
@@ -1006,6 +1030,7 @@
     let currentDisplayName = "";
     let logs = [];
     let targetIntervalHours = 4.0;
+    let dailyLimitGrams = 5.0;
     let weeklyChartInstance = null;
     let todayHourlyChartInstance = null;
     let mainChartMode = 'weekly'; // 'weekly' | 'today_hours'
@@ -1622,11 +1647,24 @@
           if (parsed.targetIntervalHours) {
             targetIntervalHours = parseFloat(parsed.targetIntervalHours) || 4.0;
           }
+          if (parsed.dailyLimitGrams !== undefined) {
+            dailyLimitGrams = parseFloat(parsed.dailyLimitGrams) || 5.0;
+          }
         }
       } catch(e) {}
       
       const inputEl = document.getElementById('setting-target-hours');
       if (inputEl) inputEl.value = targetIntervalHours.toFixed(1);
+
+      const limitInputEl = document.getElementById('setting-daily-limit');
+      if (limitInputEl) limitInputEl.value = dailyLimitGrams.toFixed(1);
+    }
+
+    function saveSettings() {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+        targetIntervalHours,
+        dailyLimitGrams
+      }));
     }
 
     function openExportModal(defaultSubTab = 'config') {
@@ -1663,7 +1701,15 @@
       const num = parseFloat(val);
       if (isNaN(num) || num <= 0) return;
       targetIntervalHours = num;
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ targetIntervalHours }));
+      saveSettings();
+      renderAll();
+    }
+
+    function updateDailyLimitSetting(val) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num <= 0) return;
+      dailyLimitGrams = num;
+      saveSettings();
       renderAll();
     }
 
@@ -1943,6 +1989,26 @@
       document.getElementById('tab1-last-time').textContent = lastTimeStr;
       document.getElementById('tab2-stat-today').textContent = todayGrams.toFixed(2);
 
+      // Výpočet denního maxima (zbývá / překročeno) a nastavení dynamické záře
+      const remainingGrams = dailyLimitGrams - todayGrams;
+      const limitEl = document.getElementById('tab2-stat-daily-limit');
+      const widgetDailyLimitEl = document.getElementById('tab2-widget-daily-limit');
+
+      if (limitEl) {
+        if (remainingGrams >= 0) {
+          limitEl.innerHTML = `<span class="text-xs text-sky-400 font-bold">zbývá</span> <span class="text-white">${remainingGrams.toFixed(2)}</span> <span class="text-xs text-sky-400 font-bold">G</span>`;
+          if (widgetDailyLimitEl) {
+            widgetDailyLimitEl.className = "bg-cardbg border border-sky-500/60 shadow-[0_0_15px_rgba(14,165,233,0.35)] rounded-xl p-2.5 cursor-pointer transition-all duration-300 active:scale-95 group";
+          }
+        } else {
+          const exceededGrams = Math.abs(remainingGrams).toFixed(2);
+          limitEl.innerHTML = `<span class="text-red-400">+${exceededGrams}</span> <span class="text-xs text-red-400 font-bold">G navíc</span>`;
+          if (widgetDailyLimitEl) {
+            widgetDailyLimitEl.className = "bg-cardbg border border-red-500/60 shadow-[0_0_15px_rgba(239,68,68,0.4)] rounded-xl p-2.5 cursor-pointer transition-all duration-300 active:scale-95 group";
+          }
+        }
+      }
+
       const chronoLogs = [...logs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       let totalIntervalMins = 0;
       let intervalCount = 0;
@@ -1966,25 +2032,6 @@
         intervalText = h > 0 ? `${h}h ${m}m` : `${m}m`;
       }
       document.getElementById('tab2-stat-interval').textContent = intervalText;
-
-      let timeSinceText = '--';
-      if (logs.length > 0) {
-        const latestTime = new Date(logs[0].timestamp);
-        const now = new Date();
-        const diffMins = Math.max(0, Math.floor((now - latestTime) / (1000 * 60)));
-        const h = Math.floor(diffMins / 60);
-        const m = diffMins % 60;
-
-        if (h >= 24) {
-          const days = Math.floor(h / 24);
-          timeSinceText = `${days}d zpět`;
-        } else if (h > 0) {
-          timeSinceText = `${h}h ${m}m`;
-        } else {
-          timeSinceText = `${m} min`;
-        }
-      }
-      document.getElementById('tab2-stat-time-since').textContent = timeSinceText;
 
       let periods = { rano: 0, odpoledne: 0, vecer: 0, noc: 0 };
 
@@ -2126,7 +2173,7 @@
               bodyColor: '#2dd4bf',
               displayColors: false,
               callbacks: {
-                label: (context) => ` Celkem za den: ${context.raw.toFixed(2)} g`
+                label: (context) => ` Celkem za den: ${context.raw.toFixed(2)} G`
               }
             }
           },
