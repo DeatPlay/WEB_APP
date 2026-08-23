@@ -176,7 +176,6 @@
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Plynulé animace pro Ranks Roadmap Modal */
     #ranks-modal {
       transition: opacity 0.28s ease, backdrop-filter 0.28s ease;
     }
@@ -618,12 +617,12 @@
 
   <!-- INTERAKTIVNÍ ROADMAP MODAL S ANIMACEMI -->
   <div id="ranks-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-closed hidden">
-    <div id="ranks-modal-card" class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+    <div id="ranks-modal-card" class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-4 sm:p-5 shadow-2xl relative flex flex-col max-h-[90vh]">
       <button onclick="closeRanksModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <div class="text-center mb-4 shrink-0">
+      <div class="text-center mb-3 shrink-0">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-brand-400 flex items-center justify-center text-slate-950 text-xl font-black mx-auto mb-2 shadow-lg shadow-amber-500/20">
           <i class="fa-solid fa-map"></i>
         </div>
@@ -631,8 +630,8 @@
         <p class="text-xs text-slate-400 mt-0.5">Váš postup: <strong id="ranks-modal-user-grams" class="text-brand-400 font-extrabold font-mono">0.00 G</strong> • Průměr/zápis: <strong id="ranks-modal-user-avg" class="text-brand-400 font-extrabold font-mono">0.00 G</strong></p>
       </div>
 
-      <!-- Scrollable Roadmap Tree -->
-      <div id="roadmap-tree-container" class="space-y-4 overflow-y-auto custom-scroll pr-1 flex-1 relative pl-2">
+      <!-- Scrollable Roadmap Tree s dostatečným paddingem proti ořezávání záře -->
+      <div id="roadmap-tree-container" class="space-y-4 overflow-y-auto custom-scroll px-3 py-2.5 flex-1 relative">
         <!-- Dynamicky generováno pomocí renderRoadmapTree() -->
       </div>
 
@@ -1500,14 +1499,12 @@
       }
     }
 
-    // Výpočet průměrné dávky na 1 zápis napříč dny
     function getUserAveragePerDose() {
       if (logs.length === 0) return 0;
       const totalGrams = logs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
       return totalGrams / logs.length;
     }
 
-    // Určení ranku podle obou podmínek (celkový součet i průměrná dávka na zápis)
     function getCurrentRankData(totalGrams, avgPerDose) {
       let qualifiedRank = RANKS_CONFIG[0];
 
@@ -1589,7 +1586,6 @@
       renderRoadmapTree(totalGrams, avgPerDose, rankData.key);
     }
 
-    // Vykreslení interaktivního vertikálního stromu (Roadmapy)
     function renderRoadmapTree(totalGrams, avgPerDose, activeRankKey) {
       const container = document.getElementById('roadmap-tree-container');
       if (!container) return;
@@ -1683,7 +1679,6 @@
       updateRankBadge();
       const modal = document.getElementById('ranks-modal');
       modal.classList.remove('hidden');
-      // Vynutíme reflow a spustíme plynulý scale & fade in
       requestAnimationFrame(() => {
         modal.classList.remove('modal-closed');
         modal.classList.add('modal-open');
