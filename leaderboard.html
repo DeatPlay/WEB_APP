@@ -6,7 +6,6 @@
   <meta name="view-transition" content="same-origin">
   <title>Leaderboard | Grammi</title>
 
-  <!-- Tailwind CSS & FontAwesome & Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -50,10 +49,9 @@
       color: #f1f5f9;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
-      display: none; /* Skryto, dokud se neověří přihlášení */
+      display: none;
     }
 
-    /* Plynulý vstup při příchodu zprava */
     .page-slide-in-right {
       animation: slideInFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
@@ -69,7 +67,6 @@
       }
     }
 
-    /* Plynulý odsun doprava při návratu */
     .page-slide-out-right {
       transform: translateX(35px);
       opacity: 0;
@@ -77,7 +74,6 @@
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
-    /* Scrollbar */
     .custom-scroll::-webkit-scrollbar {
       width: 4px;
     }
@@ -89,7 +85,6 @@
       border-radius: 4px;
     }
 
-    /* Liquid Glass Pill Navigation */
     .liquid-glass-nav {
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(24px) saturate(190%);
@@ -106,7 +101,6 @@
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Ambient background gold glow */
     .ambient-glow {
       position: absolute;
       width: 320px;
@@ -119,7 +113,6 @@
       z-index: 0;
     }
 
-    /* Rank Glow efekty pro badge */
     .rank-badge-bronze {
       background: rgba(217, 119, 6, 0.12);
       border-color: rgba(217, 119, 6, 0.35);
@@ -151,7 +144,6 @@
       box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
     }
 
-    /* Plynulá CSS Grid animace otevírání/zavírání */
     .details-accordion {
       display: grid;
       grid-template-rows: 0fr;
@@ -175,12 +167,10 @@
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
 
-  <!-- Ambient Glow -->
   <div class="ambient-glow"></div>
 
   <div id="leaderboard-wrapper" class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden relative z-10 page-slide-in-right">
 
-    <!-- Top Header -->
     <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
       <div class="flex items-center gap-2.5">
         <button onclick="navigateBack('dashboard.html?from=leaderboard')" class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-300 hover:text-white transition-colors active:scale-95 shadow-md cursor-pointer" title="Zpět na Dashboard">
@@ -202,7 +192,6 @@
       </div>
     </header>
 
-    <!-- Sorting Bar (Apple Liquid Pill) -->
     <div class="liquid-glass-nav rounded-2xl p-1 relative grid grid-cols-2 gap-0 shrink-0">
       <div 
         id="sort-pill" 
@@ -226,16 +215,13 @@
       </button>
     </div>
 
-    <!-- Leaderboard List Card -->
     <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col overflow-hidden">
       
-      <!-- List Header / Subtitle -->
       <div class="flex justify-between items-center mb-2 pb-2 border-b border-borderbg/60 shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
         <span>Uživatel & Pořadí</span>
         <span id="sort-indicator-label">Celkem (Max)</span>
       </div>
 
-      <!-- Scrollable Top 10 Container -->
       <div id="leaderboard-list" class="space-y-1.5 flex-1 overflow-y-auto custom-scroll pr-1">
         <div class="text-center py-8 text-slate-500 text-xs flex flex-col items-center justify-center gap-2">
           <i class="fa-solid fa-spinner fa-spin text-lg text-amber-400"></i>
@@ -244,7 +230,6 @@
       </div>
     </div>
 
-    <!-- Bottom Back to Dashboard Action -->
     <button 
       type="button"
       onclick="navigateBack('dashboard.html?from=leaderboard')" 
@@ -255,7 +240,6 @@
 
   </div>
 
-  <!-- Načtení oficiální Supabase JS knihovny -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
@@ -275,7 +259,6 @@
     let currentUserId = null;
     let expandedUserId = null;
 
-    // 1. Ověření, že je uživatel přihlášený
     async function checkAuth() {
       const { data: { session }, error } = await db.auth.getSession();
 
@@ -290,7 +273,6 @@
       await loadLeaderboard();
     }
 
-    // 2. Plynulý návrat na Dashboard
     function navigateBack(url) {
       const wrapper = document.getElementById('leaderboard-wrapper');
       wrapper.classList.remove('page-slide-in-right');
@@ -300,7 +282,6 @@
       }, 220);
     }
 
-    // 3. Pomocná funkce pro výpočet ranku uživatele
     function getUserRankBadgeHTML(totalGrams) {
       let rankName = "BRONZE";
       let rankIcon = "fa-shield";
@@ -335,7 +316,6 @@
       `;
     }
 
-    // 4. Načtení dat z PostgreSQL Supabase
     async function loadLeaderboard() {
       try {
         const { data: { session } } = await db.auth.getSession();
@@ -345,13 +325,14 @@
 
         const { data, error } = await db
           .from('leaderboard_view')
-          .select('user_id, display_name, total_grams, max_dose, dose_count, recent_doses');
+          .select('user_id, display_name, avatar_url, total_grams, max_dose, dose_count, recent_doses');
 
         if (error) throw error;
 
         leaderboardData = (data || []).map(row => ({
           id: row.user_id,
           name: row.display_name || 'Anonym',
+          avatarUrl: row.avatar_url || '',
           totalGrams: parseFloat(row.total_grams) || 0,
           maxDose: parseFloat(row.max_dose) || 0,
           recentDoses: Array.isArray(row.recent_doses) ? row.recent_doses : [],
@@ -395,7 +376,6 @@
     function toggleUserDetails(userId) {
       const isExpanding = expandedUserId !== userId;
 
-      // Zavřít předchozí otevřený
       if (expandedUserId && expandedUserId !== userId) {
         const prevAcc = document.getElementById(`acc-${expandedUserId}`);
         const prevChev = document.getElementById(`chev-${expandedUserId}`);
@@ -405,7 +385,6 @@
 
       expandedUserId = isExpanding ? userId : null;
 
-      // Otevřít / zavřít aktuální s plynulou animací
       const currentAcc = document.getElementById(`acc-${userId}`);
       const currentChev = document.getElementById(`chev-${userId}`);
 
@@ -491,6 +470,10 @@
               `;
             }).join('');
 
+        const avatarHTML = user.avatarUrl 
+          ? `<img src="${user.avatarUrl}" alt="${user.name}" class="w-7 h-7 rounded-lg object-cover border border-borderbg/80 shrink-0">`
+          : `<div class="w-7 h-7 rounded-lg bg-darkbg border border-borderbg/80 flex items-center justify-center text-slate-500 text-xs shrink-0"><i class="fa-solid fa-user"></i></div>`;
+
         return `
           <div class="bg-darkbg/70 border ${cardBorder} rounded-xl overflow-hidden text-xs transition-all hover:bg-darkbg">
             <div onclick="toggleUserDetails('${user.id}')" class="p-2.5 flex justify-between items-center cursor-pointer select-none">
@@ -498,6 +481,9 @@
                 <div class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-bold shrink-0 ${badgeStyle}">
                   ${rankIcon}
                 </div>
+
+                ${avatarHTML}
+
                 <div>
                   <div class="flex items-center gap-1.5 flex-wrap leading-tight">
                     <span class="font-bold text-white text-xs">${user.name}</span>
@@ -531,7 +517,6 @@
       }).join('');
     }
 
-    // Spustit autentizaci při načtení
     checkAuth();
   </script>
 </body>

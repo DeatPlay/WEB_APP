@@ -158,7 +158,6 @@
       100% { box-shadow: 0 0 25px rgba(217, 70, 239, 0.75), 0 0 14px rgba(96, 165, 250, 0.6); }
     }
 
-    /* Plynulá expanze pomocí CSS Grid */
     .expandable-grid {
       display: grid;
       grid-template-rows: 0fr;
@@ -171,7 +170,6 @@
       overflow: hidden;
     }
 
-    /* Carousel posun grafů */
     .chart-slider-track {
       display: flex;
       width: 200%;
@@ -318,7 +316,6 @@
             </button>
           </div>
 
-          <!-- PŘEPÍNACÍ TLAČÍTKO: Zaznamenání polohy -->
           <button 
             type="button" 
             id="btn-toggle-location" 
@@ -391,7 +388,6 @@
           </p>
           <p class="text-lg font-black text-white"><span id="tab2-stat-interval">--</span></p>
         </div>
-        <!-- WIDGET: Denní maximum (dynamická záře a styl podle limitu) -->
         <div id="tab2-widget-daily-limit" onclick="openExportModal('config')" class="bg-cardbg border border-borderbg rounded-xl p-2.5 cursor-pointer transition-all duration-300 active:scale-95 group">
           <p class="text-[10px] font-semibold uppercase text-slate-400 flex items-center justify-between">
             Denní limit <i class="fa-solid fa-bullseye text-[10px] text-brand-400 group-hover:rotate-45 transition-transform"></i>
@@ -400,7 +396,6 @@
         </div>
       </div>
 
-      <!-- ROZŠIŘITELNÝ WIDGET: Časová okna -->
       <div 
         id="widget-time-windows"
         onclick="toggleTimeWindowsExpanded(event)"
@@ -458,7 +453,6 @@
           </div>
         </div>
 
-        <!-- Rozbalovací sekce s animovaným Grid obalem -->
         <div id="hourly-chart-grid" class="expandable-grid">
           <div class="expandable-inner">
             <div id="hourly-chart-content" class="mt-3 pt-3 border-t border-borderbg/60 opacity-0 -translate-y-2 transition-all duration-300 ease-out">
@@ -473,7 +467,6 @@
         </div>
       </div>
 
-      <!-- Spodní widget: Plynule posuvný Carousel dvou grafů -->
       <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 overflow-hidden">
         <div class="flex justify-between items-center mb-1.5">
           <button 
@@ -501,11 +494,9 @@
 
         <div class="w-full relative overflow-hidden">
           <div id="main-chart-slider" class="chart-slider-track">
-            <!-- 1. Týdenní graf -->
             <div class="w-1/2 h-28 pr-1 relative">
               <canvas id="weeklyChart"></canvas>
             </div>
-            <!-- 2. Dnešní rozpis podle hodin v gramech -->
             <div class="w-1/2 h-28 pl-1 relative">
               <canvas id="todayHourlyChart"></canvas>
             </div>
@@ -527,7 +518,6 @@
         <i class="fa-solid fa-arrow-right text-[11px] text-amber-400/80"></i>
       </button>
 
-      <!-- Tlačítko pro Mapu -->
       <button 
         type="button"
         onclick="navigateToPage('mapa.html')"
@@ -542,7 +532,6 @@
         <i class="fa-solid fa-arrow-right text-[11px] text-brand-400/80"></i>
       </button>
 
-      <!-- Tlačítko pro Insights -->
       <button 
         type="button"
         onclick="navigateToPage('insight.html')"
@@ -658,7 +647,7 @@
         <div id="rank-card-gold" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-sm shadow-sm">
-              <i class="fa-solid fa-crown"></i>
+              <i class="fa-crown"></i>
             </div>
             <div>
               <div class="flex items-center gap-1.5">
@@ -830,7 +819,6 @@
       <div id="settings-tab-config" class="space-y-3 overflow-y-auto custom-scroll pr-0.5">
         <p class="text-xs text-slate-400">Možnosti přizpůsobení a export/import dat.</p>
 
-        <!-- Nastavení denního maxima -->
         <div class="bg-darkbg border border-borderbg rounded-xl p-3">
           <label class="block text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5">
             <i class="fa-solid fa-bullseye text-brand-400"></i> Denní limit Gcek
@@ -932,9 +920,8 @@
           </ul>
         </div>
 
-        <!-- Honorable Mention -->
         <p class="text-[10px] text-slate-500 italic text-center pt-2 pb-1">
-          Honorable mention:  <span class="rank-text-glow-silver font-semibold not-italic">Peťas</span>
+          Honorable mention: <span class="rank-text-glow-silver font-semibold not-italic">Peťas</span>
         </p>
       </div>
     </div>
@@ -1033,12 +1020,13 @@
     let currentUserId = null;
     let currentUserCreatedAt = null;
     let currentDisplayName = "";
+    let currentUserAvatar = "";
     let logs = [];
     let targetIntervalHours = 4.0;
     let dailyLimitGrams = 5.0;
     let weeklyChartInstance = null;
     let todayHourlyChartInstance = null;
-    let mainChartMode = 'weekly'; // 'weekly' | 'today_hours'
+    let mainChartMode = 'weekly';
     let hourlyChartInstance = null;
     let activeTab = 'input';
     let isCustomTimeSet = false;
@@ -1054,7 +1042,6 @@
       }, 240);
     }
 
-    // Plynulý posuvný carousel pro grafy
     function switchMainChart(direction = 'next') {
       const slider = document.getElementById('main-chart-slider');
       const titleEl = document.getElementById('main-chart-title');
@@ -1078,7 +1065,6 @@
       }
     }
 
-    // Animované otevření/zavření widgetu Časová okna
     function toggleTimeWindowsExpanded(e) {
       if (e) e.stopPropagation();
       isTimeWindowsExpanded = !isTimeWindowsExpanded;
@@ -1118,7 +1104,6 @@
       }
     }
 
-    // Zavření při kliknutí mimo
     document.addEventListener('click', (e) => {
       const widget = document.getElementById('widget-time-windows');
       if (widget && !widget.contains(e.target) && isTimeWindowsExpanded) {
@@ -1317,6 +1302,7 @@
       currentUserEmail = session.user.email;
       currentUserCreatedAt = session.user.created_at;
       currentDisplayName = (session.user.user_metadata && session.user.user_metadata.display_name) ? session.user.user_metadata.display_name : '';
+      currentUserAvatar = (session.user.user_metadata && session.user.user_metadata.avatar_url) ? session.user.user_metadata.avatar_url : (localStorage.getItem(getAvatarStorageKey()) || '');
 
       document.getElementById('profile-user-email').textContent = currentUserEmail;
       const displayNameInput = document.getElementById('input-display-name');
@@ -1328,7 +1314,7 @@
       }
 
       checkDevStatus(session.user);
-      loadLocalAvatar();
+      renderAvatarUI(currentUserAvatar);
       
       const bodyEl = document.getElementById('main-body');
       
@@ -1387,14 +1373,13 @@
       return `grammi_avatar_${currentUserId || 'default'}`;
     }
 
-    function loadLocalAvatar() {
-      const savedAvatar = localStorage.getItem(getAvatarStorageKey());
+    function renderAvatarUI(base64Url) {
       const modalImg = document.getElementById('modal-avatar-img');
       const modalIcon = document.getElementById('modal-avatar-icon');
       const removeBtn = document.getElementById('btn-remove-avatar');
 
-      if (savedAvatar) {
-        modalImg.src = savedAvatar;
+      if (base64Url) {
+        modalImg.src = base64Url;
         modalImg.classList.remove('hidden');
         modalIcon.classList.add('hidden');
         removeBtn.classList.remove('hidden');
@@ -1406,33 +1391,83 @@
       }
     }
 
-    function handleAvatarUpload(event) {
+    // Zmenšení a komprese obrázku na lehký formát (max 96x96 px)
+    function resizeImage(file, maxSize = 96, quality = 0.75) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (readerEvent) => {
+          const image = new Image();
+          image.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = image.width;
+            let height = image.height;
+
+            if (width > height) {
+              if (width > maxSize) {
+                height = Math.round((height * maxSize) / width);
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width = Math.round((width * maxSize) / height);
+                height = maxSize;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          image.onerror = reject;
+          image.src = readerEvent.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleAvatarUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      if (file.size > 2 * 1024 * 1024) {
-        showToast('Obrázek je moc velký (max 2MB)');
-        return;
-      }
+      showToast('Nahrávám profilovou fotku...');
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Data = e.target.result;
-        try {
-          localStorage.setItem(getAvatarStorageKey(), base64Data);
-          loadLocalAvatar();
-          showToast('Profilová fotka uložena');
-        } catch (err) {
-          showToast('Nepodařilo se uložit fotku do úložiště');
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedBase64 = await resizeImage(file, 96, 0.75);
+
+        const { data, error } = await db.auth.updateUser({
+          data: { avatar_url: compressedBase64 }
+        });
+
+        if (error) throw error;
+
+        currentUserAvatar = compressedBase64;
+        localStorage.setItem(getAvatarStorageKey(), compressedBase64);
+        renderAvatarUI(compressedBase64);
+        showToast('Profilová fotka uložena do cloudu');
+      } catch (err) {
+        console.error('Chyba při nahrávání fotky:', err);
+        showToast('Chyba při ukládání fotky');
+      }
     }
 
-    function removeAvatar() {
-      localStorage.removeItem(getAvatarStorageKey());
-      loadLocalAvatar();
-      showToast('Profilová fotka odstraněna');
+    async function removeAvatar() {
+      try {
+        const { error } = await db.auth.updateUser({
+          data: { avatar_url: null }
+        });
+        if (error) throw error;
+
+        currentUserAvatar = "";
+        localStorage.removeItem(getAvatarStorageKey());
+        renderAvatarUI("");
+        showToast('Profilová fotka odstraněna');
+      } catch (err) {
+        console.error(err);
+        showToast('Chyba při mazání profilové fotky');
+      }
     }
 
     function updateRankBadge() {
@@ -1616,6 +1651,7 @@
       updateRankBadge();
       const displayNameInput = document.getElementById('input-display-name');
       if (displayNameInput) displayNameInput.value = currentDisplayName;
+      renderAvatarUI(currentUserAvatar);
       document.getElementById('profile-modal').classList.remove('hidden');
     }
 
@@ -1994,7 +2030,6 @@
       document.getElementById('tab1-last-time').textContent = lastTimeStr;
       document.getElementById('tab2-stat-today').textContent = todayGrams.toFixed(2);
 
-      // Výpočet denního maxima (zbývá / překročeno) a nastavení dynamické záře
       const remainingGrams = dailyLimitGrams - todayGrams;
       const limitEl = document.getElementById('tab2-stat-daily-limit');
       const widgetDailyLimitEl = document.getElementById('tab2-widget-daily-limit');
