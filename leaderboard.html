@@ -475,16 +475,18 @@
         const dosesHTML = user.recentDoses.length === 0 
           ? `<div class="text-[11px] text-slate-500 italic py-0.5 text-center">Žádné dávky</div>`
           : user.recentDoses.map(item => {
-              const dateObj = new Date(item.created_at);
+              const rawTimestamp = item.timestamp || item.created_at;
+              const dateObj = new Date(rawTimestamp);
               let dayName = dateObj.toLocaleDateString('cs-CZ', { weekday: 'long' });
               dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
               const formattedTime = dateObj.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+              const gramsValue = parseFloat(item.grams !== undefined ? item.grams : item.amount) || 0;
               return `
                 <div class="flex items-center justify-between text-xs bg-slate-900/65 px-2.5 py-1 rounded-lg border border-borderbg/40">
                   <span class="text-slate-300 font-medium flex items-center gap-1.5">
                     <i class="fa-regular fa-clock text-[10px] text-amber-400/70"></i> ${dayName} ${formattedTime}
                   </span>
-                  <span class="font-black text-amber-400 font-mono text-xs">${parseFloat(item.grams).toFixed(2)} g</span>
+                  <span class="font-black text-amber-400 font-mono text-xs">${gramsValue.toFixed(2)} g</span>
                 </div>
               `;
             }).join('');
