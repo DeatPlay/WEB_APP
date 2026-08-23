@@ -740,7 +740,6 @@
         <i class="fa-regular fa-calendar-check text-[10px] text-brand-400"></i> Členem od: <strong id="profile-created-date" class="text-slate-400 font-semibold">--</strong>
       </p>
 
-      <!-- EDITACE PŘEZDÍVKY -->
       <div class="w-full my-2 bg-darkbg/90 p-2 rounded-2xl border border-borderbg">
         <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider text-left mb-1 pl-1">Přezdívka (Leaderboard)</label>
         <div class="flex items-center gap-1.5">
@@ -763,7 +762,6 @@
         </div>
       </div>
 
-      <!-- RANK Card Badge -->
       <div onclick="closeProfileModal(); openRanksModal();" id="profile-rank-card" class="w-full rounded-2xl p-3 border mb-3 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group">
         <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-1.5">
@@ -1378,20 +1376,21 @@
       const modalIcon = document.getElementById('modal-avatar-icon');
       const removeBtn = document.getElementById('btn-remove-avatar');
 
+      if (!modalImg || !modalIcon) return;
+
       if (base64Url) {
         modalImg.src = base64Url;
         modalImg.classList.remove('hidden');
         modalIcon.classList.add('hidden');
-        removeBtn.classList.remove('hidden');
+        if (removeBtn) removeBtn.classList.remove('hidden');
       } else {
         modalImg.src = '';
         modalImg.classList.add('hidden');
         modalIcon.classList.remove('hidden');
-        removeBtn.classList.add('hidden');
+        if (removeBtn) removeBtn.classList.add('hidden');
       }
     }
 
-    // Zmenšení a komprese obrázku na lehký formát (max 96x96 px)
     function resizeImage(file, maxSize = 96, quality = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1446,7 +1445,7 @@
         currentUserAvatar = compressedBase64;
         localStorage.setItem(getAvatarStorageKey(), compressedBase64);
         renderAvatarUI(compressedBase64);
-        showToast('Profilová fotka uložena do cloudu');
+        showToast('Profilová fotka uložena');
       } catch (err) {
         console.error('Chyba při nahrávání fotky:', err);
         showToast('Chyba při ukládání fotky');
@@ -1651,7 +1650,11 @@
       updateRankBadge();
       const displayNameInput = document.getElementById('input-display-name');
       if (displayNameInput) displayNameInput.value = currentDisplayName;
-      renderAvatarUI(currentUserAvatar);
+      
+      // Zajistí vykreslení profilové fotky při každém otevření
+      const savedAvatar = currentUserAvatar || localStorage.getItem(getAvatarStorageKey()) || '';
+      renderAvatarUI(savedAvatar);
+      
       document.getElementById('profile-modal').classList.remove('hidden');
     }
 
