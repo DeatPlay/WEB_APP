@@ -175,6 +175,30 @@
       width: 200%;
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Plynulé animace pro Ranks Roadmap Modal */
+    #ranks-modal {
+      transition: opacity 0.28s ease, backdrop-filter 0.28s ease;
+    }
+    #ranks-modal-card {
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+    }
+    #ranks-modal.modal-closed {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #ranks-modal.modal-closed #ranks-modal-card {
+      transform: scale(0.92) translateY(18px);
+      opacity: 0;
+    }
+    #ranks-modal.modal-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #ranks-modal.modal-open #ranks-modal-card {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
@@ -190,7 +214,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.1_4
+              v1.1_5
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -201,7 +225,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <div onclick="openRanksModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Zobrazit všechny Ranky">
+        <div onclick="openRanksModal()" id="header-rank-badge" class="flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1" title="Zobrazit Rank Roadmap">
           <i id="header-rank-icon" class="fa-solid fa-shield text-[11px]"></i>
           <span id="header-rank-text" class="text-xs font-black uppercase tracking-wider leading-none">BRONZE</span>
         </div>
@@ -592,115 +616,28 @@
 
   </div>
 
-  <!-- Modal Ranks -->
-  <div id="ranks-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+  <!-- INTERAKTIVNÍ ROADMAP MODAL S ANIMACEMI -->
+  <div id="ranks-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-closed hidden">
+    <div id="ranks-modal-card" class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
       <button onclick="closeRanksModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <div class="text-center mb-3.5 shrink-0">
+      <div class="text-center mb-4 shrink-0">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-brand-400 flex items-center justify-center text-slate-950 text-xl font-black mx-auto mb-2 shadow-lg shadow-amber-500/20">
-          <i class="fa-solid fa-shield-halved"></i>
+          <i class="fa-solid fa-map"></i>
         </div>
-        <h3 class="text-base font-black text-white">Ranks</h3>
-        <p class="text-xs text-slate-400 mt-0.5">Váš celkový součet: <strong id="ranks-modal-user-grams" class="text-brand-400 font-extrabold font-mono">0.00 g</strong></p>
+        <h3 class="text-base font-black text-white tracking-tight">Rank Progression</h3>
+        <p class="text-xs text-slate-400 mt-0.5">Váš postup: <strong id="ranks-modal-user-grams" class="text-brand-400 font-extrabold font-mono">0.00 G</strong> • Průměr/zápis: <strong id="ranks-modal-user-avg" class="text-brand-400 font-extrabold font-mono">0.00 G</strong></p>
       </div>
 
-      <div class="space-y-2 overflow-y-auto custom-scroll pr-1 flex-1">
-        <div id="rank-card-bronze" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-700/20 border border-amber-600/30 flex items-center justify-center text-amber-500 text-sm shadow-sm">
-              <i class="fa-solid fa-shield"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider">BRONZE</h4>
-                <span id="rank-tag-bronze" class="hidden text-[9px] font-black bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
-              </div>
-              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Základní úroveň</p>
-            </div>
-          </div>
-          <div class="text-right font-mono">
-            <span class="text-xs font-black text-white">0 – 20</span> <span class="text-[10px] text-slate-400">g</span>
-          </div>
-        </div>
-
-        <div id="rank-card-silver" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-slate-400/20 border border-slate-300/30 flex items-center justify-center text-slate-300 text-sm shadow-sm">
-              <i class="fa-solid fa-medal"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-black uppercase text-slate-300 tracking-wider">SILVER</h4>
-                <span id="rank-tag-silver" class="hidden text-[9px] font-black bg-slate-300/20 border border-slate-300/40 text-slate-200 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
-              </div>
-              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Pokročilý člen</p>
-            </div>
-          </div>
-          <div class="text-right font-mono">
-            <span class="text-xs font-black text-white">21 – 50</span> <span class="text-[10px] text-slate-400">g</span>
-          </div>
-        </div>
-
-        <div id="rank-card-gold" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-sm shadow-sm">
-              <i class="fa-crown"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-black uppercase text-amber-400 tracking-wider">GOLD</h4>
-                <span id="rank-tag-gold" class="hidden text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
-              </div>
-              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Zkušený uživatel</p>
-            </div>
-          </div>
-          <div class="text-right font-mono">
-            <span class="text-xs font-black text-white">51 – 100</span> <span class="text-[10px] text-slate-400">g</span>
-          </div>
-        </div>
-
-        <div id="rank-card-platina" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-400 text-sm shadow-sm">
-              <i class="fa-solid fa-gem"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-black uppercase text-brand-400 tracking-wider">PLATINA</h4>
-                <span id="rank-tag-platina" class="hidden text-[9px] font-black bg-brand-400/20 border border-brand-400/40 text-brand-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
-              </div>
-              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Elitní třída</p>
-            </div>
-          </div>
-          <div class="text-right font-mono">
-            <span class="text-xs font-black text-white">101 – 500</span> <span class="text-[10px] text-slate-400">g</span>
-          </div>
-        </div>
-
-        <div id="rank-card-diamond" class="bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-400 text-sm shadow-sm">
-              <i class="fa-solid fa-bolt-lightning"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-black uppercase text-purple-400 tracking-wider">DIAMOND</h4>
-                <span id="rank-tag-diamond" class="hidden text-[9px] font-black bg-purple-500/25 border border-purple-400/50 text-purple-300 px-1.5 py-0.2 rounded">AKTIVNÍ</span>
-              </div>
-              <p class="text-[10px] text-slate-400 font-medium mt-0.5">Legendární status</p>
-            </div>
-          </div>
-          <div class="text-right font-mono">
-            <span class="text-xs font-black text-white">501 – 1000+</span> <span class="text-[10px] text-slate-400">g</span>
-          </div>
-        </div>
+      <!-- Scrollable Roadmap Tree -->
+      <div id="roadmap-tree-container" class="space-y-4 overflow-y-auto custom-scroll pr-1 flex-1 relative pl-2">
+        <!-- Dynamicky generováno pomocí renderRoadmapTree() -->
       </div>
 
       <button onclick="closeRanksModal()" class="w-full py-2.5 mt-3 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer shrink-0">
-        Rozumím
+        Zavřít roadmapu
       </button>
     </div>
   </div>
@@ -776,7 +713,7 @@
             </div>
           </div>
           <div class="text-right">
-            <span id="rank-total-grams" class="text-xs font-extrabold text-white font-mono">0.00</span> <span class="text-[10px] text-slate-400">g celkem</span>
+            <span id="rank-total-grams" class="text-xs font-extrabold text-white font-mono">0.00</span> <span class="text-[10px] text-slate-400">G celkem</span>
           </div>
         </div>
 
@@ -1031,6 +968,100 @@
     let isLocationEnabled = false;
     let isTimeWindowsExpanded = false;
     let cachedCoords = { lat: null, lng: null };
+
+    // Definice hierarchie ranků s podmínkou celkového počtu gramů i minimální průměrné dávky na 1 zápis
+    const RANKS_CONFIG = [
+      {
+        key: 'bronze',
+        name: "BRONZE",
+        icon: "fa-shield",
+        desc: "Základní úroveň",
+        min: 0,
+        max: 20,
+        minPerDose: 0.0,
+        maxPerDose: 0.50,
+        theme: {
+          color: "text-amber-500",
+          bg: "bg-amber-600/20",
+          border: "border-amber-600/50",
+          glow: "rank-glow-bronze",
+          textGlow: "rank-text-glow-bronze",
+          bar: "bg-gradient-to-r from-amber-800 to-amber-600"
+        }
+      },
+      {
+        key: 'silver',
+        name: "SILVER",
+        icon: "fa-medal",
+        desc: "Pokročilý člen",
+        min: 20,
+        max: 50,
+        minPerDose: 0.51,
+        maxPerDose: 1.00,
+        theme: {
+          color: "text-slate-300",
+          bg: "bg-slate-400/20",
+          border: "border-slate-400/50",
+          glow: "rank-glow-silver",
+          textGlow: "rank-text-glow-silver",
+          bar: "bg-gradient-to-r from-slate-400 to-slate-200"
+        }
+      },
+      {
+        key: 'gold',
+        name: "GOLD",
+        icon: "fa-crown",
+        desc: "Zkušený uživatel",
+        min: 50,
+        max: 100,
+        minPerDose: 1.01,
+        maxPerDose: 1.50,
+        theme: {
+          color: "text-amber-400",
+          bg: "bg-amber-500/20",
+          border: "border-amber-400/60",
+          glow: "rank-glow-gold",
+          textGlow: "rank-text-glow-gold",
+          bar: "bg-gradient-to-r from-amber-500 to-amber-300"
+        }
+      },
+      {
+        key: 'platina',
+        name: "PLATINA",
+        icon: "fa-gem",
+        desc: "Elitní třída",
+        min: 100,
+        max: 500,
+        minPerDose: 1.51,
+        maxPerDose: 2.00,
+        theme: {
+          color: "text-brand-400",
+          bg: "bg-brand-500/20",
+          border: "border-brand-400/60",
+          glow: "rank-glow-platina",
+          textGlow: "rank-text-glow-platina",
+          bar: "bg-gradient-to-r from-teal-500 to-brand-400"
+        }
+      },
+      {
+        key: 'diamond',
+        name: "DIAMOND",
+        icon: "fa-bolt-lightning",
+        desc: "Legendární status",
+        min: 500,
+        max: 1000,
+        minPerDose: 2.01,
+        maxPerDose: Infinity,
+        theme: {
+          color: "text-purple-400",
+          bg: "bg-purple-500/25",
+          border: "border-purple-400/70",
+          glow: "rank-glow-diamond",
+          textGlow: "rank-text-glow-diamond",
+          bar: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+        }
+      }
+    ];
 
     function navigateToPage(url) {
       const container = document.getElementById('main-body');
@@ -1469,8 +1500,34 @@
       }
     }
 
+    // Výpočet průměrné dávky na 1 zápis napříč dny
+    function getUserAveragePerDose() {
+      if (logs.length === 0) return 0;
+      const totalGrams = logs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
+      return totalGrams / logs.length;
+    }
+
+    // Určení ranku podle obou podmínek (celkový součet i průměrná dávka na zápis)
+    function getCurrentRankData(totalGrams, avgPerDose) {
+      let qualifiedRank = RANKS_CONFIG[0];
+
+      for (let i = RANKS_CONFIG.length - 1; i >= 0; i--) {
+        const r = RANKS_CONFIG[i];
+        const meetsGrams = totalGrams >= r.min;
+        const meetsDoseAvg = avgPerDose >= r.minPerDose;
+
+        if (meetsGrams && meetsDoseAvg) {
+          qualifiedRank = r;
+          break;
+        }
+      }
+
+      return qualifiedRank;
+    }
+
     function updateRankBadge() {
       const totalGrams = logs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
+      const avgPerDose = getUserAveragePerDose();
       
       const headerRankBadge = document.getElementById('header-rank-badge');
       const headerRankIcon = document.getElementById('header-rank-icon');
@@ -1487,163 +1544,159 @@
       const rankProgressNext = document.getElementById('rank-progress-next');
 
       rankTotalGramsEl.textContent = totalGrams.toFixed(2);
-      rankProgressCurrent.textContent = `${totalGrams.toFixed(1)} g`;
+      rankProgressCurrent.textContent = `${totalGrams.toFixed(1)} G • ${avgPerDose.toFixed(2)} G/zápis`;
 
       const ranksModalGrams = document.getElementById('ranks-modal-user-grams');
-      if (ranksModalGrams) ranksModalGrams.textContent = `${totalGrams.toFixed(2)} g`;
+      if (ranksModalGrams) ranksModalGrams.textContent = `${totalGrams.toFixed(2)} G`;
+      
+      const ranksModalAvg = document.getElementById('ranks-modal-user-avg');
+      if (ranksModalAvg) ranksModalAvg.textContent = `${avgPerDose.toFixed(2)} G`;
 
       rankAvatarFrame.className = "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden transition-all duration-500 bg-darkbg";
       rankCard.className = "w-full rounded-2xl p-3 border mb-3 text-left transition-all duration-500 relative overflow-hidden bg-darkbg/90 cursor-pointer active:scale-95 group";
       headerRankBadge.className = "flex items-center gap-1.5 cursor-pointer transition-all duration-300 active:scale-95 px-1 py-1";
 
-      let rankKey = 'bronze';
-      let rankData = {
-        name: "BRONZE",
-        icon: "fa-shield",
-        colorClass: "text-amber-500",
-        bgIconClass: "bg-amber-600/20 text-amber-500",
-        borderClass: "border-amber-700/50",
-        textGlowClass: "rank-text-glow-bronze",
-        glowClass: "rank-glow-bronze",
-        barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
-        min: 0,
-        max: 20,
-        nextName: "Silver"
-      };
+      const rankData = getCurrentRankData(totalGrams, avgPerDose);
 
-      if (totalGrams <= 20) {
-        rankKey = 'bronze';
-        rankData = {
-          name: "BRONZE",
-          icon: "fa-shield",
-          colorClass: "text-amber-500",
-          bgIconClass: "bg-amber-600/20 text-amber-500",
-          borderClass: "border-amber-700/50",
-          textGlowClass: "rank-text-glow-bronze",
-          glowClass: "rank-glow-bronze",
-          barColor: "bg-gradient-to-r from-amber-800 to-amber-600",
-          min: 0,
-          max: 20,
-          nextName: "Silver"
-        };
-      } else if (totalGrams <= 50) {
-        rankKey = 'silver';
-        rankData = {
-          name: "SILVER",
-          icon: "fa-medal",
-          colorClass: "text-slate-300",
-          bgIconClass: "bg-slate-300/20 text-slate-200",
-          borderClass: "border-slate-400/50",
-          textGlowClass: "rank-text-glow-silver",
-          glowClass: "rank-glow-silver",
-          barColor: "bg-gradient-to-r from-slate-400 to-slate-200",
-          min: 20,
-          max: 50,
-          nextName: "Gold"
-        };
-      } else if (totalGrams <= 100) {
-        rankKey = 'gold';
-        rankData = {
-          name: "GOLD",
-          icon: "fa-crown",
-          colorClass: "text-amber-400",
-          bgIconClass: "bg-amber-400/20 text-amber-300",
-          borderClass: "border-amber-400/60",
-          textGlowClass: "rank-text-glow-gold",
-          glowClass: "rank-glow-gold",
-          barColor: "bg-gradient-to-r from-amber-500 to-amber-300",
-          min: 50,
-          max: 100,
-          nextName: "Platina"
-        };
-      } else if (totalGrams <= 500) {
-        rankKey = 'platina';
-        rankData = {
-          name: "PLATINA",
-          icon: "fa-gem",
-          colorClass: "text-brand-400",
-          bgIconClass: "bg-brand-500/20 text-brand-300",
-          borderClass: "border-brand-400/60",
-          textGlowClass: "rank-text-glow-platina",
-          glowClass: "rank-glow-platina",
-          barColor: "bg-gradient-to-r from-teal-500 to-brand-400",
-          min: 100,
-          max: 500,
-          nextName: "Diamond"
-        };
-      } else {
-        rankKey = 'diamond';
-        rankData = {
-          name: "DIAMOND",
-          icon: "fa-bolt-lightning",
-          colorClass: "text-purple-400",
-          bgIconClass: "bg-purple-500/25 text-purple-300",
-          borderClass: "border-purple-400/70",
-          textGlowClass: "rank-text-glow-diamond",
-          glowClass: "rank-glow-diamond",
-          barColor: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500",
-          min: 500,
-          max: 1000,
-          nextName: "MAX RANK"
-        };
-      }
-
-      headerRankBadge.classList.add(rankData.textGlowClass);
+      headerRankBadge.classList.add(rankData.theme.textGlow);
       headerRankText.textContent = rankData.name;
       headerRankIcon.className = `fa-solid ${rankData.icon} text-[11px]`;
 
       rankName.textContent = rankData.name;
-      rankName.className = `text-xs font-black tracking-wide uppercase leading-tight mt-0.5 ${rankData.colorClass}`;
+      rankName.className = `text-xs font-black tracking-wide uppercase leading-tight mt-0.5 ${rankData.theme.color}`;
       rankIcon.className = `fa-solid ${rankData.icon}`;
-      rankIconWrapper.className = `w-6 h-6 rounded-lg flex items-center justify-center text-xs ${rankData.bgIconClass}`;
+      rankIconWrapper.className = `w-6 h-6 rounded-lg flex items-center justify-center text-xs ${rankData.theme.bg} ${rankData.theme.color}`;
       
-      rankAvatarFrame.classList.add(rankData.glowClass);
-      rankCard.classList.add(rankData.borderClass);
+      rankAvatarFrame.classList.add(rankData.theme.glow);
+      rankCard.classList.add(rankData.theme.border);
 
       let pct = 100;
-      if (totalGrams < rankData.max) {
-        pct = Math.max(5, Math.min(100, Math.round(((totalGrams - rankData.min) / (rankData.max - rankData.min)) * 100)));
-        rankProgressNext.textContent = `do ${rankData.nextName}: ${rankData.max} g`;
+      const currentIndex = RANKS_CONFIG.findIndex(r => r.key === rankData.key);
+      const nextRankObj = RANKS_CONFIG[currentIndex + 1];
+
+      if (nextRankObj) {
+        const range = nextRankObj.min - rankData.min;
+        const currentProgress = Math.max(0, Math.min(range, totalGrams - rankData.min));
+        pct = Math.max(5, Math.min(100, Math.round((currentProgress / range) * 100)));
+        rankProgressNext.textContent = `do ${nextRankObj.name}: ${nextRankObj.min} G (min. ${nextRankObj.minPerDose} G/zápis)`;
       } else {
         rankProgressNext.textContent = `Dosaženo maxima! 👑`;
       }
 
-      rankProgressBar.className = `h-full rounded-full transition-all duration-700 ${rankData.barColor}`;
+      rankProgressBar.className = `h-full rounded-full transition-all duration-700 ${rankData.theme.bar}`;
       rankProgressBar.style.width = `${pct}%`;
 
-      highlightActiveRankInModal(rankKey);
+      renderRoadmapTree(totalGrams, avgPerDose, rankData.key);
     }
 
-    function highlightActiveRankInModal(activeKey) {
-      const rankKeys = ['bronze', 'silver', 'gold', 'platina', 'diamond'];
-      
-      rankKeys.forEach(key => {
-        const card = document.getElementById(`rank-card-${key}`);
-        const tag = document.getElementById(`rank-tag-${key}`);
-        
-        if (card && tag) {
-          card.className = "bg-darkbg/80 border border-borderbg/80 rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-          tag.classList.add('hidden');
+    // Vykreslení interaktivního vertikálního stromu (Roadmapy)
+    function renderRoadmapTree(totalGrams, avgPerDose, activeRankKey) {
+      const container = document.getElementById('roadmap-tree-container');
+      if (!container) return;
 
-          if (key === activeKey) {
-            tag.classList.remove('hidden');
-            if (key === 'bronze') card.className = "bg-darkbg/90 border border-amber-600/60 rank-glow-bronze rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-            if (key === 'silver') card.className = "bg-darkbg/90 border border-slate-300/60 rank-glow-silver rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-            if (key === 'gold') card.className = "bg-darkbg/90 border border-amber-400/70 rank-glow-gold rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-            if (key === 'platina') card.className = "bg-darkbg/90 border border-brand-400/80 rank-glow-platina rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-            if (key === 'diamond') card.className = "bg-darkbg/90 border border-purple-400/90 rank-glow-diamond rounded-2xl p-3 flex items-center justify-between transition-all duration-300";
-          }
+      container.innerHTML = '';
+
+      RANKS_CONFIG.forEach((rank, index) => {
+        const meetsGrams = totalGrams >= rank.min;
+        const meetsDoseAvg = avgPerDose >= rank.minPerDose;
+        const isQualified = meetsGrams && meetsDoseAvg;
+
+        const isCurrentActive = rank.key === activeRankKey;
+        const isCompleted = isQualified && !isCurrentActive;
+
+        let nodeClass = "border-slate-700 bg-slate-900 text-slate-500";
+        let cardBgClass = "bg-darkbg/50 border-borderbg/60 opacity-60";
+        let statusBadge = `<span class="text-[9px] font-bold text-slate-500 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/50 flex items-center gap-1"><i class="fa-solid fa-lock text-[8px]"></i> Zamčeno</span>`;
+        let progressBarHTML = '';
+
+        if (isCompleted) {
+          nodeClass = "border-emerald-500/80 bg-emerald-500/20 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]";
+          cardBgClass = "bg-darkbg/80 border-emerald-500/30";
+          statusBadge = `<span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1"><i class="fa-solid fa-check text-[8px]"></i> Splněno</span>`;
+        } else if (isCurrentActive) {
+          nodeClass = `${rank.theme.border} ${rank.theme.bg} ${rank.theme.color} ${rank.theme.glow} scale-110`;
+          cardBgClass = `bg-darkbg/95 ${rank.theme.border} ${rank.theme.glow}`;
+          statusBadge = `<span class="text-[9px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/40 flex items-center gap-1 animate-pulse"><i class="fa-solid fa-location-crosshairs text-[8px]"></i> AKTUÁLNÍ</span>`;
+
+          const range = rank.max - rank.min;
+          const currentProgress = Math.max(0, Math.min(range, totalGrams - rank.min));
+          const pct = Math.min(100, Math.round((currentProgress / (range || 1)) * 100));
+          const remainingGrams = (rank.max - totalGrams).toFixed(2);
+
+          progressBarHTML = `
+            <div class="mt-2.5 pt-2 border-t border-borderbg/60 space-y-1.5">
+              <div class="flex justify-between items-center text-[9px] font-medium text-slate-400">
+                <span>Postup v ranku: <strong class="text-white">${pct}%</strong></span>
+                <span>Do dalšího: <strong class="text-brand-400 font-mono font-bold">${remainingGrams > 0 ? remainingGrams : 0} g</strong></span>
+              </div>
+              <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-borderbg">
+                <div class="h-full rounded-full transition-all duration-700 ${rank.theme.bar}" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
         }
+
+        const isLastItem = index === RANKS_CONFIG.length - 1;
+
+        const milestoneHTML = `
+          <div class="relative flex items-start gap-3 group">
+            ${!isLastItem ? `<div class="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b ${isCompleted ? 'from-emerald-500 to-slate-700' : 'from-slate-700 to-slate-800'} -z-0"></div>` : ''}
+
+            <!-- Node Icon -->
+            <div class="w-8 h-8 rounded-xl border-2 flex items-center justify-center text-xs shrink-0 z-10 transition-all duration-300 ${nodeClass}">
+              <i class="fa-solid ${rank.icon}"></i>
+            </div>
+
+            <!-- Milestone Card -->
+            <div class="flex-1 rounded-2xl p-3 border transition-all duration-300 ${cardBgClass}">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h4 class="text-xs font-black uppercase tracking-wider ${isCurrentActive ? rank.theme.color : 'text-slate-200'}">
+                    ${rank.name}
+                  </h4>
+                  <p class="text-[10px] text-slate-400">${rank.desc}</p>
+                </div>
+                ${statusBadge}
+              </div>
+
+              <div class="mt-1.5 grid grid-cols-2 gap-1 text-[10px] font-mono border-t border-borderbg/40 pt-1.5">
+                <div>
+                  <span class="text-slate-500 block text-[9px]">Celkem:</span>
+                  <span class="font-bold ${meetsGrams ? 'text-emerald-400' : 'text-slate-300'}">${rank.min} – ${rank.max === Infinity ? '∞' : rank.max} G</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[9px]">Min. průměr/zápis:</span>
+                  <span class="font-bold ${meetsDoseAvg ? 'text-emerald-400' : 'text-slate-300'}">${rank.minPerDose} – ${rank.maxPerDose === Infinity ? '∞' : rank.maxPerDose} G</span>
+                </div>
+              </div>
+
+              ${progressBarHTML}
+            </div>
+          </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', milestoneHTML);
       });
     }
 
     function openRanksModal() {
       updateRankBadge();
-      document.getElementById('ranks-modal').classList.remove('hidden');
+      const modal = document.getElementById('ranks-modal');
+      modal.classList.remove('hidden');
+      // Vynutíme reflow a spustíme plynulý scale & fade in
+      requestAnimationFrame(() => {
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+      });
     }
 
     function closeRanksModal() {
-      document.getElementById('ranks-modal').classList.add('hidden');
+      const modal = document.getElementById('ranks-modal');
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-closed');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 280);
     }
 
     function openProfileModal() {
@@ -1651,7 +1704,6 @@
       const displayNameInput = document.getElementById('input-display-name');
       if (displayNameInput) displayNameInput.value = currentDisplayName;
       
-      // Zajistí vykreslení profilové fotky při každém otevření
       const savedAvatar = currentUserAvatar || localStorage.getItem(getAvatarStorageKey()) || '';
       renderAvatarUI(savedAvatar);
       
