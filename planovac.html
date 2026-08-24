@@ -78,10 +78,10 @@
       width: 4px;
     }
     .custom-scroll::-webkit-scrollbar-track {
-      background: #141c2b;
+      background: transparent;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #1e293b;
       border-radius: 4px;
     }
 
@@ -89,43 +89,32 @@
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(24px) saturate(190%);
       -webkit-backdrop-filter: blur(24px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
     }
 
-    /* Vystouplý dominantní Apple Glass kalendář a formulář */
-    .hero-calendar-glass {
-      background: linear-gradient(165deg, rgba(30, 41, 69, 0.85) 0%, rgba(15, 21, 37, 0.92) 100%);
-      backdrop-filter: blur(28px) saturate(210%);
-      -webkit-backdrop-filter: blur(28px) saturate(210%);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      box-shadow: 
-        0 24px 48px -12px rgba(0, 0, 0, 0.85),
-        0 0 35px rgba(45, 212, 191, 0.18),
-        inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
-        inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.5);
+    /* Plynule integrovaná sekce splývající s pozadím */
+    .seamless-container {
+      background: radial-gradient(120% 120% at 50% 0%, rgba(30, 41, 69, 0.45) 0%, rgba(11, 15, 23, 0) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
     }
 
     /* 3D vystouplé skleněné buňky */
     .liquid-glass-cell {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 100%);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.35),
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .liquid-glass-cell:hover {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border-color: rgba(45, 212, 191, 0.6);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border-color: rgba(45, 212, 191, 0.5);
       transform: translateY(-2px);
-      box-shadow: 
-        0 8px 18px rgba(0, 0, 0, 0.45),
-        0 0 15px rgba(45, 212, 191, 0.25),
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35), 0 0 15px rgba(45, 212, 191, 0.2);
     }
 
     .liquid-glass-cell:active {
@@ -133,14 +122,11 @@
     }
 
     .liquid-glass-cell.is-today {
-      border: 1.5px solid rgba(192, 132, 252, 0.9) !important;
-      background: linear-gradient(145deg, rgba(192, 132, 252, 0.2) 0%, rgba(45, 212, 191, 0.1) 100%) !important;
-      box-shadow: 
-        0 0 20px rgba(192, 132, 252, 0.4),
-        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.5);
+      border: 1.5px solid rgba(192, 132, 252, 0.85) !important;
+      background: linear-gradient(145deg, rgba(192, 132, 252, 0.18) 0%, rgba(45, 212, 191, 0.08) 100%) !important;
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.35);
     }
 
-    /* Plynulé rozbalovací okno pro konfiguraci */
     .config-expand-container {
       display: grid;
       grid-template-rows: 0fr;
@@ -155,7 +141,6 @@
       overflow: hidden;
     }
 
-    /* Pulzující LED dioda */
     .led-indicator {
       width: 7px;
       height: 7px;
@@ -176,7 +161,6 @@
       50% { transform: scale(2.2); opacity: 0; }
     }
 
-    /* Modal Animation */
     .modal-overlay {
       background: rgba(11, 15, 23, 0.78);
       backdrop-filter: blur(20px);
@@ -187,11 +171,10 @@
     .modal-card {
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
       background: linear-gradient(145deg, rgba(24, 26, 51, 0.96), rgba(20, 28, 43, 0.96));
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(192, 132, 252, 0.25);
     }
 
-    /* Plynulé scrollované / škálované přechody sekcí */
     .view-transition {
       transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -214,15 +197,16 @@
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
 
-  <div class="w-full max-w-md h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-gradient-to-b from-brand-500/10 via-purple-500/5 to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-    <!-- Header -->
+  <div class="w-full max-w-md h-full flex flex-col justify-between gap-2 overflow-hidden">
+
     <header class="flex justify-between items-center py-1 px-0.5 shrink-0">
       <div class="flex items-center gap-2.5">
         <button 
           type="button"
           onclick="navigateToInsights()" 
-          class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-90 cursor-pointer shadow-md"
+          class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-90 cursor-pointer shadow-sm backdrop-blur-md"
           title="Zpět na Insights"
         >
           <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -242,7 +226,7 @@
         <button 
           type="button"
           onclick="loadPlannerData()" 
-          class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white transition-all active:scale-90 p-2 cursor-pointer shadow-sm"
+          class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-400 hover:text-white transition-all active:scale-90 p-2 cursor-pointer shadow-sm backdrop-blur-md"
           title="Aktualizovat data"
         >
           <i class="fa-solid fa-rotate-right text-xs" id="reload-icon"></i>
@@ -250,22 +234,12 @@
       </div>
     </header>
 
-    <!-- Scrollable Body -->
     <main class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-1 relative min-h-0">
 
-      <!-- ============================================== -->
-      <!-- KONFIGURAČNÍ SEKCE V APPLE GLASS STYLU         -->
-      <!-- ============================================== -->
       <div id="planner-setup-wrapper" class="space-y-3 view-transition view-visible">
         
-        <!-- HLAVNÍ 3D GLASS KARTA NASTAVENÍ -->
-        <section class="hero-calendar-glass rounded-[28px] p-4 space-y-3.5 relative overflow-hidden">
-          <!-- Ambientní záře -->
-          <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
-
-          <!-- Integrovaná hlavička -->
-          <div class="flex justify-between items-center border-b border-white/10 pb-2.5 relative z-10">
+        <section class="seamless-container rounded-3xl p-4 space-y-3.5 relative overflow-hidden backdrop-blur-md">
+          <div class="flex justify-between items-center border-b border-white/5 pb-2.5 relative z-10">
             <div class="flex items-center gap-2">
               <span class="led-indicator bg-purple-400 shrink-0"></span>
               <h2 class="text-[13px] font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-brand-400 to-teal-300">
@@ -275,7 +249,6 @@
             <span id="user-status-tag" class="text-[9px] font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-lg">Načítám...</span>
           </div>
 
-          <!-- Baseline data mřížka -->
           <div class="grid grid-cols-3 gap-1.5 text-center relative z-10">
             <div class="liquid-glass-cell p-2 rounded-xl">
               <p class="text-[9px] font-bold text-slate-400 uppercase">Průměr / den</p>
@@ -291,7 +264,6 @@
             </div>
           </div>
 
-          <!-- 1. Volba strategie -->
           <div class="space-y-1.5 relative z-10 pt-1">
             <label class="text-[10px] font-black uppercase tracking-widest text-slate-300 block">Zvolte směr</label>
             <div class="grid grid-cols-3 gap-1.5">
@@ -342,15 +314,13 @@
             </div>
           </div>
 
-          <!-- 2. Parametry strategie (Plynulý expand animací) -->
           <div id="config-section" class="config-expand-container relative z-10">
-            <div class="config-expand-inner space-y-3 pt-3 border-t border-white/10">
+            <div class="config-expand-inner space-y-3 pt-3 border-t border-white/5">
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Parametry & termín</span>
                 <span id="badge-selected-mode" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md"></span>
               </div>
 
-              <!-- Směrové vstupy -->
               <div id="inputs-directional" class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Výchozí stav</label>
@@ -361,7 +331,7 @@
                       min="0"
                       id="input-start-grams" 
                       placeholder="3.0" 
-                      class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                      class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
                     />
                     <span class="absolute right-2.5 top-2 text-[11px] font-bold text-slate-500">G/d</span>
                   </div>
@@ -376,14 +346,13 @@
                       min="0"
                       id="input-target-grams" 
                       placeholder="1.0" 
-                      class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                      class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
                     />
                     <span class="absolute right-2.5 top-2 text-[11px] font-bold text-brand-400">G/d</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Udržovací vstupy -->
               <div id="inputs-maintain" class="hidden grid grid-cols-2 gap-2">
                 <div>
                   <label class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Dolní mez (MIN)</label>
@@ -394,7 +363,7 @@
                       min="0"
                       id="input-maintain-min" 
                       placeholder="1.5" 
-                      class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                      class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
                     />
                     <span class="absolute right-2.5 top-2 text-[11px] font-bold text-slate-500">G</span>
                   </div>
@@ -409,14 +378,13 @@
                       min="0"
                       id="input-maintain-max" 
                       placeholder="2.5" 
-                      class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                      class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
                     />
                     <span class="absolute right-2.5 top-2 text-[11px] font-bold text-purple-400">G</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Dávky denně -->
               <div>
                 <label class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rozdělení na zápisy denně</label>
                 <div class="grid grid-cols-4 gap-1.5">
@@ -427,14 +395,13 @@
                 </div>
               </div>
 
-              <!-- Datum a AI křivka -->
               <div class="space-y-2">
                 <div>
                   <label class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cílové datum splnění</label>
                   <input 
                     type="date" 
                     id="input-target-date" 
-                    class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2 px-2.5 text-xs text-white font-sans focus:outline-none focus:border-brand-500 transition-colors"
+                    class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-2.5 text-xs text-white font-sans focus:outline-none focus:border-brand-500 transition-colors"
                   />
                 </div>
 
@@ -454,7 +421,6 @@
                 </div>
               </div>
 
-              <!-- Tlačítko aktivace -->
               <button 
                 type="button" 
                 onclick="confirmAndActivatePlan()" 
@@ -468,22 +434,14 @@
 
       </div>
 
-      <!-- ============================================== -->
-      <!-- HLAVNÍ ČÁST: FULL-SCREEN LIQUID GLASS KALENDÁŘ -->
-      <!-- ============================================== -->
       <div id="active-roadmap-wrapper" class="flex-1 flex flex-col min-h-0 view-transition view-hidden hidden">
 
-        <!-- HLAVNÍ 3D VYSTOUPLÝ SKLENĚNÝ KALENDÁŘ -->
-        <section class="hero-calendar-glass rounded-[28px] p-3.5 sm:p-4 flex-1 flex flex-col justify-between relative overflow-hidden min-h-0 shadow-2xl">
-          <!-- Ambientní záře -->
-          <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
-
-          <!-- Integrovaná hlavička -->
-          <div class="flex justify-between items-center border-b border-white/10 pb-2 relative z-10 shrink-0">
+        <section class="flex-1 flex flex-col justify-between relative min-h-0 px-1 py-1">
+          
+          <div class="flex justify-between items-center pb-2.5 border-b border-white/5 relative z-10 shrink-0">
             <div class="flex items-center gap-2">
               <span id="header-led-dot" class="led-indicator bg-teal-400 shrink-0"></span>
-              <h2 id="roadmap-summary-title" class="text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400">
+              <h2 id="roadmap-summary-title" class="text-xs sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400">
                 REDUKČNÍ PLÁN
               </h2>
             </div>
@@ -492,7 +450,7 @@
               <button 
                 type="button" 
                 onclick="editActivePlan()" 
-                class="text-[10px] font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 px-2.5 py-1 rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
+                class="text-[10px] font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-2.5 py-1 rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
                 title="Upravit parametry plánu"
               >
                 <i class="fa-solid fa-sliders text-[9px] text-purple-400"></i> Upravit
@@ -501,7 +459,7 @@
               <button 
                 type="button" 
                 onclick="deleteActivePlan()" 
-                class="text-[10px] font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 px-2 py-1 rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
+                class="text-[10px] font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-2 py-1 rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
                 title="Smazat aktuální plán"
               >
                 <i class="fa-solid fa-trash-can text-[9px]"></i> Smazat
@@ -509,33 +467,28 @@
             </div>
           </div>
 
-          <!-- Dny v týdnu záhlaví -->
-          <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-black text-slate-400/90 uppercase tracking-widest relative z-10 py-1 shrink-0">
+          <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest relative z-10 py-1.5 shrink-0">
             <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
           </div>
 
-          <!-- Interaktivní 3D skleněné buňky - KOMPAKTNÍ OBDÉLNÍČKY -->
-          <div class="my-auto relative z-50 py-5 shrink-0">
+          <div class="my-auto relative z-20 py-2 shrink-0">
             <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center">
-              <!-- Dynamicky generováno JS -->
-            </div>
+              </div>
           </div>
 
-          <!-- Legenda stavů -->
-          <div class="flex justify-center items-center gap-3.5 pt-1.5 pb-1 border-t border-white/10 text-[9px] sm:text-[9.5px] text-slate-400 font-medium relative z-10 shrink-0">
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> V limitu</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50"></span> Dnes</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400 shadow-sm shadow-rose-400/50"></span> Nad limit</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Plán</span>
+          <div class="flex justify-center items-center gap-3.5 py-1.5 text-[9px] sm:text-[9.5px] text-slate-400 font-medium relative z-10 shrink-0">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> V limitu</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50"></span> Dnes</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-sm shadow-rose-400/50"></span> Nad limit</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Plán</span>
           </div>
 
-          <!-- Integrovaný graf roztažený na zbývající výšku -->
-          <div class="border-t border-white/10 pt-2 relative z-10 flex-1 flex flex-col min-h-[120px] shrink-0">
+          <div class="pt-2 relative z-10 flex-1 flex flex-col min-h-[110px] shrink-0 border-t border-white/5">
             <div class="flex justify-between items-center px-0.5 mb-1 shrink-0">
-              <span class="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-slate-300">
+              <span class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Plán vs. Realita
               </span>
-              <span class="text-[9px] text-slate-400 font-mono">Průběžné dodržování</span>
+              <span class="text-[9px] text-slate-500 font-mono">Průběžné dodržování</span>
             </div>
             <div class="flex-1 w-full relative min-h-0">
               <canvas id="planChart"></canvas>
@@ -548,7 +501,6 @@
 
     </main>
 
-    <!-- Navigation Footer -->
     <nav class="liquid-glass-nav rounded-2xl p-2 shrink-0 mb-1">
       <button 
         type="button" 
@@ -561,9 +513,6 @@
 
   </div>
 
-  <!-- ============================================================== -->
-  <!-- APPLE-STYLE OVERLAY MODAL / SHEET DETAILU DNE PŘES KALENDÁŘ    -->
-  <!-- ============================================================== -->
   <div 
     id="day-modal-overlay" 
     class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 hidden opacity-0"
@@ -1137,13 +1086,13 @@
         titleEl.textContent = stratTitles[activePlanData.strategy] || 'AKTIVNÍ PLÁN';
 
         if (activePlanData.strategy === 'decrease') {
-          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
+          titleEl.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
           if (ledDot) ledDot.className = "led-indicator bg-teal-400 shrink-0";
         } else if (activePlanData.strategy === 'increase') {
-          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400";
+          titleEl.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400";
           if (ledDot) ledDot.className = "led-indicator bg-amber-400 shrink-0";
         } else {
-          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-400";
+          titleEl.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-400";
           if (ledDot) ledDot.className = "led-indicator bg-purple-400 shrink-0";
         }
       }
@@ -1212,9 +1161,6 @@
       });
     }
 
-    // ==============================================================
-    // APPLE MODAL OVERLAY PŘES KALENDÁŘ
-    // ==============================================================
     function openDayModal(dateISO) {
       if (!activePlanData) return;
 
@@ -1356,9 +1302,6 @@
       }
     }
 
-    // ==============================================================
-    // CHART.JS S PULZUJÍCÍM BODEM AKTUÁLNÍHO DNE
-    // ==============================================================
     const chartPulsePlugin = {
       id: 'chartPulsePlugin',
       afterDraw: (chart) => {
@@ -1427,18 +1370,18 @@
       }
 
       let color = '#2dd4bf';
-      let gradientStart = 'rgba(45, 212, 191, 0.35)';
+      let gradientStart = 'rgba(45, 212, 191, 0.25)';
       if (strategy === 'increase') {
         color = '#fbbf24';
-        gradientStart = 'rgba(251, 191, 36, 0.35)';
+        gradientStart = 'rgba(251, 191, 36, 0.25)';
       } else if (strategy === 'maintain') {
         color = '#c084fc';
-        gradientStart = 'rgba(192, 132, 252, 0.35)';
+        gradientStart = 'rgba(192, 132, 252, 0.25)';
       }
 
       const grad = ctx.createLinearGradient(0, 0, 0, 110);
       grad.addColorStop(0, gradientStart);
-      grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      grad.addColorStop(1, 'rgba(11, 15, 23, 0)');
 
       const todayISO = getDateKey(new Date());
       const actualDataPoints = activePlanData.dailySchedule.map(day => {
@@ -1517,7 +1460,7 @@
             },
             y: {
               beginAtZero: false,
-              grid: { color: 'rgba(255, 255, 255, 0.06)' },
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
               ticks: { color: '#64748b', font: { size: 7.5 } }
             }
           }
