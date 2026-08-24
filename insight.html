@@ -106,6 +106,28 @@
     .info-drawer-inner {
       overflow: hidden;
     }
+
+    /* Streamovací pulzující kurzor */
+    .streaming-cursor::after {
+      content: '▋';
+      display: inline-block;
+      margin-left: 2px;
+      color: #c084fc;
+      animation: cursorBlink 0.8s infinite;
+      vertical-align: baseline;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* SVG Circular Progress Transition */
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
@@ -126,8 +148,8 @@
         <div>
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Insights & Trendy
-            <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase">
-              BETA
+            <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1">
+              <i class="fa-solid fa-wand-magic-sparkles text-[8px]"></i> AI
             </span>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Analytický engine</p>
@@ -148,6 +170,105 @@
 
     <!-- Scrollable Body -->
     <main class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-1">
+
+      <!-- ============================================== -->
+      <!-- COLLAPSIBLE AI SUMMARY ACCORDION / STREAMING   -->
+      <!-- ============================================== -->
+      <section class="bg-gradient-to-br from-[#181a33] via-cardbg to-cardbg border border-purple-500/30 rounded-2xl shadow-xl overflow-hidden shrink-0 transition-all">
+        <!-- Klikací lišta záložky -->
+        <div 
+          onclick="toggleAiDrawer()" 
+          class="flex justify-between items-center p-3 cursor-pointer select-none hover:bg-purple-500/5 active:bg-purple-500/10 transition-colors"
+        >
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-purple-400 flex items-center justify-center text-white text-xs shadow-sm shadow-purple-500/20">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </span>
+            <div>
+              <h2 class="text-xs font-black uppercase tracking-wider text-slate-100 flex items-center gap-1.5">
+                AI PŘEHLED
+                <i class="fa-solid fa-sparkles text-purple-400 text-[10px]"></i>
+              </h2>
+              <p class="text-[10px] text-purple-300/80 font-medium" id="ai-header-subtitle">Kliknutím rozevřete souhrnný report</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-darkbg border border-borderbg flex items-center justify-center text-slate-400 text-[10px] transition-transform duration-300" id="ai-chevron-icon">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Rozevírací obsah -->
+        <div id="ai-main-drawer" class="info-drawer overflow-hidden">
+          <div class="info-drawer-inner">
+            <div class="border-t border-purple-500/20 bg-darkbg/40 p-3.5 space-y-3">
+              
+              <div class="flex justify-between items-center">
+                <span class="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-microchip text-purple-400 text-xs"></i> Model Gemma 4 31B
+                </span>
+                <button 
+                  type="button"
+                  onclick="event.stopPropagation(); generateAiOverviewStream()"
+                  id="btn-regen-ai"
+                  class="text-[10px] font-bold text-purple-300 hover:text-white bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+                  title="Spustit analýzu k novým datům"
+                >
+                  <i class="fa-solid fa-arrows-rotate text-[9px]" id="ai-spin-icon"></i>
+                  <span id="ai-btn-text">Generovat přehled</span>
+                </button>
+              </div>
+
+              <!-- Výchozí stav (Placeholder před generováním) -->
+              <div id="ai-placeholder-box" class="py-2 text-center text-slate-400 text-[11px] bg-darkbg/60 border border-borderbg/50 rounded-xl p-3">
+                <p>Stisknutím tlačítka <strong>Generovat přehled</strong> AI vyhodnotí data. Nové generování je možné po každém novém zápisu (max. 5× denně).</p>
+              </div>
+
+              <!-- Kruhový Loading Bar s procenty (60s kalibrace) -->
+              <div id="ai-circular-loader" class="hidden flex flex-col items-center justify-center py-4 bg-darkbg/60 border border-borderbg/60 rounded-xl space-y-2.5">
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                  <svg class="w-16 h-16" viewBox="0 0 64 64">
+                    <circle 
+                      class="text-borderbg stroke-current" 
+                      stroke-width="4.5" 
+                      cx="32" 
+                      cy="32" 
+                      r="26" 
+                      fill="transparent"
+                    ></circle>
+                    <circle 
+                      id="ai-progress-circle"
+                      class="text-purple-500 progress-ring__circle stroke-current" 
+                      stroke-width="4.5" 
+                      stroke-linecap="round"
+                      cx="32" 
+                      cy="32" 
+                      r="26" 
+                      fill="transparent"
+                      stroke-dasharray="163.36"
+                      stroke-dashoffset="163.36"
+                    ></circle>
+                  </svg>
+                  <span id="ai-progress-text" class="absolute text-xs font-black font-mono text-purple-300">0%</span>
+                </div>
+                <div class="text-center">
+                  <p id="ai-progress-status" class="text-[11px] font-medium text-slate-300">Navazuji spojení s analytickým modelem...</p>
+                  <p class="text-[9px] text-slate-500 mt-0.5">Analýza může trvat až ~60 sekund</p>
+                </div>
+              </div>
+
+              <!-- Live Streaming Textový výstup -->
+              <div id="ai-content-box" class="hidden text-[12px] text-slate-300 leading-relaxed space-y-2 select-text bg-darkbg/60 border border-borderbg/60 rounded-xl p-3">
+                <!-- Dynamicky doplňováno streamem -->
+              </div>
+
+              <div id="ai-date-badge" class="hidden text-[10px] text-slate-500 text-right pr-1"></div>
+
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- HLAVNÍ METRIKY (KPIs) -->
       <section class="grid grid-cols-2 gap-2 shrink-0">
@@ -322,7 +443,7 @@
           <div class="info-drawer-inner">
             <div class="bg-darkbg/90 border border-borderbg rounded-xl p-2.5 mb-2.5 text-[11px] text-slate-300 space-y-1 leading-relaxed">
               <p><strong class="text-teal-400">Sloupce (Levá osa):</strong> Denní součet Gcek.</p>
-              <p><strong class="text-purple-400">Fialová linka (Pravá osa):</strong> Průměrný časový odstup $\Delta t$ mezi jednotlivými zápisy v hodinách.</p>
+              <p><strong class="text-purple-400">Fialová linka (Pravá osa):</strong> Průměrný časový odstup Δt mezi jednotlivými zápisy v hodinách.</p>
               <p>Ukazuje korelaci: zapisujete více Gcek kvůli kratším rozestupům, nebo kvůli větším jednorázovým zápisům?</p>
             </div>
           </div>
@@ -406,10 +527,27 @@
     let dualAxisChartInstance = null;
     let cumulativeChartInstance = null;
 
+    let currentMetrics = null;
+    let progressTimer = null;
+
+    const DAILY_LIMIT = 5;
+    const CIRCUMFERENCE = 163.36; // 2 * PI * r (r = 26)
+
     function toggleDrawer(id) {
       const drawer = document.getElementById(id);
       if (drawer) {
         drawer.classList.toggle('expanded');
+      }
+    }
+
+    function toggleAiDrawer() {
+      const drawer = document.getElementById('ai-main-drawer');
+      const chevron = document.getElementById('ai-chevron-icon');
+      if (drawer) {
+        drawer.classList.toggle('expanded');
+        if (chevron) {
+          chevron.classList.toggle('rotate-180');
+        }
       }
     }
 
@@ -460,6 +598,7 @@
         }
 
         renderAllInsights();
+        checkCachedAiOverview();
       } catch (err) {
         console.error(err);
       } finally {
@@ -511,7 +650,8 @@
         last30.add(getDateKey(d));
       }
       const active30 = new Set(logs.filter(l => last30.has(getDateKey(l.timestamp))).map(l => getDateKey(l.timestamp)));
-      document.getElementById('stat-adherence').textContent = `${Math.round((active30.size / 30) * 100)}%`;
+      const adherenceText = `${Math.round((active30.size / 30) * 100)}%`;
+      document.getElementById('stat-adherence').textContent = adherenceText;
 
       let totalMins = 0, count = 0;
       for (let i = 1; i < logs.length; i++) {
@@ -521,18 +661,315 @@
           count++;
         }
       }
+      let avgIntervalText = "--";
       if (count > 0) {
         const avgM = Math.round(totalMins / count);
         const h = Math.floor(avgM / 60);
         const m = avgM % 60;
-        document.getElementById('stat-avg-interval').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+        avgIntervalText = h > 0 ? `${h}h ${m}m` : `${m}m`;
+        document.getElementById('stat-avg-interval').textContent = avgIntervalText;
       }
+
+      const firstDate = new Date(logs[0].timestamp);
+      const lastDate = new Date(logs[logs.length - 1].timestamp);
+      const diffDays = Math.max(1, Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)));
+      const dailyVelocity = (totalGrams / diffDays).toFixed(2);
+      const projectedMonth = (dailyVelocity * 30).toFixed(0);
+
+      currentMetrics = {
+        totalGrams: totalGrams.toFixed(2),
+        mean: mean.toFixed(2),
+        median: median.toFixed(2),
+        stdDev: stdDev.toFixed(2),
+        adherence: adherenceText,
+        avgInterval: avgIntervalText,
+        dailyVelocity,
+        projectedMonth,
+        logsCount: logs.length
+      };
 
       renderTrendChart();
       renderCircadianChart();
       renderWeekdayRadar();
       renderDualAxisChart();
       renderCumulativeChart();
+    }
+
+    // ==============================================================
+    // PERZISTENCE A LIMITACE (1× ZA ZÁPIS & MAX 5× DENNĚ)
+    // ==============================================================
+    function getTodayUsageCount() {
+      const todayKey = getDateKey(new Date());
+      const usageKey = `grammi_ai_usage_${currentUserId}_${todayKey}`;
+      return parseInt(localStorage.getItem(usageKey) || '0', 10);
+    }
+
+    function incrementTodayUsageCount() {
+      const todayKey = getDateKey(new Date());
+      const usageKey = `grammi_ai_usage_${currentUserId}_${todayKey}`;
+      const count = getTodayUsageCount() + 1;
+      localStorage.setItem(usageKey, count.toString());
+      return count;
+    }
+
+    function checkCachedAiOverview() {
+      if (!currentUserId || logs.length === 0) return;
+      const cacheKey = `grammi_ai_insights_${currentUserId}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      const btn = document.getElementById('btn-regen-ai');
+      const btnText = document.getElementById('ai-btn-text');
+      const latestLogId = logs[logs.length - 1].id;
+      const todayCount = getTodayUsageCount();
+
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          displayAiResult(parsed.text, parsed.dateStr, false);
+
+          if (todayCount >= DAILY_LIMIT) {
+            if (btn) {
+              btn.disabled = true;
+              btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+            if (btnText) btnText.textContent = `Denní limit vyčerpán (5/5)`;
+            return;
+          }
+
+          if (parsed.lastLogId === latestLogId) {
+            if (btn) {
+              btn.disabled = true;
+              btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+            if (btnText) btnText.textContent = `Aktuální (${todayCount}/${DAILY_LIMIT})`;
+          } else {
+            if (btn) {
+              btn.disabled = false;
+              btn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+            if (btnText) btnText.textContent = `Generovat (${todayCount}/${DAILY_LIMIT})`;
+          }
+        } catch (e) {
+          console.warn("Chyba při čtení z cache", e);
+        }
+      } else {
+        if (todayCount >= DAILY_LIMIT) {
+          if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+          }
+          if (btnText) btnText.textContent = `Denní limit vyčerpán (5/5)`;
+        } else {
+          if (btnText) btnText.textContent = `Generovat (${todayCount}/${DAILY_LIMIT})`;
+        }
+      }
+    }
+
+    // ==============================================================
+    // ANIMOVANÝ KRUHOVÝ PROGRESS (KALIBRACE NA ~60 SEKUND)
+    // ==============================================================
+    function setProgress(percent, statusText = null) {
+      const circle = document.getElementById('ai-progress-circle');
+      const text = document.getElementById('ai-progress-text');
+      const status = document.getElementById('ai-progress-status');
+
+      const offset = CIRCUMFERENCE - (percent / 100) * CIRCUMFERENCE;
+      if (circle) circle.style.strokeDashoffset = offset;
+      if (text) text.textContent = `${Math.round(percent)}%`;
+      if (statusText && status) status.textContent = statusText;
+    }
+
+    function startCircularProgress() {
+      const loader = document.getElementById('ai-circular-loader');
+      loader.classList.remove('hidden');
+
+      let currentPercent = 1;
+      setProgress(1, "Připojuji k analytickému modelu...");
+
+      clearInterval(progressTimer);
+      const startTime = Date.now();
+      const targetDurationMs = 58000; // ~60s předpokládaný čas
+
+      progressTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let progressRatio = elapsed / targetDurationMs;
+
+        if (progressRatio < 0.25) {
+          currentPercent = progressRatio * 140; // rychlý start do ~35%
+          setProgress(currentPercent, "Analyzuji zápisovou dynamiku a odchylky...");
+        } else if (progressRatio < 0.70) {
+          currentPercent = 35 + (progressRatio - 0.25) * 80; // do ~70%
+          setProgress(currentPercent, "Vyhodnocuji denní rytmus a intervaly...");
+        } else if (progressRatio < 1.0) {
+          currentPercent = 71 + (progressRatio - 0.70) * 80; // do ~95%
+          setProgress(currentPercent, "Formuluji shrnutí a optimalizační doporučení...");
+        } else {
+          currentPercent = Math.min(98, currentPercent + 0.1);
+          setProgress(currentPercent, "Dokončuji syntézu dat...");
+        }
+      }, 250);
+    }
+
+    function stopCircularProgress() {
+      clearInterval(progressTimer);
+      setProgress(100, "Připraveno");
+      setTimeout(() => {
+        const loader = document.getElementById('ai-circular-loader');
+        if (loader) loader.classList.add('hidden');
+      }, 300);
+    }
+
+    // ==============================================================
+    // REAL-TIME STREAMING PRO GEMMA 4 31B
+    // ==============================================================
+    async function generateAiOverviewStream() {
+      if (!currentMetrics || logs.length === 0) return;
+
+      const todayCount = getTodayUsageCount();
+      if (todayCount >= DAILY_LIMIT) {
+        alert("Dosáhli jste maximálního limitu 5 AI generování za dnešní den.");
+        return;
+      }
+
+      const cacheKey = `grammi_ai_insights_${currentUserId}`;
+      const latestLogId = logs[logs.length - 1].id;
+
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed.lastLogId === latestLogId) {
+            alert("Tento přehled je již aktuální k vašemu poslednímu zápisu.");
+            return;
+          }
+        } catch (e) {}
+      }
+
+      const spinIcon = document.getElementById('ai-spin-icon');
+      if (spinIcon) spinIcon.classList.add('fa-spin');
+
+      const placeholderBox = document.getElementById('ai-placeholder-box');
+      const contentBox = document.getElementById('ai-content-box');
+      const dateBadge = document.getElementById('ai-date-badge');
+
+      if (placeholderBox) placeholderBox.classList.add('hidden');
+      if (dateBadge) dateBadge.classList.add('hidden');
+      contentBox.classList.add('hidden');
+      contentBox.innerHTML = "";
+
+      startCircularProgress();
+
+      try {
+        const peakHourText = document.getElementById('stat-peak-hour').textContent;
+        const payload = {
+          metrics: {
+            ...currentMetrics,
+            peakHour: peakHourText
+          }
+        };
+
+        const { data: { session } } = await db.auth.getSession();
+        const jwt = session ? session.access_token : SUPABASE_ANON_KEY;
+
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/gemini-insights`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`,
+            "apikey": SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let accumulatedText = "";
+        let isFirstChunk = true;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          if (isFirstChunk) {
+            stopCircularProgress();
+            contentBox.classList.remove('hidden');
+            isFirstChunk = false;
+          }
+
+          accumulatedText += decoder.decode(value, { stream: true });
+          displayAiResult(accumulatedText, null, true);
+        }
+
+        const dateFormatted = new Date().toLocaleDateString('cs-CZ', { 
+          day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+        });
+
+        const newCount = incrementTodayUsageCount();
+
+        localStorage.setItem(cacheKey, JSON.stringify({
+          lastLogId: latestLogId,
+          dateStr: dateFormatted,
+          text: accumulatedText
+        }));
+
+        displayAiResult(accumulatedText, dateFormatted, false);
+
+        const btn = document.getElementById('btn-regen-ai');
+        const btnText = document.getElementById('ai-btn-text');
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        }
+        if (btnText) {
+          btnText.textContent = newCount >= DAILY_LIMIT ? `Denní limit vyčerpán (5/5)` : `Aktuální (${newCount}/${DAILY_LIMIT})`;
+        }
+
+      } catch (err) {
+        stopCircularProgress();
+        console.error("AI Streaming Error:", err);
+        displayAiResult("Nepodařilo se navázat spojení s modelem. Zkontrolujte připojení.", null, false);
+      } finally {
+        if (spinIcon) spinIcon.classList.remove('fa-spin');
+      }
+    }
+
+    function displayAiResult(text, dateStr = null, isStreaming = false) {
+      const placeholderBox = document.getElementById('ai-placeholder-box');
+      const contentBox = document.getElementById('ai-content-box');
+      const dateBadge = document.getElementById('ai-date-badge');
+      const subtitle = document.getElementById('ai-header-subtitle');
+
+      if (placeholderBox) placeholderBox.classList.add('hidden');
+      contentBox.classList.remove('hidden');
+
+      const paragraphs = text.split('\n').filter(p => p.trim().length > 0);
+      let formattedHtml = paragraphs.map((p, idx) => {
+        let content = p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+        if (isStreaming && idx === paragraphs.length - 1) {
+          content += '<span class="streaming-cursor"></span>';
+        }
+        return `<p class="leading-relaxed">${content}</p>`;
+      }).join('');
+
+      if (paragraphs.length === 0 && isStreaming) {
+        formattedHtml = '<p class="leading-relaxed"><span class="streaming-cursor"></span></p>';
+      }
+
+      contentBox.innerHTML = formattedHtml;
+
+      if (dateStr) {
+        if (dateBadge) {
+          dateBadge.classList.remove('hidden');
+          dateBadge.innerHTML = `<i class="fa-regular fa-clock text-[9px] mr-1"></i>Vygenerováno: ${dateStr}`;
+        }
+        if (subtitle) {
+          subtitle.textContent = `Generace možná jen při novém zápisu a max. 5krát denně.`;
+        }
+      }
     }
 
     // 1. TREND

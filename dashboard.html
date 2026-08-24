@@ -213,7 +213,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.1_5
+              v1.2
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -816,12 +816,27 @@
       <div id="settings-tab-changelog" class="hidden space-y-3 overflow-y-auto custom-scroll pr-1">
         <p class="text-xs text-slate-400">Historie aktualizací a seznam změn v Grammi.</p>
 
-        <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
+        <div class="bg-darkbg/80 border border-brand-500/50 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.2
+            </span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>BETA implementace <strong>AI přehledu</strong> do Insights.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-darkbg/80 border border-brand-500/10 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
               <i class="fa-solid fa-code-commit text-brand-400"></i> v1.1
             </span>
-            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Insights</span>
           </div>
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
@@ -831,7 +846,7 @@
           </ul>
         </div>
 
-        <div class="bg-darkbg/80 border border-brand-500/30 rounded-xl p-3 space-y-1.5">
+        <div class="bg-darkbg/80 border border-brand-500/10 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
               <i class="fa-solid fa-code-commit text-brand-400"></i> v1.0 <strong>[BETA]</strong>
