@@ -533,9 +533,9 @@
           <div class="border-t border-white/10 pt-2 relative z-10 space-y-1 shrink-0">
             <div class="flex justify-between items-center px-0.5">
               <span class="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-slate-300">
-                <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Křivka trajektorie
+                <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Plán vs. Realita
               </span>
-              <span class="text-[9px] text-slate-400 font-mono">Doporučený denní cíl</span>
+              <span class="text-[9px] text-slate-400 font-mono">Průběžné dodržování</span>
             </div>
             <div class="h-28 sm:h-32 w-full relative pt-0.5">
               <canvas id="planChart"></canvas>
@@ -653,6 +653,7 @@
     let dosesPerDay = 2;
     let planChartInstance = null;
     let activePlanData = null;
+    let chartPulseAnimId = null;
 
     async function checkAuth() {
       const { data: { session }, error } = await db.auth.getSession();
@@ -1355,12 +1356,78 @@
       }
     }
 
+    // ==============================================================
+    // CHART.JS S PULZUJÍCÍM BODEM AKTUÁLNÍHO DNE
+    // ==============================================================
+    const chartPulsePlugin = {
+      id: 'chartPulsePlugin',
+      afterDraw: (chart) => {
+        if (!activePlanData) return;
+        const todayISO = getDateKey(new Date());
+        const todayIndex = activePlanData.dailySchedule.findIndex(d => d.dateISO === todayISO);
+        if (todayIndex === -1) return;
+
+        // Použije se bod ze skutečného zápisu (nebo cíle, pokud zápis ještě není)
+        let point = chart.getDatasetMeta(1)?.data[todayIndex];
+        if (!point || point.skip || point.x === undefined || point.y === undefined) {
+          point = chart.getDatasetMeta(0)?.data[todayIndex];
+        }
+        if (!point || point.x === undefined || point.y === undefined) return;
+
+        const { ctx } = chart;
+        const x = point.x;
+        const y = point.y;
+
+        const t = Date.now() / 450;
+        const wave = (Math.sin(t) + 1) / 2; // 0..1
+        const r1 = 5 + wave * 9;            // 5..14 px
+        const alpha1 = (1 - wave) * 0.75;   // 0.75..0
+
+        ctx.save();
+        
+        // Vnější vlnící se neonový kruh
+        ctx.beginPath();
+        ctx.arc(x, y, r1, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(45, 212, 191, ${alpha1 * 0.4})`;
+        ctx.strokeStyle = `rgba(192, 132, 252, ${alpha1})`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = '#2dd4bf';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.stroke();
+
+        // Vnitřní zářivý střed
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 6;
+        ctx.fill();
+
+        ctx.restore();
+      }
+    };
+
+    function startPulsingChartLoop() {
+      cancelAnimationFrame(chartPulseAnimId);
+      function loop() {
+        const roadmap = document.getElementById('active-roadmap-wrapper');
+        if (planChartInstance && roadmap && !roadmap.classList.contains('hidden') && !roadmap.classList.contains('view-hidden')) {
+          planChartInstance.draw();
+          chartPulseAnimId = requestAnimationFrame(loop);
+        }
+      }
+      chartPulseAnimId = requestAnimationFrame(loop);
+    }
+
     function renderPlanChart(labels, dataPoints, strategy) {
       const canvas = document.getElementById('planChart');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      if (planChartInstance) planChartInstance.destroy();
+      if (planChartInstance) {
+        planChartInstance.destroy();
+      }
 
       let color = '#2dd4bf';
       let gradientStart = 'rgba(45, 212, 191, 0.35)';
@@ -1376,34 +1443,73 @@
       grad.addColorStop(0, gradientStart);
       grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
 
+      const todayISO = getDateKey(new Date());
+      const actualDataPoints = activePlanData.dailySchedule.map(day => {
+        if (day.dateISO <= todayISO) {
+          const dayLogs = userLogs.filter(l => l.dateKey === day.dateISO);
+          return parseFloat(dayLogs.reduce((acc, l) => acc + l.amount, 0).toFixed(2));
+        }
+        return null;
+      });
+
       planChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
-          datasets: [{
-            label: 'Cíl G/den',
-            data: dataPoints,
-            borderColor: color,
-            backgroundColor: grad,
-            fill: true,
-            tension: 0.35,
-            borderWidth: 2.5,
-            pointRadius: labels.length > 25 ? 0 : 2.5,
-            pointBackgroundColor: color
-          }]
+          datasets: [
+            {
+              label: 'Doporučený cíl',
+              data: dataPoints,
+              borderColor: color,
+              backgroundColor: grad,
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointRadius: labels.length > 25 ? 0 : 2.5,
+              pointBackgroundColor: color,
+              order: 2
+            },
+            {
+              label: 'Skutečný zápis',
+              data: actualDataPoints,
+              borderColor: '#c084fc',
+              borderDash: [3, 3],
+              backgroundColor: 'transparent',
+              fill: false,
+              tension: 0.25,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#c084fc',
+              pointHoverRadius: 5,
+              spanGaps: false,
+              order: 1
+            }
+          ]
         },
+        plugins: [chartPulsePlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
-            legend: { display: false },
+            legend: { 
+              display: true,
+              position: 'top',
+              align: 'end',
+              labels: {
+                boxWidth: 8,
+                boxHeight: 2,
+                color: '#94a3b8',
+                font: { size: 8, weight: '700' },
+                padding: 6
+              }
+            },
             tooltip: {
               backgroundColor: '#1e293b',
               titleColor: '#f8fafc',
-              bodyColor: color,
-              displayColors: false,
+              bodyColor: '#f8fafc',
               callbacks: {
-                label: (c) => ` Doporučený cíl: ${c.raw} G`
+                label: (c) => ` ${c.dataset.label}: ${c.raw !== null ? c.raw + ' G' : '--'}`
               }
             }
           },
@@ -1420,6 +1526,8 @@
           }
         }
       });
+
+      startPulsingChartLoop();
     }
 
     function navigateToInsights() {
