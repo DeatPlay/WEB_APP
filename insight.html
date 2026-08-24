@@ -156,11 +156,22 @@
         </div>
       </div>
 
+      <!-- Akční tlačítka vpravo nahoře -->
       <div class="flex items-center gap-2">
         <button 
           type="button"
+          onclick="openPlanner()" 
+          class="h-9 px-2.5 rounded-xl bg-cardbg border border-borderbg hover:border-brand-500/40 flex items-center gap-1.5 text-brand-400 hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm text-xs font-bold"
+          title="Plánovač"
+        >
+          <i class="fa-solid fa-calendar-days text-xs text-brand-400"></i>
+          <span class="text-[10px] tracking-wider uppercase">Plánovač</span>
+        </button>
+
+        <button 
+          type="button"
           onclick="loadInsightsData()" 
-          class="w-8.5 h-8.5 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white transition-colors p-2 cursor-pointer active:scale-95 shadow-sm"
+          class="w-9 h-9 rounded-xl bg-cardbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white transition-colors p-2 cursor-pointer active:scale-95 shadow-sm"
           title="Aktualizovat statistiky"
         >
           <i class="fa-solid fa-rotate-right text-xs" id="reload-icon"></i>
@@ -533,6 +544,11 @@
     const DAILY_LIMIT = 5;
     const CIRCUMFERENCE = 163.36; // 2 * PI * r (r = 26)
 
+    function openPlanner() {
+      alert("V procesu přípravy");
+      // window.location.href = "planovac.html";
+    }
+
     function toggleDrawer(id) {
       const drawer = document.getElementById(id);
       if (drawer) {
@@ -788,20 +804,20 @@
 
       clearInterval(progressTimer);
       const startTime = Date.now();
-      const targetDurationMs = 58000; // ~60s předpokládaný čas
+      const targetDurationMs = 58000;
 
       progressTimer = setInterval(() => {
         const elapsed = Date.now() - startTime;
         let progressRatio = elapsed / targetDurationMs;
 
         if (progressRatio < 0.25) {
-          currentPercent = progressRatio * 140; // rychlý start do ~35%
+          currentPercent = progressRatio * 140;
           setProgress(currentPercent, "Analyzuji zápisovou dynamiku a odchylky...");
         } else if (progressRatio < 0.70) {
-          currentPercent = 35 + (progressRatio - 0.25) * 80; // do ~70%
+          currentPercent = 35 + (progressRatio - 0.25) * 80;
           setProgress(currentPercent, "Vyhodnocuji denní rytmus a intervaly...");
         } else if (progressRatio < 1.0) {
-          currentPercent = 71 + (progressRatio - 0.70) * 80; // do ~95%
+          currentPercent = 71 + (progressRatio - 0.70) * 80;
           setProgress(currentPercent, "Formuluji shrnutí a optimalizační doporučení...");
         } else {
           currentPercent = Math.min(98, currentPercent + 0.1);
