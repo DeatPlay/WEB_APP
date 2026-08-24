@@ -473,7 +473,7 @@
       <!-- ============================================== -->
       <div id="active-roadmap-wrapper" class="flex-1 flex flex-col min-h-0 view-transition view-hidden hidden">
 
-        <!-- HLAVNÍ 3D VYSTOUPLÝ SKLENĚNÝ KALENDÁŘ NATAŽENÝ NA CELOU VÝŠKU -->
+        <!-- HLAVNÍ 3D VYSTOUPLÝ SKLENĚNÝ KALENDÁŘ -->
         <section class="hero-calendar-glass rounded-[28px] p-3.5 sm:p-4 flex-1 flex flex-col justify-between relative overflow-hidden min-h-0 shadow-2xl">
           <!-- Ambientní záře -->
           <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -510,13 +510,13 @@
           </div>
 
           <!-- Dny v týdnu záhlaví -->
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400/90 uppercase tracking-widest relative z-10 py-1 shrink-0">
+          <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-black text-slate-400/90 uppercase tracking-widest relative z-10 py-1 shrink-0">
             <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
           </div>
 
-          <!-- Interaktivní 3D skleněné buňky - NATAŽENÉ NA CELOU DOSTUPNOU VÝŠKU -->
-          <div class="flex-1 overflow-y-auto custom-scroll min-h-0 my-1 relative z-10 pr-0.5">
-            <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center h-full auto-rows-fr">
+          <!-- Interaktivní 3D skleněné buňky - KOMPAKTNÍ OBDÉLNÍČKY -->
+          <div class="my-auto relative z-10 py-1 shrink-0">
+            <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center">
               <!-- Dynamicky generováno JS -->
             </div>
           </div>
@@ -529,15 +529,15 @@
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Plán</span>
           </div>
 
-          <!-- Integrovaný graf v patě kalendáře -->
-          <div class="border-t border-white/10 pt-2 relative z-10 space-y-1 shrink-0">
-            <div class="flex justify-between items-center px-0.5">
+          <!-- Integrovaný graf roztažený na zbývající výšku -->
+          <div class="border-t border-white/10 pt-2 relative z-10 flex-1 flex flex-col min-h-[120px] shrink-0">
+            <div class="flex justify-between items-center px-0.5 mb-1 shrink-0">
               <span class="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-slate-300">
                 <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Plán vs. Realita
               </span>
               <span class="text-[9px] text-slate-400 font-mono">Průběžné dodržování</span>
             </div>
-            <div class="h-28 sm:h-32 w-full relative pt-0.5">
+            <div class="flex-1 w-full relative min-h-0">
               <canvas id="planChart"></canvas>
             </div>
           </div>
@@ -1164,7 +1164,7 @@
 
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = "p-1 rounded-2xl opacity-0 pointer-events-none";
+        emptyCell.className = "p-1 rounded-xl opacity-0 pointer-events-none h-14 sm:h-16";
         container.appendChild(emptyCell);
       }
 
@@ -1192,7 +1192,7 @@
         cell.id = `cal-cell-${day.dateISO}`;
         cell.onclick = () => openDayModal(day.dateISO);
 
-        cell.className = `liquid-glass-cell p-1.5 sm:p-2 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative h-full min-h-[58px] sm:min-h-[72px] ${
+        cell.className = `liquid-glass-cell p-1.5 sm:p-2 rounded-xl flex flex-col items-center justify-between cursor-pointer relative h-14 sm:h-16 w-full ${
           isToday ? 'is-today' : ''
         }`;
 
@@ -1200,11 +1200,11 @@
         const fullDateDisplay = `${parseInt(parts[2], 10)}.${parseInt(parts[1], 10)}.`;
 
         cell.innerHTML = `
-          <div class="w-full flex justify-between items-center text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-400">
+          <div class="w-full flex justify-between items-center text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-400 leading-none">
             <span>${day.dayIndex}d</span>
             <span class="w-1.5 h-1.5 rounded-full ${statusDotColor}"></span>
           </div>
-          <span class="text-[11px] sm:text-xs font-black font-mono my-0.5 tracking-tight ${isToday ? 'text-purple-300 font-extrabold' : 'text-white'}">${fullDateDisplay}</span>
+          <span class="text-[11px] sm:text-xs font-black font-mono tracking-tight leading-none ${isToday ? 'text-purple-300 font-extrabold' : 'text-white'}">${fullDateDisplay}</span>
           <span class="text-[8px] sm:text-[8.5px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>
         `;
 
@@ -1367,7 +1367,6 @@
         const todayIndex = activePlanData.dailySchedule.findIndex(d => d.dateISO === todayISO);
         if (todayIndex === -1) return;
 
-        // Použije se bod ze skutečného zápisu (nebo cíle, pokud zápis ještě není)
         let point = chart.getDatasetMeta(1)?.data[todayIndex];
         if (!point || point.skip || point.x === undefined || point.y === undefined) {
           point = chart.getDatasetMeta(0)?.data[todayIndex];
@@ -1379,13 +1378,12 @@
         const y = point.y;
 
         const t = Date.now() / 450;
-        const wave = (Math.sin(t) + 1) / 2; // 0..1
-        const r1 = 5 + wave * 9;            // 5..14 px
-        const alpha1 = (1 - wave) * 0.75;   // 0.75..0
+        const wave = (Math.sin(t) + 1) / 2;
+        const r1 = 5 + wave * 9;
+        const alpha1 = (1 - wave) * 0.75;
 
         ctx.save();
         
-        // Vnější vlnící se neonový kruh
         ctx.beginPath();
         ctx.arc(x, y, r1, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(45, 212, 191, ${alpha1 * 0.4})`;
@@ -1396,7 +1394,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // Vnitřní zářivý střed
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
