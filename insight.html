@@ -95,56 +95,6 @@
       box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
     }
 
-    /* Apple Glass Button s neonovou září */
-    .planner-glass-btn {
-      background: linear-gradient(145deg, rgba(30, 41, 69, 0.9) 0%, rgba(15, 21, 37, 0.95) 100%);
-      backdrop-filter: blur(16px) saturate(190%);
-      -webkit-backdrop-filter: blur(16px) saturate(190%);
-      border: 1px solid rgba(45, 212, 191, 0.5);
-      box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.4),
-        0 0 18px rgba(45, 212, 191, 0.25),
-        inset 0 1px 1px rgba(255, 255, 255, 0.3);
-      transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .planner-glass-btn:hover {
-      border-color: rgba(45, 212, 191, 0.85);
-      box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.5),
-        0 0 25px rgba(45, 212, 191, 0.45),
-        inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
-      transform: translateY(-1px);
-    }
-
-    .planner-glass-btn:active {
-      transform: scale(0.93);
-    }
-
-    /* Modal Animation */
-    .modal-overlay {
-      background: rgba(11, 15, 23, 0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .modal-card {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
-      background: linear-gradient(145deg, rgba(24, 26, 51, 0.96), rgba(20, 28, 43, 0.96));
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(45, 212, 191, 0.2);
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
-    }
-    .shake-anim {
-      animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    }
-
     .info-drawer {
       display: grid;
       grid-template-rows: 0fr;
@@ -206,21 +156,8 @@
         </div>
       </div>
 
-      <!-- Akční tlačítka vpravo nahoře -->
+      <!-- Akční tlačítko vpravo nahoře -->
       <div class="flex items-center gap-2">
-        <button 
-          type="button"
-          onclick="openPlannerAuthModal()" 
-          class="planner-glass-btn h-9 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm"
-          title="Otevřít plánovač"
-        >
-          <i class="fa-solid fa-calendar-days text-xs text-brand-400"></i>
-          <span class="text-[11px] font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-brand-400">
-            Plánovač
-          </span>
-          <i class="fa-solid fa-lock text-[9px] text-teal-400/80 ml-0.5"></i>
-        </button>
-
         <button 
           type="button"
           onclick="loadInsightsData()" 
@@ -567,65 +504,6 @@
 
   </div>
 
-  <!-- ============================================================== -->
-  <!-- APPLE GLASS DEV AUTH MODAL PRO PLÁNOVAČ                        -->
-  <!-- ============================================================== -->
-  <div 
-    id="planner-auth-modal" 
-    class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden opacity-0"
-    onclick="closePlannerAuthModal(event)"
-  >
-    <div 
-      id="planner-auth-card" 
-      class="modal-card w-full max-w-xs rounded-[28px] p-4 space-y-3.5 transform scale-90 opacity-0"
-      onclick="event.stopPropagation()"
-    >
-      <div class="flex justify-between items-start">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xs shadow-md">
-            <i class="fa-solid fa-terminal"></i>
-          </div>
-          <div>
-            <h4 class="text-xs font-black uppercase text-white tracking-wider">Dev Režim</h4>
-            <p class="text-[10px] text-slate-400 font-medium">Plánovač je v přípravě</p>
-          </div>
-        </div>
-        <button 
-          type="button" 
-          onclick="closePlannerAuthModal()" 
-          class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all active:scale-90 cursor-pointer text-xs"
-          title="Zavřít"
-        >
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="space-y-2">
-        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Zadejte přístupový PIN</label>
-        <input 
-          type="password" 
-          id="planner-dev-pin" 
-          placeholder="•••••••••" 
-          maxlength="16"
-          autocomplete="off"
-          class="w-full bg-darkbg/70 border border-white/15 rounded-xl py-2.5 px-3 text-center text-sm font-mono tracking-widest text-white focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
-          onkeyup="if(event.key === 'Enter') verifyPlannerPin()"
-        />
-        <p id="planner-auth-error" class="hidden text-[10px] font-semibold text-rose-400 text-center flex items-center justify-center gap-1">
-          <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Neplatný vývojářský kód
-        </p>
-      </div>
-
-      <button 
-        type="button" 
-        onclick="verifyPlannerPin()" 
-        class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-teal-500 hover:opacity-95 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.97] transition-all shadow-md cursor-pointer"
-      >
-        <i class="fa-solid fa-unlock text-xs"></i> Odemknout
-      </button>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://emzqqvoqqodaggskgfze.supabase.co";
@@ -655,74 +533,6 @@
 
     const DAILY_LIMIT = 5;
     const CIRCUMFERENCE = 163.36; // 2 * PI * r (r = 26)
-    const DEV_PLANNER_PIN = "321654987";
-
-    // ==============================================================
-    // DEV PIN OVERLAY PRO PLÁNOVAČ
-    // ==============================================================
-    function openPlannerAuthModal() {
-      const modal = document.getElementById('planner-auth-modal');
-      const card = document.getElementById('planner-auth-card');
-      const input = document.getElementById('planner-dev-pin');
-      const err = document.getElementById('planner-auth-error');
-
-      if (err) err.classList.add('hidden');
-      if (input) input.value = '';
-
-      if (modal && card) {
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-          modal.classList.remove('opacity-0');
-          card.classList.remove('scale-90', 'opacity-0');
-          card.classList.add('scale-100', 'opacity-100');
-          if (input) input.focus();
-        }, 15);
-      }
-    }
-
-    function closePlannerAuthModal(event) {
-      if (event && event.target !== event.currentTarget) return;
-      const modal = document.getElementById('planner-auth-modal');
-      const card = document.getElementById('planner-auth-card');
-
-      if (modal && card) {
-        card.classList.remove('scale-100', 'opacity-100');
-        card.classList.add('scale-90', 'opacity-0');
-        modal.classList.add('opacity-0');
-        setTimeout(() => {
-          modal.classList.add('hidden');
-        }, 250);
-      }
-    }
-
-    function verifyPlannerPin() {
-      const input = document.getElementById('planner-dev-pin');
-      const err = document.getElementById('planner-auth-error');
-      const card = document.getElementById('planner-auth-card');
-      const pin = input ? input.value.trim() : '';
-
-      if (pin === DEV_PLANNER_PIN) {
-        if (err) err.classList.add('hidden');
-        const container = document.getElementById('main-body');
-        container.classList.remove('page-slide-in-right');
-        container.classList.add('page-slide-out-right');
-        
-        setTimeout(() => {
-          window.location.href = "planovac.html";
-        }, 220);
-      } else {
-        if (err) err.classList.remove('hidden');
-        if (card) {
-          card.classList.remove('shake-anim');
-          void card.offsetWidth; // trigger reflow
-          card.classList.add('shake-anim');
-        }
-        if (input) {
-          input.value = '';
-          input.focus();
-        }
-      }
-    }
 
     function toggleDrawer(id) {
       const drawer = document.getElementById(id);
