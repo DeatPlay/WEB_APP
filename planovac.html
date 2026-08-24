@@ -251,7 +251,7 @@
     </header>
 
     <!-- Scrollable Body -->
-    <main class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-1 relative">
+    <main class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-1 relative min-h-0">
 
       <!-- ============================================== -->
       <!-- KONFIGURAČNÍ SEKCE V APPLE GLASS STYLU         -->
@@ -469,21 +469,21 @@
       </div>
 
       <!-- ============================================== -->
-      <!-- HLAVNÍ ČÁST: VYSTOUPLÝ LIQUID GLASS KALENDÁŘ   -->
+      <!-- HLAVNÍ ČÁST: FULL-SCREEN LIQUID GLASS KALENDÁŘ -->
       <!-- ============================================== -->
-      <div id="active-roadmap-wrapper" class="space-y-3 view-transition view-hidden hidden">
+      <div id="active-roadmap-wrapper" class="flex-1 flex flex-col min-h-0 view-transition view-hidden hidden">
 
-        <!-- HLAVNÍ 3D VYSTOUPLÝ SKLENĚNÝ KALENDÁŘ -->
-        <section class="hero-calendar-glass rounded-[28px] p-4 space-y-3.5 relative overflow-hidden">
+        <!-- HLAVNÍ 3D VYSTOUPLÝ SKLENĚNÝ KALENDÁŘ NATAŽENÝ NA CELOU VÝŠKU -->
+        <section class="hero-calendar-glass rounded-[28px] p-3.5 sm:p-4 flex-1 flex flex-col justify-between relative overflow-hidden min-h-0 shadow-2xl">
           <!-- Ambientní záře -->
-          <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-          <!-- Integrovaná hlavička s tlačítky Upravit & Smazat -->
-          <div class="flex justify-between items-center border-b border-white/10 pb-2.5 relative z-10">
+          <!-- Integrovaná hlavička -->
+          <div class="flex justify-between items-center border-b border-white/10 pb-2 relative z-10 shrink-0">
             <div class="flex items-center gap-2">
               <span id="header-led-dot" class="led-indicator bg-teal-400 shrink-0"></span>
-              <h2 id="roadmap-summary-title" class="text-[13px] font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400">
+              <h2 id="roadmap-summary-title" class="text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400">
                 REDUKČNÍ PLÁN
               </h2>
             </div>
@@ -510,32 +510,34 @@
           </div>
 
           <!-- Dny v týdnu záhlaví -->
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400/90 uppercase tracking-widest relative z-10">
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400/90 uppercase tracking-widest relative z-10 py-1 shrink-0">
             <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
           </div>
 
-          <!-- Interaktivní 3D skleněné buňky -->
-          <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-2 text-center relative z-10">
-            <!-- Dynamicky generováno JS -->
+          <!-- Interaktivní 3D skleněné buňky - NATAŽENÉ NA CELOU DOSTUPNOU VÝŠKU -->
+          <div class="flex-1 overflow-y-auto custom-scroll min-h-0 my-1 relative z-10 pr-0.5">
+            <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center h-full auto-rows-fr">
+              <!-- Dynamicky generováno JS -->
+            </div>
           </div>
 
           <!-- Legenda stavů -->
-          <div class="flex justify-center items-center gap-3.5 pt-1.5 border-t border-white/10 text-[9.5px] text-slate-400 font-medium relative z-10">
+          <div class="flex justify-center items-center gap-3.5 pt-1.5 pb-1 border-t border-white/10 text-[9px] sm:text-[9.5px] text-slate-400 font-medium relative z-10 shrink-0">
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> V limitu</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50"></span> Dnes</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400 shadow-sm shadow-rose-400/50"></span> Nad limit</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Plán</span>
           </div>
 
-          <!-- Integrovaný vždy viditelný graf přímo v těle kalendáře -->
-          <div class="border-t border-white/10 pt-2.5 relative z-10 space-y-1.5">
+          <!-- Integrovaný graf v patě kalendáře -->
+          <div class="border-t border-white/10 pt-2 relative z-10 space-y-1 shrink-0">
             <div class="flex justify-between items-center px-0.5">
-              <span class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-300">
+              <span class="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-slate-300">
                 <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Křivka trajektorie
               </span>
-              <span class="text-[9.5px] text-slate-400 font-mono">Doporučený denní cíl</span>
+              <span class="text-[9px] text-slate-400 font-mono">Doporučený denní cíl</span>
             </div>
-            <div class="h-32 w-full relative pt-0.5">
+            <div class="h-28 sm:h-32 w-full relative pt-0.5">
               <canvas id="planChart"></canvas>
             </div>
           </div>
@@ -842,7 +844,6 @@
       const startInput = document.getElementById('input-start-grams');
       const targetInput = document.getElementById('input-target-grams');
 
-      // Plynulé otevření formuláře s animací
       if (configSec && !configSec.classList.contains('expanded')) {
         configSec.classList.remove('hidden');
         setTimeout(() => {
@@ -946,7 +947,7 @@
         for (let i = 0; i <= totalDays; i++) {
           const curDate = new Date(today);
           curDate.setDate(curDate.getDate() + i);
-          const dateStr = `${curDate.getDate()}. ${curDate.getMonth() + 1}.`;
+          const dateStr = `${curDate.getDate()}.${curDate.getMonth() + 1}.`;
           const dateISO = getDateKey(curDate);
 
           labels.push(dateStr);
@@ -971,7 +972,7 @@
         for (let i = 0; i <= totalDays; i++) {
           const curDate = new Date(today);
           curDate.setDate(curDate.getDate() + i);
-          const dateStr = `${curDate.getDate()}. ${curDate.getMonth() + 1}.`;
+          const dateStr = `${curDate.getDate()}.${curDate.getMonth() + 1}.`;
           const dateISO = getDateKey(curDate);
 
           labels.push(dateStr);
@@ -1010,7 +1011,6 @@
         localStorage.setItem(`grammi_active_plan_${currentUserId}`, JSON.stringify(activePlanData));
       }
 
-      // Plynulá přechodová animace do kalendáře
       const setup = document.getElementById('planner-setup-wrapper');
       const roadmap = document.getElementById('active-roadmap-wrapper');
 
@@ -1049,7 +1049,6 @@
         roadmap.classList.add('hidden');
         setup.classList.remove('hidden');
 
-        // Reset strategie
         selectedStrategy = null;
         ['decrease', 'maintain', 'increase'].forEach(s => {
           const btn = document.getElementById(`strat-btn-${s}`);
@@ -1093,7 +1092,6 @@
       const setup = document.getElementById('planner-setup-wrapper');
       const roadmap = document.getElementById('active-roadmap-wrapper');
       
-      // Plynulá animace z kalendáře zpět do formuláře
       roadmap.classList.remove('view-visible');
       roadmap.classList.add('view-hidden');
 
@@ -1138,13 +1136,13 @@
         titleEl.textContent = stratTitles[activePlanData.strategy] || 'AKTIVNÍ PLÁN';
 
         if (activePlanData.strategy === 'decrease') {
-          titleEl.className = "text-[13px] font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
+          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
           if (ledDot) ledDot.className = "led-indicator bg-teal-400 shrink-0";
         } else if (activePlanData.strategy === 'increase') {
-          titleEl.className = "text-[13px] font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400";
+          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400";
           if (ledDot) ledDot.className = "led-indicator bg-amber-400 shrink-0";
         } else {
-          titleEl.className = "text-[13px] font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-400";
+          titleEl.className = "text-[13px] sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-400";
           if (ledDot) ledDot.className = "led-indicator bg-purple-400 shrink-0";
         }
       }
@@ -1165,7 +1163,7 @@
 
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = "p-2 rounded-2xl opacity-0 pointer-events-none";
+        emptyCell.className = "p-1 rounded-2xl opacity-0 pointer-events-none";
         container.appendChild(emptyCell);
       }
 
@@ -1193,19 +1191,20 @@
         cell.id = `cal-cell-${day.dateISO}`;
         cell.onclick = () => openDayModal(day.dateISO);
 
-        cell.className = `liquid-glass-cell p-2 sm:p-2.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative ${
+        cell.className = `liquid-glass-cell p-1.5 sm:p-2 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative h-full min-h-[58px] sm:min-h-[72px] ${
           isToday ? 'is-today' : ''
         }`;
 
-        const dNum = day.dateISO.split('-')[2];
+        const parts = day.dateISO.split('-');
+        const fullDateDisplay = `${parseInt(parts[2], 10)}.${parseInt(parts[1], 10)}.`;
 
         cell.innerHTML = `
-          <div class="w-full flex justify-between items-center text-[8.5px] font-mono font-bold text-slate-400">
+          <div class="w-full flex justify-between items-center text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-400">
             <span>${day.dayIndex}d</span>
             <span class="w-1.5 h-1.5 rounded-full ${statusDotColor}"></span>
           </div>
-          <span class="text-xs font-black font-mono my-1 ${isToday ? 'text-purple-300 font-extrabold' : 'text-white'}">${parseInt(dNum, 10)}</span>
-          <span class="text-[8px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>
+          <span class="text-[11px] sm:text-xs font-black font-mono my-0.5 tracking-tight ${isToday ? 'text-purple-300 font-extrabold' : 'text-white'}">${fullDateDisplay}</span>
+          <span class="text-[8px] sm:text-[8.5px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>
         `;
 
         container.appendChild(cell);
@@ -1245,7 +1244,6 @@
         }
       }
 
-      // Reálné zápisy z databáze
       const dayLogs = userLogs.filter(l => l.dateKey === dateISO);
       const actualSum = dayLogs.reduce((acc, l) => acc + l.amount, 0);
 
@@ -1286,7 +1284,6 @@
         }
       }
 
-      // Harmonogram dávek
       const slotsCountEl = document.getElementById('modal-day-slots-count');
       if (slotsCountEl) slotsCountEl.textContent = `${dayObj.slots.length}× DENNĚ`;
 
@@ -1310,7 +1307,6 @@
         });
       }
 
-      // Seznam skutečných zápisů
       const actualLogsContainer = document.getElementById('modal-day-actual-logs');
       if (actualLogsContainer) {
         actualLogsContainer.innerHTML = '';
@@ -1334,7 +1330,6 @@
         }
       }
 
-      // Animace otevření
       const overlay = document.getElementById('day-modal-overlay');
       const card = document.getElementById('day-modal-card');
       if (overlay && card) {
@@ -1377,7 +1372,7 @@
         gradientStart = 'rgba(192, 132, 252, 0.35)';
       }
 
-      const grad = ctx.createLinearGradient(0, 0, 0, 120);
+      const grad = ctx.createLinearGradient(0, 0, 0, 110);
       grad.addColorStop(0, gradientStart);
       grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
 
@@ -1393,7 +1388,7 @@
             fill: true,
             tension: 0.35,
             borderWidth: 2.5,
-            pointRadius: labels.length > 25 ? 0 : 3,
+            pointRadius: labels.length > 25 ? 0 : 2.5,
             pointBackgroundColor: color
           }]
         },
@@ -1415,12 +1410,12 @@
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#64748b', font: { size: 8 }, maxTicksLimit: 7 }
+              ticks: { color: '#64748b', font: { size: 7.5 }, maxTicksLimit: 7 }
             },
             y: {
               beginAtZero: false,
               grid: { color: 'rgba(255, 255, 255, 0.06)' },
-              ticks: { color: '#64748b', font: { size: 8 } }
+              ticks: { color: '#64748b', font: { size: 7.5 } }
             }
           }
         }
