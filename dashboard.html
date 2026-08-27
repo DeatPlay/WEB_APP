@@ -899,7 +899,8 @@
 
           <!-- VÝCHOZÍ OBSAH: TLAČÍTKO NOVÝ STAV A DVA BLOKY -->
           <div class="pie-fade-elements w-full flex flex-col justify-end mt-auto space-y-2 relative z-10">
-            <div class="w-full flex justify-center pt-0">
+            <div class="w-full flex justify-center items-center gap-3.5 pt-0">
+
               <button 
                 type="button" 
                 onclick="promptChangePieCapacity()" 
@@ -908,6 +909,17 @@
               >
                 Nový stav
               </button>
+
+              <!-- Tlačítko pro přičtení kapacity -->
+    <button 
+      type="button" 
+      onclick="promptAddPieCapacity()" 
+      class="py-2 px-7 bg-gradient-to-r from-teal-500/25 via-brand-500/35 to-teal-500/25 hover:from-teal-500/40 hover:via-brand-500/50 hover:to-teal-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5"
+      title="Přidat objem ke stávající kapacitě"
+    >
+      <i class="fa-solid fa-plus text-[10px]"></i> Přidat
+    </button>
+
             </div>
 
             <div class="grid grid-cols-2 gap-2 w-full text-center pt-1">
@@ -2111,6 +2123,32 @@
         chevron.style.transform = 'rotate(0deg)';
       }
     }
+
+    async function promptAddPieCapacity() {
+  const val = prompt(`Zadejte množství k přičtení ke stávající kapacitě (G):`, "10.0");
+  if (val !== null) {
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 0) {
+      // Přičtení pouze ke zbývající kapacitě (remaining_capacity)
+      pieRemainingGrams = parseFloat((pieRemainingGrams + num).toFixed(2));
+      
+      // Pokud by zbývající kapacita přesáhla původní limit, rozšíří se i celková kapacita
+      if (pieRemainingGrams > pieCapacityGrams) {
+        pieCapacityGrams = pieRemainingGrams;
+        const capacityInputEl = document.getElementById('setting-planner-capacity');
+        if (capacityInputEl) capacityInputEl.value = pieCapacityGrams.toFixed(1);
+      }
+      
+      // Uložení změn do Supabase i do LocalStorage
+      await saveSettings();
+      
+      // Aktualizace grafu a predikcí
+      renderPlannerPieChart();
+      if (isForecastViewActive) renderForecastModel();
+      showToast(`Kapacita navýšena o +${num.toFixed(2)} G (Zůstatek: ${pieRemainingGrams.toFixed(2)} G)`);
+    }
+  }
+}
 
     async function promptChangePieCapacity() {
       const current = pieCapacityGrams.toFixed(1);
