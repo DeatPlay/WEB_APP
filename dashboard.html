@@ -280,12 +280,12 @@
     }
 
     .glow-pie-container {
-  position: relative;
-  filter: drop-shadow(0 0 25px rgba(45, 212, 191, 0.45));
-  transition: filter 0.5s ease;
-  transform: translateZ(0);
-  will-change: filter, transform;
-  contain: paint;
+      position: relative;
+      filter: drop-shadow(0 0 25px rgba(45, 212, 191, 0.45));
+      transition: filter 0.5s ease;
+      transform: translateZ(0);
+      will-change: filter, transform;
+      contain: paint;
     }
     .glow-pie-container.glow-amber {
       filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.45));
@@ -321,6 +321,73 @@
       transform: scale(1) translateY(0) !important;
       pointer-events: auto !important;
     }
+
+    #capacity-main-card {
+      --fc-pie-initial-top: 34%;
+      --fc-pie-initial-scale: 1;
+      --fc-pie-forecast-x: 0px;
+      --fc-pie-forecast-y: 15px;
+      --fc-pie-forecast-scale: 0.48;
+      --fc-text-top-left-offset: 104px;
+      --fc-text-top-y-shift: 0px;
+      --fc-bottom-stats-y-shift: 0px;
+      --fc-bottom-stats-gap: 16px;
+    }
+
+    .capacity-section-transition {
+      position: absolute;
+      left: 50%;
+      top: var(--fc-pie-initial-top);
+      transform: translate(-50%, -50%) scale(var(--fc-pie-initial-scale));
+      transform-origin: top left;
+      transition: left 0.42s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  top 0.42s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  transform 0.42s cubic-bezier(0.34, 1.25, 0.64, 1);
+      z-index: 20;
+    }
+
+    .pie-stage-forecast #planner-pie-center-stage {
+      left: 0;
+      top: 0;
+      transform: translate(var(--fc-pie-forecast-x), var(--fc-pie-forecast-y)) scale(var(--fc-pie-forecast-scale));
+    }
+
+    .forecast-top-text-box {
+      padding-left: var(--fc-text-top-left-offset);
+      transform: translateY(var(--fc-text-top-y-shift));
+    }
+
+    .forecast-bottom-stats-box {
+      transform: translateY(var(--fc-bottom-stats-y-shift));
+      gap: var(--fc-bottom-stats-gap);
+    }
+
+    .pie-fade-elements {
+      transition: opacity 0.25s ease, transform 0.3s ease;
+    }
+
+    .pie-stage-forecast .pie-fade-elements {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      display: none !important;
+    }
+
+    .forecast-panel-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* Při návratu zpět zmizí za 0.2s bez prodlevy; při otevření počká 0.15s */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(8px);
+}
+
+.pie-stage-forecast .forecast-panel-grid {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: opacity 0.35s ease 0.15s, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
   </style>
 </head>
 <body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased">
@@ -336,7 +403,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.4
+              v1.5
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -720,63 +787,152 @@
     <div id="tab-planner" class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-2 relative hidden">
 
       <!-- HLAVNÍ KARTA: ZÁSOBNÍK A ZŮSTATEK -->
-      <section class="seamless-container rounded-3xl p-4 flex flex-col items-center justify-between text-center relative backdrop-blur-md shrink-0 shadow-2xl">
-        <div class="w-full flex justify-between items-center pb-2 border-b border-white/5 relative z-10">
+      <section id="capacity-main-card" class="seamless-container rounded-3xl p-4 flex flex-col justify-between relative backdrop-blur-md shrink-0 shadow-2xl overflow-hidden min-h-[370px]">
+        <div class="w-full flex justify-between items-center pb-2 border-b border-white/5 relative z-20 shrink-0">
           <div class="flex items-center gap-2">
             <span id="pie-status-led" class="led-indicator bg-brand-400 shrink-0"></span>
             <h2 class="text-xs font-black uppercase tracking-wider text bg-clip-text bg-gradient-to-r from-brand-300 via-teal-400 to-purple-300">
-              Denní přehled plánu
+              Přehled plánu
             </h2>
           </div>
+
+          <!-- TLAČÍTKO PŘEDPOVĚĎ / ZPĚT -->
+          <div class="flex items-center">
+            <button 
+              id="btn-toggle-forecast"
+              type="button" 
+              onclick="toggleForecastView()"
+              class="py-1 px-3 bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-white border border-purple-500/30 rounded-xl text-[10.5px] font-bold tracking-wider uppercase transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Zobrazit detailní předpověď"
+            >
+              <i class="fa-solid fa-binoculars text-[9px] text-purple-400"></i>
+              <span>Předpověď</span>
+            </button>
+          </div>
         </div>
 
-        <!-- STŘEDOVÝ KOLÁČ / PRSTENEC -->
-        <div class="my-4 relative flex items-center justify-center">
-          <div id="glow-pie-wrapper" class="glow-pie-container w-44 h-44 sm:w-48 sm:h-48 relative flex items-center justify-center">
-            <canvas id="plannerPieCanvas"></canvas>
+        <!-- HLAVNÍ RELATIVNÍ PROSTOR -->
+        <div class="w-full relative flex-1 min-h-[225px] flex flex-col justify-between pt-2">
+          
+          <!-- ANIMOVANÝ PRSTENEC -->
+          <div id="planner-pie-center-stage" class="capacity-section-transition w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center pointer-events-none">
+            <div id="glow-pie-wrapper" class="glow-pie-container w-44 h-44 sm:w-48 sm:h-48 relative flex items-center justify-center">
+              <canvas id="plannerPieCanvas"></canvas>
+              
+              <!-- STŘEDOVÝ TEXT: DYNAMICKY ZMĚNĚN -->
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-4 text-center">
+                <div id="pie-center-grams" class="flex flex-col items-center justify-center font-mono tracking-tight leading-tight">
+                  100%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OBSAH PŘEDPOVĚDI -->
+          <div id="forecast-stats-overlay" class="forecast-panel-grid w-full h-full flex flex-col justify-between py-1 z-10">
             
-            <!-- STŘEDOVÉ TEXTY -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-              <span class="text-[9px] uppercase font-extrabold tracking-widest text-slate-400 leading-none">Aktuální kapacita</span>
-              <p id="pie-center-grams" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight leading-tight my-0.5">50.00</p>
-              <span id="pie-center-unit" class="text-[10px] font-extrabold text-brand-400 uppercase tracking-widest leading-none">G z 50.0 G</span>
+            <!-- HORNÍ TEXTOVÉ STATISTIKY VEDLE KOLEČKA (2 SLOUPCE: KAPACITA A SPOTŘEBA/DATUM) -->
+            <div class="forecast-top-text-box w-full flex justify-end">
+              <div class="w-full grid grid-cols-2 gap-20 text-left pl-2 py-3.5">
+                
+                <!-- 1. SLOUPEC: AKTUÁLNÍ A PŮVODNÍ KAPACITA -->
+                <div class="space-y-1.5 border-r border-white/5 pr-1">
+                  <div>
+                    <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block leading-none">Aktuální</span>
+                    <p class="text-xs font-black text-brand-400 font-mono leading-tight mt-0.5">
+                      <span id="fc-stat-current-cap">50.00</span> <span class="text-[10px] text-slate-400 font-bold">G</span>
+                    </p>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold text-slate-500 uppercase tracking-wider block leading-none">Původní</span>
+                    <p class="text-xs font-bold text-slate-300 font-mono leading-tight mt-0.5">
+                      <span id="fc-stat-initial-cap">50.0</span> <span class="text-[10px] text-slate-500">G</span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- 2. SLOUPEC: PRŮMĚRNÝ ZÁPIS A DATUM VYČERPÁNÍ -->
+                <div class="space-y-1.5 pl-0.5">
+                  <div>
+                    <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block leading-none">Průměr / den</span>
+                    <p class="text-xs font-black text-white font-mono leading-tight mt-0.5">
+                      <span id="fc-stat-avg-daily">0.00</span> <span class="text-[10px] text-brand-400">G/d</span>
+                    </p>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block leading-none">Vyčerpání</span>
+                    <p class="text-[11px] font-black text-purple-300 font-mono flex items-center gap-1 leading-tight mt-0.5 truncate">
+                      <i class="fa-solid fa-calendar-xmark text-[9px]"></i> <span id="fc-stat-depletion-date">--.--.----</span>
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- STŘEDNÍ MINI GRAF KŘIVKY VYČERPÁNÍ (h-20) -->
+            <div class="w-full pt-7 px-0.5">
+              <div class="flex justify-between items-center text-[9px] text-slate-400 font-bold mb-1 px-1">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-chart-line text-brand-400 text-[10px]"></i> Křivka úbytku kapacity</span>
+                <span class="font-mono text-purple-300" id="fc-chart-trend-tag">Klesající predikce</span>
+              </div>
+              <div class="h-20 w-full relative">
+                <canvas id="forecastDepletionChart"></canvas>
+              </div>
+            </div>
+
+            <!-- SPODNÍ TEXTOVÉ STATISTIKY S ODDĚLOVAČEM -->
+            <div class="forecast-bottom-stats-box w-full pt-2 border-t border-white/10 grid grid-cols-2 text-left">
+              <div class="pr-2 border-r border-white/10">
+                <span class="text-[9px] font-bold text-slate-400 uppercase block tracking-wider">Kapacita dojde za</span>
+                <p class="text-sm font-black text-brand-400 font-mono mt-0.5" id="fc-stat-depletion-days">-- dní</p>
+                <span class="text-[8px] text-slate-500 block" id="fc-stat-depletion-hours">Zbývá: -- h</span>
+              </div>
+              <div class="pl-2">
+                <span class="text-[9px] font-bold text-slate-400 uppercase block tracking-wider">Týdenní projekce</span>
+                <p class="text-sm font-black text-amber-300 font-mono mt-0.5" id="fc-stat-weekly-burn">-- G / 7d</p>
+                <span class="text-[8px] text-slate-500 block" id="fc-stat-burn-desc">Očekávaná spotřeba</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- VÝCHOZÍ OBSAH: TLAČÍTKO NOVÝ STAV A DVA BLOKY -->
+          <div class="pie-fade-elements w-full flex flex-col justify-end mt-auto space-y-2 relative z-10">
+            <div class="w-full flex justify-center pt-0">
+              <button 
+                type="button" 
+                onclick="promptChangePieCapacity()" 
+                class="py-2 px-6 bg-gradient-to-r from-brand-500/25 via-teal-500/35 to-brand-500/25 hover:from-brand-500/40 hover:via-teal-500/50 hover:to-brand-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm"
+                title="Nastavit nový výchozí stav kapacity"
+              >
+                Nový stav
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 w-full text-center pt-1">
+              <div class="liquid-glass-cell p-2.5 rounded-2xl flex items-center justify-between">
+                <div class="text-left">
+                  <p class="text-[9px] font-bold text-slate-400 uppercase leading-none">Zapsáno</p>
+                  <p id="pie-stat-spent" class="text-sm font-black text-white font-mono mt-1 leading-none">0.00 G</p>
+                </div>
+                <div class="w-7 h-7 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 text-xs">
+                  <i class="fa-solid fa-fire-flame-curved"></i>
+                </div>
+              </div>
+
+              <div class="liquid-glass-cell p-2.5 rounded-2xl flex items-center justify-between">
+                <div class="text-left">
+                  <p class="text-[9px] font-bold text-slate-400 uppercase leading-none">Zbývá</p>
+                  <p id="pie-stat-percent" class="text-sm font-black text-brand-400 font-mono mt-1 leading-none">100%</p>
+                </div>
+                <div id="pie-percent-icon-box" class="w-7 h-7 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xs transition-colors">
+                  <i class="fa-solid fa-battery-full"></i>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- TLAČÍTKO NOVÝ STAV -->
-        <div class="w-full flex justify-center pb-2 relative z-10">
-          <button 
-            type="button" 
-            onclick="promptChangePieCapacity()" 
-            class="py-2 px-6 bg-gradient-to-r from-brand-500/25 via-teal-500/35 to-brand-500/25 hover:from-brand-500/40 hover:via-teal-500/50 hover:to-brand-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm"
-            title="Nastavit nový výchozí stav kapacity"
-          >
-            Nový stav
-          </button>
-        </div>
-
-        <!-- STATISTICKÉ BUŇKY -->
-        <div class="grid grid-cols-2 gap-2 w-full text-center relative z-10 pt-1">
-          <div class="liquid-glass-cell p-2.5 rounded-2xl flex items-center justify-between">
-            <div class="text-left">
-              <p class="text-[9px] font-bold text-slate-400 uppercase leading-none">Spotřebováno</p>
-              <p id="pie-stat-spent" class="text-sm font-black text-white font-mono mt-1 leading-none">0.00 G</p>
-            </div>
-            <div class="w-7 h-7 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 text-xs">
-              <i class="fa-solid fa-fire-flame-curved"></i>
-            </div>
-          </div>
-
-          <div class="liquid-glass-cell p-2.5 rounded-2xl flex items-center justify-between">
-            <div class="text-left">
-              <p class="text-[9px] font-bold text-slate-400 uppercase leading-none">Zbývá</p>
-              <p id="pie-stat-percent" class="text-sm font-black text-brand-400 font-mono mt-1 leading-none">100%</p>
-            </div>
-            <div id="pie-percent-icon-box" class="w-7 h-7 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xs transition-colors">
-              <i class="fa-solid fa-battery-full"></i>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1437,9 +1593,24 @@
         <div class="bg-darkbg/80 border border-brand-500/50 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.4
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.5
             </span>
             <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Přidaná <strong>předpověď plánu</strong> u kapacity.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-darkbg/80 border border-brand-500/10 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.4
+            </span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Kapacita</span>
           </div>
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
@@ -1521,7 +1692,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CO JE NOVÉHO (Zobrazí se pouze jednou při první návštěvě dané verze) -->
+  <!-- MODAL: CO JE NOVÉHO -->
   <div id="whats-new-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-closed hidden">
     <div id="whats-new-modal-card" class="bg-cardbg border border-borderbg w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col gap-3.5">
       
@@ -1536,21 +1707,16 @@
         <div>
           <div class="flex items-center gap-1.5">
             <h3 class="text-sm font-black text-white tracking-tight uppercase">Co je nového?</h3>
-            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.4</span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.5</span>
           </div>
           <p class="text-[11px] text-slate-400">Přehled nejnovějších změn a funkcí</p>
         </div>
       </div>
 
-      <!-- Seznam novinek -->
       <div class="bg-darkbg/70 border border-borderbg/80 rounded-2xl p-3 space-y-2 text-xs text-slate-300">
         <div class="flex items-start gap-2">
           <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
-          <span><strong>Plánovač:</strong> Plně integrované odčítání kapacity v reálném čase.</span>
-        </div>
-        <div class="flex items-start gap-2">
-          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
-          <span><strong>Nastavení strategie:</strong> Přesunuto do záložky pod kapacitou.</span>
+          <span><strong>PŘEDPOVĚĎ:</strong> Přidané základní předpovídající statistiky do kapacity skrz tlačítko "Předpověď".</span>
         </div>
       </div>
 
@@ -1656,8 +1822,7 @@
     const PIE_CAPACITY_KEY = 'grammi_pie_capacity';
     const PIE_REMAINING_KEY = 'grammi_pie_remaining';
     
-    /* VERZOVÁNÍ ZPRÁV / CO JE NOVÉHO */
-    const CURRENT_APP_VERSION = '1.3'; // Při každé aktualizaci (např. 1.4) stačí změnit toto číslo
+    const CURRENT_APP_VERSION = '1.4';
     const WHATS_NEW_KEY = 'grammi_seen_version';
     
     let currentUserEmail = "";
@@ -1668,8 +1833,8 @@
     let logs = [];
     let targetIntervalHours = 4.0;
     let dailyLimitGrams = 5.0;
-    let pieCapacityGrams = 50.0;    // Původní nastavená kapacita (např. 100 G)
-    let pieRemainingGrams = 50.0;   // Aktuální reálný zůstatek (např. 95 G -> 93 G)
+    let pieCapacityGrams = 50.0;
+    let pieRemainingGrams = 50.0;
     let weeklyChartInstance = null;
     let todayHourlyChartInstance = null;
     let mainChartMode = 'weekly';
@@ -1680,7 +1845,8 @@
     let isTimeWindowsExpanded = false;
     let cachedCoords = { lat: null, lng: null };
 
-    /* PROMĚNNÉ PLÁNOVAČE */
+    let isForecastViewActive = false;
+    let forecastChartInstance = null;
     let userStats = {
       avgDailyGrams: 0,
       peakHour: 10,
@@ -1697,6 +1863,213 @@
     let chartPulseAnimId = null;
     let plannerPieChartInstance = null;
     let isStrategySectionOpen = false;
+
+    function toggleForecastView() {
+      const card = document.getElementById('capacity-main-card');
+  const btn = document.getElementById('btn-toggle-forecast');
+  if (!card || !btn) return;
+
+  isForecastViewActive = !isForecastViewActive;
+
+  if (isForecastViewActive) {
+    // Přechod DO předpovědi (kolečko se zmenší, pak se zobrazí text)
+    card.classList.add('pie-stage-forecast');
+    btn.innerHTML = `<i class="fa-solid fa-arrow-left text-[9px]"></i> <span>Zpět</span>`;
+    btn.className = "py-1 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-[10.5px] font-bold tracking-wider uppercase transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm";
+    renderPlannerPieChart();
+    renderForecastModel();
+  } else {
+    // Přechod ZPĚT (nejprve zmizí panel předpovědi, až pak se zvětší kolečko)
+    const overlay = document.getElementById('forecast-stats-overlay');
+    if (overlay) {
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'translateY(8px)';
+      overlay.style.pointerEvents = 'none';
+    }
+
+    btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-[9px] text-purple-400"></i> <span>Předpověď</span>`;
+    btn.className = "py-1 px-3 bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-white border border-purple-500/30 rounded-xl text-[10.5px] font-bold tracking-wider uppercase transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm";
+
+    // Počkáme 220 ms, než text úplně zmizí, a teprve poté spustíme animaci zvětšení kolečka
+    setTimeout(() => {
+      card.classList.remove('pie-stage-forecast');
+      if (overlay) {
+        overlay.style.opacity = '';
+        overlay.style.transform = '';
+        overlay.style.pointerEvents = '';
+      }
+      renderPlannerPieChart();
+    }, 220);
+  }
+    }
+
+    function renderForecastModel() {
+      const currentCapEl = document.getElementById('fc-stat-current-cap');
+      const initialCapEl = document.getElementById('fc-stat-initial-cap');
+      const avgDailyEl = document.getElementById('fc-stat-avg-daily');
+      const dateEl = document.getElementById('fc-stat-depletion-date');
+      const daysEl = document.getElementById('fc-stat-depletion-days');
+      const hoursEl = document.getElementById('fc-stat-depletion-hours');
+      const burnEl = document.getElementById('fc-stat-weekly-burn');
+      const burnDescEl = document.getElementById('fc-stat-burn-desc');
+
+      const remaining = Math.max(0, pieRemainingGrams);
+      const capacity = pieCapacityGrams > 0 ? pieCapacityGrams : 50.0;
+
+      if (currentCapEl) currentCapEl.textContent = remaining.toFixed(2);
+      if (initialCapEl) initialCapEl.textContent = capacity.toFixed(1);
+
+      const daysMap = {};
+      logs.forEach(l => {
+        daysMap[l.dateKey] = (daysMap[l.dateKey] || 0) + l.amount;
+      });
+      const dayKeys = Object.keys(daysMap).sort();
+      const recentKeys = dayKeys.slice(-14);
+      const recentSum = recentKeys.reduce((acc, k) => acc + daysMap[k], 0);
+      const avgDaily = recentKeys.length > 0 ? (recentSum / recentKeys.length) : (logs.length > 0 ? logs[0].amount : 2.5);
+      const safeAvgDaily = Math.max(0.1, parseFloat(avgDaily.toFixed(2)));
+
+      if (avgDailyEl) avgDailyEl.textContent = safeAvgDaily.toFixed(2);
+
+      const daysRemaining = remaining / safeAvgDaily;
+      const fullDays = Math.floor(daysRemaining);
+      const totalHours = Math.round(daysRemaining * 24);
+
+      if (daysEl) daysEl.textContent = fullDays > 0 ? `~ ${fullDays} dní` : `${totalHours} hodin`;
+      if (hoursEl) hoursEl.textContent = `Zbývá: ~ ${totalHours} h (${remaining.toFixed(2)} G)`;
+
+      const depletionDate = new Date();
+      depletionDate.setTime(depletionDate.getTime() + (daysRemaining * 24 * 60 * 60 * 1000));
+      const dateFormatted = `${depletionDate.getDate()}.${depletionDate.getMonth() + 1}.${depletionDate.getFullYear()}`;
+      if (dateEl) dateEl.textContent = remaining <= 0 ? "Vyčerpáno" : dateFormatted;
+
+      const weeklyBurn = (safeAvgDaily * 7).toFixed(1);
+
+      const half = Math.floor(recentKeys.length / 2);
+      let pacingDelta = 0;
+      if (recentKeys.length >= 4) {
+        const firstHalf = recentKeys.slice(0, half).reduce((acc, k) => acc + daysMap[k], 0) / half;
+        const secondHalf = recentKeys.slice(half).reduce((acc, k) => acc + daysMap[k], 0) / (recentKeys.length - half);
+        pacingDelta = parseFloat(((secondHalf - firstHalf) * 7).toFixed(2));
+      }
+
+      if (burnEl) {
+        burnEl.textContent = `${weeklyBurn} G / 7d`;
+        if (pacingDelta > 0.2) {
+          burnEl.className = "text-sm font-black text-rose-400 font-mono mt-0.5";
+          if (burnDescEl) burnDescEl.textContent = "Nárůst tempa (+)";
+        } else if (pacingDelta < -0.2) {
+          burnEl.className = "text-sm font-black text-teal-400 font-mono mt-0.5";
+          if (burnDescEl) burnDescEl.textContent = "Klesající trend (-)";
+        } else {
+          burnEl.className = "text-sm font-black text-amber-300 font-mono mt-0.5";
+          if (burnDescEl) burnDescEl.textContent = "Stabilní spotřeba";
+        }
+      }
+
+      renderForecastDepletionChart(capacity, remaining, safeAvgDaily, fullDays);
+    }
+
+    function renderForecastDepletionChart(capacity, currentRemaining, avgDaily, daysRemaining) {
+      const canvas = document.getElementById('forecastDepletionChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (forecastChartInstance) {
+        forecastChartInstance.destroy();
+      }
+
+      const labels = [];
+      const historyCurve = [];
+      const forecastCurve = [];
+
+      for (let i = 5; i >= 1; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(`${d.getDate()}.${d.getMonth() + 1}.`);
+        const historicalEst = Math.min(capacity, parseFloat((currentRemaining + (avgDaily * i)).toFixed(2)));
+        historyCurve.push(historicalEst);
+        forecastCurve.push(null);
+      }
+
+      labels.push('Dnes');
+      historyCurve.push(currentRemaining);
+      forecastCurve.push(currentRemaining);
+
+      const forecastPoints = Math.min(10, Math.max(3, Math.ceil(daysRemaining)));
+      for (let i = 1; i <= forecastPoints; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        labels.push(`${d.getDate()}.${d.getMonth() + 1}.`);
+        const projected = Math.max(0, parseFloat((currentRemaining - (avgDaily * i)).toFixed(2)));
+        forecastCurve.push(projected);
+        historyCurve.push(null);
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 80);
+      grad.addColorStop(0, 'rgba(192, 132, 252, 0.28)');
+      grad.addColorStop(1, 'rgba(192, 132, 252, 0)');
+
+      forecastChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Historie čerpání',
+              data: historyCurve,
+              borderColor: '#2dd4bf',
+              borderWidth: 1.8,
+              tension: 0.3,
+              pointRadius: 2,
+              pointBackgroundColor: '#2dd4bf',
+              fill: false
+            },
+            {
+              label: 'Predikce úbytku',
+              data: forecastCurve,
+              borderColor: '#c084fc',
+              borderDash: [3, 3],
+              borderWidth: 1.8,
+              backgroundColor: grad,
+              tension: 0.3,
+              pointRadius: 2,
+              pointBackgroundColor: '#c084fc',
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 350 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#c084fc',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              callbacks: {
+                label: (c) => ` Stav kapacity: ${c.raw !== null ? c.raw + ' G' : '--'}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 7.5 }, maxTicksLimit: 6 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#64748b', font: { size: 7.5 }, maxTicksLimit: 4 }
+            }
+          }
+        }
+      });
+    }
 
     function checkWhatsNewNotice() {
       const seenVersion = localStorage.getItem(WHATS_NEW_KEY);
@@ -1746,13 +2119,14 @@
         const num = parseFloat(val);
         if (!isNaN(num) && num > 0) {
           pieCapacityGrams = num;
-          pieRemainingGrams = num; // Při nastavení nové kapacity se zásobník plně naplní
+          pieRemainingGrams = num;
           
           const capacityInputEl = document.getElementById('setting-planner-capacity');
           if (capacityInputEl) capacityInputEl.value = num.toFixed(1);
           
           await saveSettings();
           renderPlannerPieChart();
+          if (isForecastViewActive) renderForecastModel();
           showToast(`Kapacita zásobníku nastavena na ${num.toFixed(1)} G`);
         }
       }
@@ -2069,7 +2443,6 @@
             longitude: data[0].longitude
           });
 
-          // Plynulé odečtení ze zásobníku a uložení nového stavu do DB
           pieRemainingGrams = Math.max(0, parseFloat((pieRemainingGrams - addedAmount).toFixed(2)));
           await saveSettings();
 
@@ -2171,7 +2544,6 @@
         switchTab('stats');
       }
 
-      // Kontrola zobrazení vyskakovacího okna "Co je nového"
       checkWhatsNewNotice();
     }
 
@@ -2681,9 +3053,10 @@
       const num = parseFloat(val);
       if (isNaN(num) || num <= 0) return;
       pieCapacityGrams = num;
-      pieRemainingGrams = num; // Při nastavení nové kapacity se zásobník plně obnoví
+      pieRemainingGrams = num;
       await saveSettings();
       renderPlannerPieChart();
+      if (isForecastViewActive) renderForecastModel();
       showToast(`Kapacita zásobníku nastavena na ${num.toFixed(1)} G`);
     }
 
@@ -2807,6 +3180,9 @@
 
         renderPlannerPieChart();
         analyzeUserHistory();
+        if (isForecastViewActive) {
+          renderForecastModel();
+        }
         if (activePlanData) {
           renderActiveRoadmap();
         }
@@ -2895,12 +3271,12 @@
 
         logs = logs.filter(item => item.id !== id);
 
-        // Vrácení gramů zpět do zásobníku
         pieRemainingGrams = Math.min(pieCapacityGrams, parseFloat((pieRemainingGrams + deletedAmount).toFixed(2)));
         await saveSettings();
 
         renderAll();
         analyzeUserHistory();
+        if (isForecastViewActive) renderForecastModel();
         if (activePlanData) renderActiveRoadmap();
         showToast(`Záznam smazán (Zůstatek stav: ${pieRemainingGrams.toFixed(2)}g)`);
       } catch (err) {
@@ -2915,6 +3291,7 @@
       renderStatusCircle();
       updateRankBadge();
       renderPlannerPieChart();
+      if (isForecastViewActive) renderForecastModel();
       if (activeTab === 'stats') {
         renderMainCharts();
         if (isTimeWindowsExpanded) {
@@ -3074,7 +3451,6 @@
       document.getElementById('tab2-top-window-badge').textContent = topLabel;
     }
 
-    /* VYKRESLENÍ PRSTENCE PODLE REÁLNÉHO ZŮSTATKU V ZÁSOBNÍKU */
     function renderPlannerPieChart() {
       const canvas = document.getElementById('plannerPieCanvas');
       if (!canvas) return;
@@ -3086,7 +3462,6 @@
 
       const limitDisplay = document.getElementById('pie-limit-display');
       const centerGrams = document.getElementById('pie-center-grams');
-      const centerUnit = document.getElementById('pie-center-unit');
       const statSpent = document.getElementById('pie-stat-spent');
       const statPercent = document.getElementById('pie-stat-percent');
       const glowWrapper = document.getElementById('glow-pie-wrapper');
@@ -3094,8 +3469,18 @@
       const iconBox = document.getElementById('pie-percent-icon-box');
 
       if (limitDisplay) limitDisplay.textContent = `${capacity.toFixed(1)} G`;
-      if (centerGrams) centerGrams.textContent = remaining.toFixed(2);
-      if (centerUnit) centerUnit.textContent = `G z ${capacity.toFixed(1)} G`;
+      
+      if (centerGrams) {
+        if (isForecastViewActive) {
+          centerGrams.innerHTML = `<span class="text-3xl sm:text-4xl font-black font-mono tracking-tight leading-none">${percentRemaining}%</span>`;
+        } else {
+          centerGrams.innerHTML = `
+            <span class="text-xl sm:text-2xl font-black font-mono tracking-tight leading-none text-white">${remaining.toFixed(2)} G</span>
+            <span class="text-[9.5px] sm:text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1 leading-none">z ${capacity.toFixed(1)} původních G</span>
+          `;
+        }
+      }
+
       if (statSpent) statSpent.textContent = `${spentGrams.toFixed(2)} G`;
       if (statPercent) statPercent.textContent = `${percentRemaining}%`;
 
@@ -3108,19 +3493,18 @@
         if (ledDot) ledDot.className = 'led-indicator bg-rose-400 shrink-0';
         if (iconBox) iconBox.className = 'w-7 h-7 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400 text-xs transition-colors';
         if (statPercent) statPercent.className = 'text-sm font-black text-rose-400 font-mono mt-1 leading-none';
-        if (centerGrams) centerGrams.className = 'text-3xl sm:text-4xl font-black text-rose-300 font-mono tracking-tight leading-tight my-0.5';
+        if (centerGrams) centerGrams.classList.add('text-rose-300');
       } else if (percentRemaining <= 40) {
         primaryColor = '#fbbf24';
         glowClass = 'glow-amber';
         if (ledDot) ledDot.className = 'led-indicator bg-amber-400 shrink-0';
         if (iconBox) iconBox.className = 'w-7 h-7 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 text-xs transition-colors';
         if (statPercent) statPercent.className = 'text-sm font-black text-amber-400 font-mono mt-1 leading-none';
-        if (centerGrams) centerGrams.className = 'text-3xl sm:text-4xl font-black text-amber-300 font-mono tracking-tight leading-tight my-0.5';
+        if (centerGrams) centerGrams.classList.add('text-amber-300');
       } else {
         if (ledDot) ledDot.className = 'led-indicator bg-brand-400 shrink-0';
         if (iconBox) iconBox.className = 'w-7 h-7 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xs transition-colors';
         if (statPercent) statPercent.className = 'text-sm font-black text-brand-400 font-mono mt-1 leading-none';
-        if (centerGrams) centerGrams.className = 'text-3xl sm:text-4xl font-black text-white font-mono tracking-tight leading-tight my-0.5';
       }
 
       if (glowWrapper) {
@@ -3520,7 +3904,7 @@
         if (error) throw error;
 
         logs = [];
-        pieRemainingGrams = pieCapacityGrams; // Reset zásobníku na původní stav
+        pieRemainingGrams = pieCapacityGrams;
         await saveSettings();
 
         renderAll();
@@ -3532,7 +3916,6 @@
       }
     }
 
-    /* LOGIKA PLÁNOVAČE & INFOGRAFIKY */
     function analyzeUserHistory() {
       if (!logs || logs.length === 0) {
         const statusTag = document.getElementById('user-status-tag');
