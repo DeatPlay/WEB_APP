@@ -533,46 +533,26 @@
         </div>
       </div>
 
-      <!-- KOMPAKTNÍ KARTA STAVU (UNIFIED FLUID RESERVOIR & CONVEX MENISCUS) -->
+      <!-- KOMPAKTNÍ KARTA STAVU (HARMONIC GLASS PILL FILL) -->
       <div 
         id="compact-status-card" 
-        class="relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500"
+        class="relative overflow-hidden rounded-2xl border border-teal-400/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500"
       >
-        <!-- Pozadí: Plynule animovaná jednolitá tekutá hladina s konvexním meniskem (Unified Liquid Fill) -->
+        <!-- Pozadí: Jednolitá tekutá hladina s půlkruhovým zakončením (Semicircular Pill Cap Fill) -->
         <div 
           id="status-wave-fill" 
           class="absolute inset-y-0 left-0 transition-all duration-700 ease-out pointer-events-none will-change-[width]" 
-          style="width: 100%; border-top-right-radius: 16px; border-bottom-right-radius: 16px; background: linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%); box-shadow: 0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5);"
-        >
-          <!-- Jemný horizontální zrcadlový lesk podél horních 20% hladiny (Specular Shine Line) -->
-          <div 
-            class="absolute inset-x-0 top-0 h-[20%] pointer-events-none rounded-tr-[inherit]"
-            style="background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), transparent);"
-          ></div>
-
-          <!-- Spodní jemný stín pro zvýraznění hloubky (Bottom Depth Shadow) -->
-          <div 
-            class="absolute inset-x-0 bottom-0 h-[25%] pointer-events-none rounded-br-[inherit]"
-            style="background: linear-gradient(to top, rgba(0, 0, 0, 0.25), transparent);"
-          ></div>
-        </div>
+          style="width: 100%; border-top-right-radius: 9999px; border-bottom-right-radius: 9999px; background: linear-gradient(90deg, rgba(15, 118, 110, 0.35) 0%, rgba(20, 184, 166, 0.45) 85%, rgba(45, 212, 191, 0.6) 100%); border-right: 1.5px solid rgba(45, 212, 191, 0.8); box-shadow: 0 0 16px rgba(45, 212, 191, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);"
+        ></div>
 
         <!-- Popředí: Vycentrovaná prominentní typografie -->
         <div class="relative z-10 w-full h-full flex items-center justify-between px-3.5 select-none">
           
-          <!-- Levá strana: Nápis STAV s hodinami a tlačítkem obnovení -->
-          <div class="flex items-center gap-1.5 min-w-[72px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-            <span class="text-[10px] uppercase font-bold text-white tracking-wider flex items-center gap-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
-              <i class="fa-regular fa-clock text-slate-300 text-[10.5px]"></i> Stav
+          <!-- Levá strana: Čistý subtilní nápis STAV bez ručního tlačítka -->
+          <div class="flex items-center min-w-[64px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            <span class="flex items-center gap-1.5 text-[10px] uppercase font-bold text-slate-200 tracking-wider [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+              <i class="fa-solid fa-clock-rotate-left text-xs text-slate-300"></i> STAV
             </span>
-            <button 
-              type="button" 
-              onclick="renderStatusCircle()" 
-              class="text-slate-300 hover:text-white transition-all p-1 active:rotate-180 duration-300 cursor-pointer" 
-              title="Aktualizovat čas"
-            >
-              <i class="fa-solid fa-rotate-right text-[10px]"></i>
-            </button>
           </div>
 
           <!-- Střed: Hero údaj o uplynulém čase a procentuální odznak -->
@@ -2902,6 +2882,7 @@
       }
 
       checkWhatsNewNotice();
+      initStatusAutoUpdate();
     }
 
     async function updateDisplayName() {
@@ -3556,9 +3537,12 @@
       originClientY: 0,
       originPadX: 0,
       originPadY: 0,
+      lastMoveX: 0,
+      lastMoveTime: 0,
       startHundredths: 200,
       startIntH: 200,
       startFracH: 0,
+      fracAccumulator: 0,
       currentHundredths: 200,
       lastStepYCount: 0,
       pointerId: null,
@@ -3572,7 +3556,6 @@
       window.joypadState = touchpadState;
     }
 
-    const TOUCHPAD_X_FINE_THRESHOLD = 30; // Within ±30px: 2px = 0.01g (0.005g/px)
     const TOUCHPAD_Y_STEP_PX = 40;        // Every 40px vertical = 1.00g step
 
     function getTouchpadCorridor() {
@@ -3625,6 +3608,7 @@
         touchpadState.startHundredths = h;
         touchpadState.startIntH = Math.floor(h / 100) * 100;
         touchpadState.startFracH = h % 100;
+        touchpadState.fracAccumulator = h % 100;
         const liveText = document.getElementById('joypad-live-text');
         if (liveText) liveText.textContent = '+0.00 G';
       }
@@ -3690,6 +3674,7 @@
 
         const startIntH = Math.floor(curH / 100) * 100;
         const startFracH = curH % 100;
+        const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 
         touchpadState.isDragging = true;
         touchpadState.pointerId = pointerId;
@@ -3697,9 +3682,12 @@
         touchpadState.originClientY = clientY;
         touchpadState.originPadX = originPadX;
         touchpadState.originPadY = originPadY;
+        touchpadState.lastMoveX = clientX;
+        touchpadState.lastMoveTime = now;
         touchpadState.startHundredths = curH;
         touchpadState.startIntH = startIntH;
         touchpadState.startFracH = startFracH;
+        touchpadState.fracAccumulator = startFracH;
         touchpadState.currentHundredths = curH;
         touchpadState.lastStepYCount = 0;
 
@@ -3793,19 +3781,41 @@
           }
         }
 
-        // 1. Strict Fractional Boundary for Horizontal Drag (X-Axis)
-        // deltaX strictly manipulates ONLY the decimal portion: [0, 99]
-        // Zero leakage into adjacent whole integers!
-        const absX = Math.abs(deltaX);
-        const signX = Math.sign(deltaX);
-        let rawDeltaFrac = 0;
-        if (absX <= TOUCHPAD_X_FINE_THRESHOLD) {
-          rawDeltaFrac = signX * Math.round(absX * 0.5); // 2px = 0.01g
+        // 1. Dynamic Velocity-Accelerated Horizontal Drag (X-Axis)
+        // Instantaneous finger speed tracking (px / ms)
+        const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        const dt = Math.max(1, now - (touchpadState.lastMoveTime || now));
+        const dx = clientX - (touchpadState.lastMoveX !== undefined ? touchpadState.lastMoveX : clientX);
+        const velocity = Math.abs(dx / dt); // pixels per ms
+
+        touchpadState.lastMoveTime = now;
+        touchpadState.lastMoveX = clientX;
+
+        // Dynamic non-linear sensitivity factor (hundredths per pixel):
+        // - Low speed (creeping / precision finger roll, velocity < 0.35 px/ms):
+        //   High resistance: 1px ≈ 0.0016g - 0.0020g (~5-6px per 0.01g)
+        // - Medium speed (normal drag, 0.35 <= velocity < 1.2 px/ms):
+        //   Natural linear tracking: 1px ≈ 0.0045g - 0.0065g (~2px per 0.01g)
+        // - High speed (fast flick, velocity >= 1.2 px/ms):
+        //   Exponential boost: 1px ≈ 0.016g+ to sweep through tenths effortlessly
+        let factorH = 0.18;
+        if (velocity >= 1.2) {
+          factorH = 1.60 + Math.min(1.40, (velocity - 1.2) * 0.70);
+        } else if (velocity >= 0.35) {
+          const t = (velocity - 0.35) / (1.2 - 0.35);
+          factorH = 0.45 + t * 0.35;
         } else {
-          rawDeltaFrac = signX * (15 + Math.round((absX - TOUCHPAD_X_FINE_THRESHOLD) * 1.0)); // 10px = 0.10g
+          const t = Math.min(1, velocity / 0.35);
+          factorH = 0.16 + t * 0.14;
         }
-        // Strict boundary: clamp(startFraction + deltaX, 0, 99)
-        const currentFracH = Math.max(0, Math.min(99, touchpadState.startFracH + rawDeltaFrac));
+
+        // Accumulate fractional displacement
+        touchpadState.fracAccumulator += dx * factorH;
+
+        // Strict hard decimal clamp: strictly within [0, 99] of current locked integer
+        // Zero rollover or rollback across whole integers!
+        touchpadState.fracAccumulator = Math.max(0, Math.min(99, touchpadState.fracAccumulator));
+        const currentFracH = Math.round(touchpadState.fracAccumulator);
 
         // 2. Exclusive Integer Control for Vertical Drag (Y-Axis)
         // Whole numbers are strictly adjusted along the vertical Y-axis
@@ -4066,16 +4076,17 @@
         if (waveFill) {
           waveFill.style.width = '100%';
           waveFill.style.opacity = '1';
-          waveFill.style.background = 'linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%)';
-          waveFill.style.boxShadow = '0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5)';
-          waveFill.style.borderTopRightRadius = '16px';
-          waveFill.style.borderBottomRightRadius = '16px';
+          waveFill.style.background = 'linear-gradient(90deg, rgba(15, 118, 110, 0.35) 0%, rgba(20, 184, 166, 0.45) 85%, rgba(45, 212, 191, 0.6) 100%)';
+          waveFill.style.borderRight = '1.5px solid rgba(45, 212, 191, 0.8)';
+          waveFill.style.boxShadow = '0 0 16px rgba(45, 212, 191, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
+          waveFill.style.borderTopRightRadius = '9999px';
+          waveFill.style.borderBottomRightRadius = '9999px';
         }
         if (cardEl) {
-          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
         }
         if (badgeEl) {
-          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-teal-300 border-teal-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-brand-500/15 text-teal-300 border-teal-400/30 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
         }
         if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
         percentEl.textContent = '100%';
@@ -4100,50 +4111,72 @@
       if (waveFill) {
         waveFill.style.width = `${pct}%`;
         waveFill.style.opacity = pct <= 0 ? '0' : '1';
-        const r = pct >= 99 ? '16px' : '9999px';
-        waveFill.style.borderTopRightRadius = r;
-        waveFill.style.borderBottomRightRadius = r;
+        waveFill.style.borderTopRightRadius = '9999px';
+        waveFill.style.borderBottomRightRadius = '9999px';
       }
 
       if (pct <= 50) {
         if (cardEl) {
-          cardEl.className = "relative overflow-hidden rounded-2xl border border-red-500/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-red-500/30 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
         }
         if (waveFill) {
-          waveFill.style.background = 'linear-gradient(90deg, #991b1b 0%, #dc2626 70%, #ef4444 100%)';
-          waveFill.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45)';
+          waveFill.style.background = 'linear-gradient(90deg, rgba(185, 28, 28, 0.35) 0%, rgba(220, 38, 38, 0.45) 85%, rgba(239, 68, 68, 0.6) 100%)';
+          waveFill.style.borderRight = '1.5px solid rgba(248, 113, 113, 0.7)';
+          waveFill.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
         }
         if (badgeEl) {
-          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-red-400 border-red-500/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-red-500/15 text-red-400 border-red-500/30 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
         }
         if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
       } else if (pct <= 95) {
         if (cardEl) {
-          cardEl.className = "relative overflow-hidden rounded-2xl border border-amber-400/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-amber-400/30 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
         }
         if (waveFill) {
-          waveFill.style.background = 'linear-gradient(90deg, #b45309 0%, #f59e0b 70%, #fbbf24 100%)';
-          waveFill.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45)';
+          waveFill.style.background = 'linear-gradient(90deg, rgba(180, 83, 9, 0.35) 0%, rgba(217, 119, 6, 0.45) 85%, rgba(245, 158, 11, 0.6) 100%)';
+          waveFill.style.borderRight = '1.5px solid rgba(251, 191, 36, 0.7)';
+          waveFill.style.boxShadow = '0 0 14px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
         }
         if (badgeEl) {
-          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-amber-300 border-amber-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-amber-500/15 text-amber-300 border-amber-400/30 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
         }
         if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
       } else {
         if (cardEl) {
-          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
         }
         if (waveFill) {
-          waveFill.style.background = 'linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%)';
-          waveFill.style.boxShadow = '0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5)';
+          waveFill.style.background = 'linear-gradient(90deg, rgba(15, 118, 110, 0.35) 0%, rgba(20, 184, 166, 0.45) 85%, rgba(45, 212, 191, 0.6) 100%)';
+          waveFill.style.borderRight = '1.5px solid rgba(45, 212, 191, 0.8)';
+          waveFill.style.boxShadow = '0 0 16px rgba(45, 212, 191, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
         }
         if (badgeEl) {
-          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-teal-300 border-teal-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-brand-500/15 text-teal-300 border-teal-400/30 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
         }
         if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
       }
     }
     const renderStatusWave = renderStatusCircle;
+
+    // Automatický 1minutový živý polling stavu (setInterval)
+    let statusLiveTimer = null;
+    function initStatusAutoUpdate() {
+      if (statusLiveTimer) clearInterval(statusLiveTimer);
+      statusLiveTimer = setInterval(() => {
+        renderStatusCircle();
+      }, 60000);
+    }
+    initStatusAutoUpdate();
+
+    // Okamžitá synchronizace při návratu do okna / přepnutí záložky / probuzení telefonu
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        renderStatusCircle();
+      }
+    });
+    window.addEventListener('focus', () => {
+      renderStatusCircle();
+    });
 
     function renderStats() {
       const todayKey = getDateKey(new Date());
