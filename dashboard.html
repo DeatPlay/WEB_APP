@@ -176,6 +176,23 @@
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Floating Origin Relative Delta Touch-Pad */
+    .joypad-grid {
+      background-image: radial-gradient(rgba(148, 163, 184, 0.2) 1.25px, transparent 1.25px);
+      background-size: 14px 14px;
+      background-position: center center;
+    }
+    #touchpad-origin-marker.pulse-anim {
+      animation: origin-pulse 1.8s infinite ease-out;
+    }
+    @keyframes origin-pulse {
+      0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+      50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+    }
+
+    /* Unified Fluid Reservoir & Convex Meniscus styles handled directly on element */
+
     #ranks-modal, #whats-new-modal {
       transition: opacity 0.28s ease, backdrop-filter 0.28s ease;
     }
@@ -491,159 +508,255 @@
     </header>
 
     <!-- TAB 1: ZAPSAT -->
-    <div id="tab-input" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
+    <div id="tab-input" class="flex-1 flex flex-col gap-2 overflow-hidden">
 
-      <div class="bg-cardbg border border-borderbg rounded-xl p-2.5 flex justify-between items-center shrink-0 shadow-md">
+      <!-- SOUHRN DNEŠKA (KOMPAKTNÍ HORNÍ LIŠTA) -->
+      <div class="bg-cardbg border border-borderbg rounded-xl p-2 px-3 flex justify-between items-center shrink-0 shadow-md">
         <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400">
-            <i class="fa-solid fa-weight-hanging text-xs"></i>
+          <div class="w-6 h-6 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400">
+            <i class="fa-solid fa-weight-hanging text-[10px]"></i>
           </div>
           <div>
-            <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Dnes celkem</p>
-            <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-grams">0.00</span> <span class="text-xs text-brand-400">G</span></p>
+            <p class="text-[9px] uppercase font-semibold text-slate-400 leading-none">Dnes celkem</p>
+            <p class="text-xs font-bold text-white leading-tight"><span id="tab1-today-grams">0.00</span> <span class="text-[10px] text-brand-400">G</span></p>
           </div>
         </div>
 
         <div class="text-right">
-          <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Dnes</p>
-          <p class="text-sm font-bold text-white leading-tight"><span id="tab1-today-count">0</span> <span class="text-xs text-slate-400">x</span></p>
+          <p class="text-[9px] uppercase font-semibold text-slate-400 leading-none">Dnes</p>
+          <p class="text-xs font-bold text-white leading-tight"><span id="tab1-today-count">0</span> <span class="text-[10px] text-slate-400">x</span></p>
         </div>
 
         <div class="text-right border-l border-borderbg pl-3">
-          <p class="text-[10px] uppercase font-semibold text-slate-400 leading-none">Poslední</p>
-          <p id="tab1-last-time" class="text-xs font-semibold text-slate-300 leading-tight">--:--</p>
+          <p class="text-[9px] uppercase font-semibold text-slate-400 leading-none">Poslední</p>
+          <p id="tab1-last-time" class="text-[11px] font-semibold text-slate-300 leading-tight">--:--</p>
         </div>
       </div>
 
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col gap-2">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
-            <i class="fa-solid fa-circle-plus text-brand-400"></i> Nový zápis
-          </h2>
-          <button type="button" onclick="setCurrentTime()" class="text-[10px] text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 px-2 py-0.5 rounded-md font-mono flex items-center gap-1 transition-all" title="Obnovit na aktuální čas">
-            <i class="fa-solid fa-bolt text-[9px]"></i> <span id="current-time-badge">Teď</span>
-          </button>
+      <!-- KOMPAKTNÍ KARTA STAVU (UNIFIED FLUID RESERVOIR & CONVEX MENISCUS) -->
+      <div 
+        id="compact-status-card" 
+        class="relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500"
+      >
+        <!-- Pozadí: Plynule animovaná jednolitá tekutá hladina s konvexním meniskem (Unified Liquid Fill) -->
+        <div 
+          id="status-wave-fill" 
+          class="absolute inset-y-0 left-0 transition-all duration-700 ease-out pointer-events-none will-change-[width]" 
+          style="width: 100%; border-top-right-radius: 16px; border-bottom-right-radius: 16px; background: linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%); box-shadow: 0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5);"
+        >
+          <!-- Jemný horizontální zrcadlový lesk podél horních 20% hladiny (Specular Shine Line) -->
+          <div 
+            class="absolute inset-x-0 top-0 h-[20%] pointer-events-none rounded-tr-[inherit]"
+            style="background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), transparent);"
+          ></div>
+
+          <!-- Spodní jemný stín pro zvýraznění hloubky (Bottom Depth Shadow) -->
+          <div 
+            class="absolute inset-x-0 bottom-0 h-[25%] pointer-events-none rounded-br-[inherit]"
+            style="background: linear-gradient(to top, rgba(0, 0, 0, 0.25), transparent);"
+          ></div>
         </div>
 
-        <form id="add-dose-form" onsubmit="handleFormSubmit(event)" class="space-y-2">
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="block text-[11px] font-semibold text-slate-400">Množství</label>
-            </div>
-
-            <div class="relative flex items-center">
-              <input 
-                type="number" 
-                id="input-amount" 
-                step="0.01" 
-                min="0.01" 
-                max="50" 
-                placeholder="2.50" 
-                required
-                oninput="syncSliderFromInput(this.value)"
-                class="w-full bg-darkbg border border-borderbg rounded-xl py-2 pl-3 pr-10 text-xl font-extrabold text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
-              >
-              <span class="absolute right-3.5 font-bold text-slate-500 text-sm pointer-events-none">G</span>
-            </div>
-
-            <div class="mt-1.5 flex items-center gap-2 bg-darkbg/60 p-1.5 rounded-xl border border-borderbg/60">
-              <span class="text-[10px] text-slate-500 font-mono font-bold">0.50G</span>
-              <input 
-                type="range" 
-                id="input-slider" 
-                min="0.5" 
-                max="4.0" 
-                step="0.01" 
-                value="2.50"
-                oninput="syncInputFromSlider(this.value)"
-                class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
-              >
-              <span class="text-[10px] text-slate-500 font-mono font-bold">4.00G</span>
-            </div>
-
-            <!-- DYNAMICKÁ PŘEDIKOVANÁ TLAČÍTKA -->
-            <div id="quick-amounts-container" class="grid grid-cols-4 gap-1.5 mt-1.5">
-              <button type="button" onclick="setQuickAmount(1.5)" class="quick-pred-btn py-1.5 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+1.50<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
-              <button type="button" onclick="setQuickAmount(2.0)" class="quick-pred-btn py-1.5 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+2.00<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
-              <button type="button" onclick="setQuickAmount(2.5)" class="quick-pred-btn py-1.5 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+2.50<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
-              <button type="button" onclick="setQuickAmount(3.0)" class="quick-pred-btn py-1.5 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+3.00<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-1.5 pt-1">
+        <!-- Popředí: Vycentrovaná prominentní typografie -->
+        <div class="relative z-10 w-full h-full flex items-center justify-between px-3.5 select-none">
+          
+          <!-- Levá strana: Nápis STAV s hodinami a tlačítkem obnovení -->
+          <div class="flex items-center gap-1.5 min-w-[72px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            <span class="text-[10px] uppercase font-bold text-white tracking-wider flex items-center gap-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+              <i class="fa-regular fa-clock text-slate-300 text-[10.5px]"></i> Stav
+            </span>
             <button 
               type="button" 
-              onclick="openCustomTimeModal()" 
-              id="btn-custom-time" 
-              class="flex-1 py-2 px-3 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-xl text-xs font-semibold text-slate-300 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              onclick="renderStatusCircle()" 
+              class="text-slate-300 hover:text-white transition-all p-1 active:rotate-180 duration-300 cursor-pointer" 
+              title="Aktualizovat čas"
             >
-              <i class="fa-solid fa-calendar-days text-brand-400 text-xs"></i>
-              <span id="custom-time-label">Zapsat jiný den / čas</span>
-            </button>
-
-            <button 
-              type="button" 
-              id="btn-reset-now" 
-              onclick="resetToNow()" 
-              class="hidden py-2 px-2.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all"
-              title="Obnovit na dnešek a teď"
-            >
-              <i class="fa-solid fa-rotate-left text-[10px]"></i> Teď
+              <i class="fa-solid fa-rotate-right text-[10px]"></i>
             </button>
           </div>
 
-          <button 
-            type="button" 
-            id="btn-toggle-location" 
-            onclick="toggleLocationState()" 
-            class="w-full py-2 px-3 bg-darkbg/70 hover:bg-darkbg text-slate-400 border border-borderbg rounded-xl text-xs font-semibold flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+          <!-- Střed: Hero údaj o uplynulém čase a procentuální odznak -->
+          <div class="flex items-center justify-center gap-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+            <span id="status-elapsed-time" class="text-base font-black text-white tracking-tight [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">--h --m</span>
+            <div 
+              id="status-percent-badge" 
+              class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-teal-300 border-teal-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"
+            >
+              <span id="status-icon" class="text-[10px]"><i class="fa-solid fa-check"></i></span>
+              <span id="status-percent">100%</span>
+            </div>
+          </div>
+
+          <!-- Pravá strana: Cílový interval s ozubeným kolem pro nastavení -->
+          <div class="flex items-center justify-end gap-1.5 min-w-[72px] text-right drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            <span class="text-[10px] uppercase font-semibold text-slate-200 tracking-wider [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+              Cíl: <strong id="status-target-interval" class="font-black text-white">4.0 h</strong>
+            </span>
+            <button 
+              type="button" 
+              onclick="openExportModal('config')" 
+              class="text-slate-300 hover:text-white transition-colors p-1 cursor-pointer" 
+              title="Změnit interval"
+            >
+              <i class="fa-solid fa-gear text-[11px]"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Skrytý zástupný prvek pro zpětnou kompatibilitu -->
+        <div id="status-circle" class="hidden"></div>
+      </div>
+
+      <!-- HLAVNÍ KARTA ZÁPISU (THUMB CONTROL CENTER V DOSAHU PALCE) -->
+      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col h-full overflow-hidden">
+        <form id="add-dose-form" onsubmit="handleFormSubmit(event)" class="flex-1 flex flex-col h-full justify-between gap-2 overflow-hidden">
+          
+          <!-- HORNÍ ŘÁDEK KARTY: Titulek a Teď odznak -->
+          <div class="flex justify-between items-center shrink-0">
+            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-circle-plus text-brand-400"></i> Nový zápis
+            </h2>
+            <button type="button" onclick="setCurrentTime()" class="text-[10px] text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 px-2 py-0.5 rounded-md font-mono flex items-center gap-1 transition-all active:scale-95" title="Obnovit na aktuální čas">
+              <i class="fa-solid fa-bolt text-[9px]"></i> <span id="current-time-badge">Teď</span>
+            </button>
+          </div>
+
+          <!-- SEKUNDÁRNÍ AKCE (KOMPAKTNÍ CHIPY V JEDNOM ŘÁDKU) -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex-1 flex items-center gap-1">
+              <button 
+                type="button" 
+                onclick="openCustomTimeModal()" 
+                id="btn-custom-time" 
+                class="flex-1 py-1 px-2.5 bg-darkbg/80 hover:bg-slate-800/80 border border-borderbg rounded-xl text-[11px] font-semibold text-slate-300 flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+              >
+                <i class="fa-solid fa-calendar-days text-brand-400 text-[10px]"></i>
+                <span id="custom-time-label" class="truncate">Zapsat jiný čas</span>
+              </button>
+
+              <button 
+                type="button" 
+                id="btn-reset-now" 
+                onclick="resetToNow()" 
+                class="hidden py-1 px-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-[10px] font-semibold flex items-center gap-1 transition-all"
+                title="Obnovit na dnešek a teď"
+              >
+                <i class="fa-solid fa-rotate-left text-[9px]"></i>
+              </button>
+            </div>
+
+            <button 
+              type="button" 
+              id="btn-toggle-location" 
+              onclick="toggleLocationState()" 
+              class="py-1 px-2.5 bg-darkbg/80 hover:bg-darkbg text-slate-400 border border-borderbg rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer shrink-0"
+            >
+              <i id="loc-btn-icon" class="fa-solid fa-location-dot text-slate-500 text-[10px] transition-colors"></i>
+              <span id="loc-btn-label">GPS</span>
+              <span id="loc-btn-status" class="text-[9px] uppercase font-bold text-slate-500 bg-slate-800/80 px-1.5 py-0.2 rounded-md border border-slate-700/50 transition-all">
+                Vyp
+              </span>
+            </button>
+          </div>
+
+          <!-- DYNAMICKÁ PŘEDIKOVANÁ TLAČÍTKA (PŘÍMO NAD DIGITÁLNÍ VÁHOU) -->
+          <div id="quick-amounts-container" class="grid grid-cols-4 gap-1.5 shrink-0">
+            <button type="button" onclick="setQuickAmount(1.5)" class="quick-pred-btn py-1 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+1.50<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
+            <button type="button" onclick="setQuickAmount(2.0)" class="quick-pred-btn py-1 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+2.00<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
+            <button type="button" onclick="setQuickAmount(2.5)" class="quick-pred-btn py-1 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+2.50<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
+            <button type="button" onclick="setQuickAmount(3.0)" class="quick-pred-btn py-1 text-xs font-bold rounded-lg active:scale-95 text-brand-300 transition-all cursor-pointer flex items-center justify-center gap-0.5">+3.00<span class="text-[9px] text-brand-400 font-semibold">G</span></button>
+          </div>
+
+          <!-- HERO VALUE READOUT (DIGITÁLNÍ DISPLEJ VÁHY) -->
+          <div class="relative flex items-center justify-center bg-darkbg/90 border border-borderbg rounded-2xl py-1.5 px-3 shadow-inner shrink-0">
+            <input 
+              type="number" 
+              id="input-amount" 
+              step="0.01" 
+              min="0.01" 
+              max="50" 
+              placeholder="2.00" 
+              required
+              oninput="syncSliderFromInput(this.value)"
+              class="w-full bg-transparent text-center text-3xl font-black text-white tracking-tight focus:outline-none focus:text-brand-400 transition-all"
+            >
+            <span class="absolute right-4 font-black text-brand-400/80 text-sm pointer-events-none select-none">G</span>
+          </div>
+
+          <!-- DYNAMICKÝ 2D TOUCH-PAD (MAXIMÁLNÍ VERTIKÁLNÍ VÝŠKA, FLOATING ORIGIN) -->
+          <div 
+            id="touchpad-container" 
+            class="flex-1 min-h-[180px] w-full relative bg-darkbg/85 border border-borderbg/70 rounded-2xl overflow-hidden select-none touch-none shadow-inner cursor-grab active:cursor-grabbing transition-colors"
+            title="Dotyková plocha: Vodorovně mikrometrické ladění (±0.01g), svisle celé gramy (±1.00g)"
           >
-            <span class="flex items-center gap-2">
-              <i id="loc-btn-icon" class="fa-solid fa-location-dot text-slate-500 text-xs transition-colors"></i>
-              <span id="loc-btn-label">Zaznamenat polohu</span>
-            </span>
-            <span id="loc-btn-status" class="text-[10px] uppercase font-bold text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 transition-all">
-              Vypnuto
-            </span>
-          </button>
+            <!-- Skrytý prvek pro zachování 100% zpětné kompatibility -->
+            <input type="hidden" id="input-slider" value="2.00">
 
+            <!-- Mřížka jemných souřadnic / Dot matrix -->
+            <div class="absolute inset-0 pointer-events-none opacity-30 joypad-grid"></div>
+
+            <!-- SVG elastická vazba (Tether Line) mezi floating origin a pukem -->
+            <svg id="touchpad-tether-svg" class="absolute inset-0 w-full h-full pointer-events-none opacity-0 transition-opacity duration-150 z-10">
+              <line id="touchpad-tether-line" x1="0" y1="0" x2="0" y2="0" stroke="#2dd4bf" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" opacity="0.8"/>
+              <circle id="touchpad-tether-origin-dot" cx="0" cy="0" r="3.5" fill="#2dd4bf"/>
+            </svg>
+
+            <!-- Plovoucí výchozí bod dotyku (Floating Origin Marker) -->
+            <div 
+              id="touchpad-origin-marker" 
+              class="absolute z-10 w-9 h-9 rounded-full border-2 border-dashed border-brand-400/70 pointer-events-none opacity-0 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 transition-opacity duration-150"
+              style="left: 50%; top: 50%;"
+            >
+              <div class="w-2.5 h-2.5 rounded-full bg-brand-400 shadow-[0_0_10px_#2dd4bf]"></div>
+            </div>
+
+            <!-- Hmatový vodící puk (Puck / Pointer tracking finger) -->
+            <div 
+              id="touchpad-puck" 
+              class="absolute z-20 w-11 h-11 rounded-full bg-slate-800/95 border-2 border-brand-400 shadow-[0_0_24px_rgba(45,212,191,0.6)] flex items-center justify-center pointer-events-none opacity-0 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-150 will-change-transform"
+              style="left: 50%; top: 50%; transform: translate(-50%, -50%);"
+            >
+              <!-- Vnitřní svítící jádro v barvě brandu -->
+              <div id="joypad-puck-core" class="w-3.5 h-3.5 rounded-full bg-brand-400 shadow-[0_0_12px_#2dd4bf] transition-all"></div>
+              <div class="absolute inset-0.5 rounded-full border border-white/20 pointer-events-none"></div>
+            </div>
+
+            <!-- Živý delta odznak přímo u puku -->
+            <div 
+              id="touchpad-delta-badge" 
+              class="absolute z-30 px-2.5 py-0.5 rounded-lg bg-cardbg/95 border border-brand-400/40 text-[10px] font-mono font-extrabold text-brand-300 pointer-events-none opacity-0 -translate-x-1/2 -translate-y-10 shadow-xl transition-opacity duration-150"
+              style="left: 50%; top: 50%;"
+            >
+              <span id="joypad-live-text">+0.00 G</span>
+            </div>
+
+            <!-- Jemné nápovědné indikátory os nahoře -->
+            <div class="absolute inset-x-3 top-2 flex justify-between items-center pointer-events-none select-none text-[9px] font-mono font-semibold tracking-wider text-slate-500/60">
+              <span id="joypad-axis-x-label" class="transition-colors duration-150 flex items-center gap-1">
+                <i class="fa-solid fa-arrows-left-right text-[8px]"></i> ◄ ±0.01g (Jemné) ►
+              </span>
+              <span id="joypad-axis-y-label" class="transition-colors duration-150 flex items-center gap-1">
+                ▲ +1.00g / ▼ -1.00g (Celé G) <i class="fa-solid fa-arrows-up-down text-[8px]"></i>
+              </span>
+            </div>
+
+            <!-- Koridorové hraniční značky dole -->
+            <div class="absolute inset-x-3 bottom-2 flex justify-between items-center pointer-events-none select-none text-[8.5px] font-mono text-slate-500/70">
+              <span>MIN: <strong id="joypad-min-label" class="text-slate-400">0.10G</strong></span>
+              <span>CÍL: <strong id="joypad-baseline-label" class="text-brand-400/80">2.00G</strong></span>
+              <span>MAX: <strong id="joypad-max-label" class="text-slate-400">4.00G</strong></span>
+            </div>
+          </div>
+
+          <!-- HLAVNÍ AKCE: VELKÉ TLAČÍTKO "+ PŘIDAT" (PŘÍMO POD PALCEM) -->
           <button 
             type="submit" 
             id="btn-submit-dose"
-            class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide mt-1 disabled:opacity-50"
+            class="w-full py-3 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-black rounded-xl shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider shrink-0 disabled:opacity-50 cursor-pointer"
           >
-            <i class="fa-solid fa-plus text-sm"></i> Přidat
+            <i class="fa-solid fa-plus text-base"></i> Přidat
           </button>
         </form>
-      </div>
-
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col items-center justify-center text-center overflow-hidden">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-          <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Stav
-        </div>
-
-        <div class="flex-1 flex flex-col items-center justify-center w-full my-auto">
-          <div id="status-circle" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 relative">
-            <span id="status-icon" class="text-3xl sm:text-4xl transition-transform duration-300">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span id="status-percent" class="text-[11px] font-extrabold mt-1 tracking-tight">100%</span>
-          </div>
-
-          <div class="mt-4 flex items-center gap-2">
-            <p id="status-elapsed-time" class="text-2xl font-black text-white tracking-tight">--h --m</p>
-            <button type="button" onclick="renderStatusCircle()" class="w-8 h-8 rounded-full bg-darkbg border border-borderbg flex items-center justify-center text-brand-400 hover:text-white hover:bg-slate-800 transition-all active:scale-90 shadow-sm" title="Aktualizovat čas">
-              <i class="fa-solid fa-rotate-right text-xs"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="w-full pt-2 border-t border-borderbg/60 flex justify-between items-center text-[11px] text-slate-400 shrink-0">
-          <span>Cílový interval: <strong id="status-target-interval" class="text-slate-200">4.0 h</strong></span>
-          <button onclick="openExportModal('config')" class="text-brand-400 hover:underline flex items-center gap-1 font-semibold">
-            <i class="fa-solid fa-gear text-[10px]"></i> Změnit
-          </button>
-        </div>
       </div>
     </div>
 
@@ -3433,23 +3546,404 @@
       }
     }
 
+    /* ==========================================
+       FLOATING ORIGIN RELATIVE DELTA TOUCHPAD
+       (Tactile Micro-Tuning & Dynamic Corridor)
+       ========================================== */
+    const touchpadState = {
+      isDragging: false,
+      originClientX: 0,
+      originClientY: 0,
+      originPadX: 0,
+      originPadY: 0,
+      startHundredths: 200,
+      startIntH: 200,
+      startFracH: 0,
+      currentHundredths: 200,
+      lastStepYCount: 0,
+      pointerId: null,
+      corridor: null
+    };
+
+    // Backward compatibility aliases
+    const joypadState = touchpadState;
+    if (typeof window !== 'undefined') {
+      window.touchpadState = touchpadState;
+      window.joypadState = touchpadState;
+    }
+
+    const TOUCHPAD_X_FINE_THRESHOLD = 30; // Within ±30px: 2px = 0.01g (0.005g/px)
+    const TOUCHPAD_Y_STEP_PX = 40;        // Every 40px vertical = 1.00g step
+
+    function getTouchpadCorridor() {
+      let avg = 0;
+      if (typeof getUserAveragePerDose === 'function') {
+        avg = getUserAveragePerDose();
+      }
+      const baseline = (avg && avg > 0) ? Math.round(avg * 100) / 100 : 2.00;
+      const minVal = Math.max(0.10, Math.round((baseline - 2.00) * 100) / 100);
+      const maxVal = Math.round((baseline + 2.00) * 100) / 100;
+      return {
+        baseline,
+        minVal,
+        maxVal,
+        minH: Math.round(minVal * 100),
+        maxH: Math.round(maxVal * 100)
+      };
+    }
+    const getJoypadCorridor = getTouchpadCorridor;
+
+    function updateTouchpadCorridorLabels(corridor) {
+      const minLabel = document.getElementById('joypad-min-label');
+      const baseLabel = document.getElementById('joypad-baseline-label');
+      const maxLabel = document.getElementById('joypad-max-label');
+      if (minLabel) minLabel.textContent = corridor.minVal.toFixed(2) + 'G';
+      if (baseLabel) baseLabel.textContent = corridor.baseline.toFixed(2) + 'G';
+      if (maxLabel) maxLabel.textContent = corridor.maxVal.toFixed(2) + 'G';
+    }
+    const updateJoypadCorridorLabels = updateTouchpadCorridorLabels;
+
+    function triggerTouchpadHaptic(duration = 5) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+          navigator.vibrate(duration);
+        } catch (err) {}
+      }
+    }
+    const triggerJoypadHaptic = triggerTouchpadHaptic;
+
+    function syncTouchpadState(val) {
+      if (touchpadState.isDragging) return; // Never reset floating origin anchor or delta while active touch gesture is in progress
+      const corridor = getTouchpadCorridor();
+      updateTouchpadCorridorLabels(corridor);
+
+      const numVal = parseFloat(val);
+      if (!isNaN(numVal)) {
+        const clampedVal = Math.max(corridor.minVal, Math.min(corridor.maxVal, numVal));
+        const h = Math.round(clampedVal * 100);
+        touchpadState.currentHundredths = h;
+        touchpadState.startHundredths = h;
+        touchpadState.startIntH = Math.floor(h / 100) * 100;
+        touchpadState.startFracH = h % 100;
+        const liveText = document.getElementById('joypad-live-text');
+        if (liveText) liveText.textContent = '+0.00 G';
+      }
+    }
+    const syncJoypadState = syncTouchpadState;
+
     function setQuickAmount(val) {
       const input = document.getElementById('input-amount');
       const slider = document.getElementById('input-slider');
       const numVal = parseFloat(val).toFixed(2);
-      if (input) input.value = numVal;
+      if (input) {
+        input.value = numVal;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
       if (slider) slider.value = numVal;
+      syncTouchpadState(numVal);
     }
 
     function syncInputFromSlider(val) {
       const input = document.getElementById('input-amount');
       if (input) input.value = parseFloat(val).toFixed(2);
+      syncTouchpadState(val);
     }
 
     function syncSliderFromInput(val) {
       const slider = document.getElementById('input-slider');
       if (slider && val) slider.value = val;
+      if (!touchpadState.isDragging) {
+        syncTouchpadState(val);
+      }
     }
+
+    function initTouchpad() {
+      const pad = document.getElementById('touchpad-container') || document.getElementById('joypad-container');
+      const originMarker = document.getElementById('touchpad-origin-marker');
+      const puck = document.getElementById('touchpad-puck');
+      const deltaBadge = document.getElementById('touchpad-delta-badge');
+      const liveText = document.getElementById('joypad-live-text');
+      const tetherSvg = document.getElementById('touchpad-tether-svg');
+      const tetherLine = document.getElementById('touchpad-tether-line');
+      const tetherDot = document.getElementById('touchpad-tether-origin-dot');
+      const input = document.getElementById('input-amount');
+      const slider = document.getElementById('input-slider');
+      if (!pad) return;
+
+      const initialCorridor = getTouchpadCorridor();
+      updateTouchpadCorridorLabels(initialCorridor);
+
+      function handleStart(clientX, clientY, pointerId) {
+        const corridor = getTouchpadCorridor();
+        touchpadState.corridor = corridor;
+        updateTouchpadCorridorLabels(corridor);
+
+        const curVal = input ? parseFloat(input.value) : corridor.baseline;
+        let curH = isNaN(curVal) ? Math.round(corridor.baseline * 100) : Math.round(curVal * 100);
+        curH = Math.max(corridor.minH, Math.min(corridor.maxH, curH));
+
+        const rect = pad.getBoundingClientRect();
+        // Clamping initial spawn point slightly inside pad borders
+        const originPadX = Math.max(20, Math.min(rect.width - 20, clientX - rect.left));
+        const originPadY = Math.max(20, Math.min(rect.height - 20, clientY - rect.top));
+
+        const startIntH = Math.floor(curH / 100) * 100;
+        const startFracH = curH % 100;
+
+        touchpadState.isDragging = true;
+        touchpadState.pointerId = pointerId;
+        touchpadState.originClientX = clientX;
+        touchpadState.originClientY = clientY;
+        touchpadState.originPadX = originPadX;
+        touchpadState.originPadY = originPadY;
+        touchpadState.startHundredths = curH;
+        touchpadState.startIntH = startIntH;
+        touchpadState.startFracH = startFracH;
+        touchpadState.currentHundredths = curH;
+        touchpadState.lastStepYCount = 0;
+
+        // Position origin marker, puck, and badge
+        if (originMarker) {
+          originMarker.style.left = originPadX + 'px';
+          originMarker.style.top = originPadY + 'px';
+          originMarker.classList.remove('opacity-0');
+          originMarker.classList.add('opacity-100', 'pulse-anim');
+        }
+
+        if (puck) {
+          puck.style.left = originPadX + 'px';
+          puck.style.top = originPadY + 'px';
+          puck.classList.remove('opacity-0');
+          puck.classList.add('opacity-100');
+        }
+
+        if (deltaBadge) {
+          deltaBadge.style.left = originPadX + 'px';
+          deltaBadge.style.top = originPadY + 'px';
+          deltaBadge.classList.remove('opacity-0');
+          deltaBadge.classList.add('opacity-100');
+        }
+
+        if (tetherDot) {
+          tetherDot.setAttribute('cx', originPadX);
+          tetherDot.setAttribute('cy', originPadY);
+        }
+        if (tetherLine) {
+          tetherLine.setAttribute('x1', originPadX);
+          tetherLine.setAttribute('y1', originPadY);
+          tetherLine.setAttribute('x2', originPadX);
+          tetherLine.setAttribute('y2', originPadY);
+        }
+        if (tetherSvg) {
+          tetherSvg.classList.remove('opacity-0');
+          tetherSvg.classList.add('opacity-100');
+        }
+
+        if (liveText) liveText.textContent = '+0.00 G';
+
+        triggerTouchpadHaptic(4);
+      }
+
+      function handleMove(clientX, clientY) {
+        if (!touchpadState.isDragging) return;
+
+        const deltaX = clientX - touchpadState.originClientX;
+        const deltaY = touchpadState.originClientY - clientY; // Upward = positive
+
+        const rect = pad.getBoundingClientRect();
+        const puckPadX = Math.max(16, Math.min(rect.width - 16, clientX - rect.left));
+        const puckPadY = Math.max(16, Math.min(rect.height - 16, clientY - rect.top));
+
+        // Update puck and delta badge positions
+        if (puck) {
+          puck.style.left = puckPadX + 'px';
+          puck.style.top = puckPadY + 'px';
+        }
+        if (deltaBadge) {
+          deltaBadge.style.left = puckPadX + 'px';
+          deltaBadge.style.top = puckPadY + 'px';
+        }
+
+        // Update SVG tether line
+        if (tetherLine) {
+          tetherLine.setAttribute('x2', puckPadX);
+          tetherLine.setAttribute('y2', puckPadY);
+        }
+
+        // Highlight active axes
+        const axisX = document.getElementById('joypad-axis-x-label');
+        const axisY = document.getElementById('joypad-axis-y-label');
+        if (axisX) {
+          if (Math.abs(deltaX) >= 4) {
+            axisX.classList.remove('text-slate-500/60');
+            axisX.classList.add('text-brand-400');
+          } else {
+            axisX.classList.remove('text-brand-400');
+            axisX.classList.add('text-slate-500/60');
+          }
+        }
+        if (axisY) {
+          if (Math.abs(deltaY) >= 12) {
+            axisY.classList.remove('text-slate-500/60');
+            axisY.classList.add('text-brand-400');
+          } else {
+            axisY.classList.remove('text-brand-400');
+            axisY.classList.add('text-slate-500/60');
+          }
+        }
+
+        // 1. Strict Fractional Boundary for Horizontal Drag (X-Axis)
+        // deltaX strictly manipulates ONLY the decimal portion: [0, 99]
+        // Zero leakage into adjacent whole integers!
+        const absX = Math.abs(deltaX);
+        const signX = Math.sign(deltaX);
+        let rawDeltaFrac = 0;
+        if (absX <= TOUCHPAD_X_FINE_THRESHOLD) {
+          rawDeltaFrac = signX * Math.round(absX * 0.5); // 2px = 0.01g
+        } else {
+          rawDeltaFrac = signX * (15 + Math.round((absX - TOUCHPAD_X_FINE_THRESHOLD) * 1.0)); // 10px = 0.10g
+        }
+        // Strict boundary: clamp(startFraction + deltaX, 0, 99)
+        const currentFracH = Math.max(0, Math.min(99, touchpadState.startFracH + rawDeltaFrac));
+
+        // 2. Exclusive Integer Control for Vertical Drag (Y-Axis)
+        // Whole numbers are strictly adjusted along the vertical Y-axis
+        const stepYCount = Math.trunc(deltaY / TOUCHPAD_Y_STEP_PX);
+        const currentIntH = touchpadState.startIntH + (stepYCount * 100);
+
+        if (stepYCount !== touchpadState.lastStepYCount) {
+          touchpadState.lastStepYCount = stepYCount;
+          triggerTouchpadHaptic(8); // Distinct haptic pulse only when crossing a whole gram boundary on Y-axis
+        }
+
+        // 3. Dynamic Corridor Clamping & Reassembly
+        const corridor = touchpadState.corridor || getTouchpadCorridor();
+        let targetH = currentIntH + currentFracH;
+        targetH = Math.max(corridor.minH, Math.min(corridor.maxH, targetH));
+
+        if (targetH !== touchpadState.currentHundredths) {
+          touchpadState.currentHundredths = targetH;
+          const formattedVal = (targetH / 100).toFixed(2);
+
+          if (input) {
+            input.value = formattedVal;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (slider) slider.value = formattedVal;
+
+          const diffH = targetH - touchpadState.startHundredths;
+          const diffG = diffH / 100;
+          const deltaStr = (diffG >= 0 ? '+' : '') + diffG.toFixed(2) + ' G';
+          if (liveText) liveText.textContent = deltaStr;
+
+          // Subtle micro-tick on hundredths change (unless stepped)
+          if (stepYCount === touchpadState.lastStepYCount) {
+            triggerTouchpadHaptic(2);
+          }
+        }
+      }
+
+      function handleEnd() {
+        if (!touchpadState.isDragging) return;
+        touchpadState.isDragging = false;
+        touchpadState.pointerId = null;
+        touchpadState.corridor = null;
+
+        // Fade out dynamic markers, retain locked value without jump
+        if (originMarker) {
+          originMarker.classList.remove('opacity-100', 'pulse-anim');
+          originMarker.classList.add('opacity-0');
+        }
+        if (puck) {
+          puck.classList.remove('opacity-100');
+          puck.classList.add('opacity-0');
+        }
+        if (deltaBadge) {
+          deltaBadge.classList.remove('opacity-100');
+          deltaBadge.classList.add('opacity-0');
+        }
+        if (tetherSvg) {
+          tetherSvg.classList.remove('opacity-100');
+          tetherSvg.classList.add('opacity-0');
+        }
+
+        const axisX = document.getElementById('joypad-axis-x-label');
+        const axisY = document.getElementById('joypad-axis-y-label');
+        if (axisX) {
+          axisX.classList.remove('text-brand-400');
+          axisX.classList.add('text-slate-500/60');
+        }
+        if (axisY) {
+          axisY.classList.remove('text-brand-400');
+          axisY.classList.add('text-slate-500/60');
+        }
+
+        if (input) {
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+
+      // Pointer Events
+      pad.addEventListener('pointerdown', (e) => {
+        if (e.button && e.button !== 0) return;
+        e.preventDefault();
+        try { pad.setPointerCapture(e.pointerId); } catch(err) {}
+        handleStart(e.clientX, e.clientY, e.pointerId);
+      });
+
+      pad.addEventListener('pointermove', (e) => {
+        if (!touchpadState.isDragging) return;
+        if (touchpadState.pointerId !== null && e.pointerId !== touchpadState.pointerId) return;
+        e.preventDefault();
+        handleMove(e.clientX, e.clientY);
+      });
+
+      pad.addEventListener('pointerup', (e) => {
+        if (!touchpadState.isDragging) return;
+        try { pad.releasePointerCapture(e.pointerId); } catch(err) {}
+        handleEnd();
+      });
+
+      pad.addEventListener('pointercancel', (e) => {
+        if (!touchpadState.isDragging) return;
+        try { pad.releasePointerCapture(e.pointerId); } catch(err) {}
+        handleEnd();
+      });
+
+      // Mobile Touch Events fallback to ensure gesture interception
+      pad.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (e.touches && e.touches[0]) {
+          handleStart(e.touches[0].clientX, e.touches[0].clientY, 'touch');
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!touchpadState.isDragging || touchpadState.pointerId !== 'touch') return;
+        e.preventDefault();
+        if (e.touches && e.touches[0]) {
+          handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        if (touchpadState.isDragging && touchpadState.pointerId === 'touch') {
+          handleEnd();
+        }
+      });
+
+      window.addEventListener('touchcancel', (e) => {
+        if (touchpadState.isDragging && touchpadState.pointerId === 'touch') {
+          handleEnd();
+        }
+      });
+    }
+
+    const initJoypad = initTouchpad;
+
+    // Initialize Touchpad
+    initTouchpad();
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -3556,17 +4050,34 @@
     }
 
     function renderStatusCircle() {
-      const circleEl = document.getElementById('status-circle');
+      const cardEl = document.getElementById('compact-status-card');
+      const waveFill = document.getElementById('status-wave-fill');
+      const badgeEl = document.getElementById('status-percent-badge');
       const iconEl = document.getElementById('status-icon');
       const percentEl = document.getElementById('status-percent');
       const elapsedEl = document.getElementById('status-elapsed-time');
       const targetIntervalEl = document.getElementById('status-target-interval');
 
-      targetIntervalEl.textContent = `${targetIntervalHours.toFixed(1)} h`;
+      if (targetIntervalEl) targetIntervalEl.textContent = `${targetIntervalHours.toFixed(1)} h`;
+
+      if (!elapsedEl || !percentEl) return;
 
       if (logs.length === 0) {
-        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/20";
-        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+        if (waveFill) {
+          waveFill.style.width = '100%';
+          waveFill.style.opacity = '1';
+          waveFill.style.background = 'linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%)';
+          waveFill.style.boxShadow = '0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5)';
+          waveFill.style.borderTopRightRadius = '16px';
+          waveFill.style.borderBottomRightRadius = '16px';
+        }
+        if (cardEl) {
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+        }
+        if (badgeEl) {
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-teal-300 border-teal-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+        }
+        if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
         percentEl.textContent = '100%';
         elapsedEl.textContent = '--h --m';
         return;
@@ -3586,17 +4097,53 @@
       percentEl.textContent = `${pct}%`;
       elapsedEl.textContent = timeElapsedText;
 
+      if (waveFill) {
+        waveFill.style.width = `${pct}%`;
+        waveFill.style.opacity = pct <= 0 ? '0' : '1';
+        const r = pct >= 99 ? '16px' : '9999px';
+        waveFill.style.borderTopRightRadius = r;
+        waveFill.style.borderBottomRightRadius = r;
+      }
+
       if (pct <= 50) {
-        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-red-500 bg-red-500/10 text-red-400 shadow-red-500/30 scale-95";
-        iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        if (cardEl) {
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-red-500/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+        }
+        if (waveFill) {
+          waveFill.style.background = 'linear-gradient(90deg, #991b1b 0%, #dc2626 70%, #ef4444 100%)';
+          waveFill.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45)';
+        }
+        if (badgeEl) {
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-red-400 border-red-500/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+        }
+        if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
       } else if (pct <= 95) {
-        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-amber-400 bg-amber-400/10 text-amber-400 shadow-amber-400/30";
-        iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
+        if (cardEl) {
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-amber-400/40 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+        }
+        if (waveFill) {
+          waveFill.style.background = 'linear-gradient(90deg, #b45309 0%, #f59e0b 70%, #fbbf24 100%)';
+          waveFill.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45)';
+        }
+        if (badgeEl) {
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-amber-300 border-amber-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+        }
+        if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-water"></i>';
       } else {
-        circleEl.className = "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 border-brand-400 bg-brand-500/10 text-brand-400 shadow-brand-500/30 scale-105";
-        iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+        if (cardEl) {
+          cardEl.className = "relative overflow-hidden rounded-2xl border border-teal-400/50 bg-cardbg/95 h-[58px] w-full flex items-center justify-between shrink-0 shadow-md transition-all duration-500";
+        }
+        if (waveFill) {
+          waveFill.style.background = 'linear-gradient(90deg, #0f766e 0%, #0d9488 65%, #2dd4bf 100%)';
+          waveFill.style.boxShadow = '0 0 22px rgba(45, 212, 191, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.5)';
+        }
+        if (badgeEl) {
+          badgeEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border transition-all duration-500 bg-black/40 text-teal-300 border-teal-400/40 shadow-sm backdrop-blur-[2px] [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]";
+        }
+        if (iconEl) iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
       }
     }
+    const renderStatusWave = renderStatusCircle;
 
     function renderStats() {
       const todayKey = getDateKey(new Date());
