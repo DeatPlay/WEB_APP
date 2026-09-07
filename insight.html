@@ -151,6 +151,9 @@
             <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1">
               <i class="fa-solid fa-wand-magic-sparkles text-[8px]"></i> AI
             </span>
+            <span id="header-freeze-badge" class="hidden text-sky-300 bg-sky-500/15 border border-sky-400/40 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm animate-pulse">
+              <i class="fa-solid fa-snowflake text-[8px]"></i> PAUZA
+            </span>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Analytický engine</p>
         </div>
@@ -522,6 +525,11 @@
     let logs = [];
     let selectedTimeframe = 30;
 
+    // Freeze Mode State
+    let frozenDays = [];
+    let isGlobalFreezeActive = false;
+    let globalFreezeStartDate = null;
+
     let trendChartInstance = null;
     let circadianChartInstance = null;
     let weekdayRadarInstance = null;
@@ -581,6 +589,41 @@
       if (reloadIcon) reloadIcon.classList.add('fa-spin');
 
       try {
+        // 1. Načtení frozen_days z user_settings v Supabase s fallbackem do localStorage
+        try {
+          if (currentUserId) {
+            const { data: settingsData, error: settingsError } = await db
+              .from('user_settings')
+              .select('frozen_days')
+              .eq('user_id', currentUserId)
+              .single();
+
+            if (!settingsError && settingsData && settingsData.frozen_days) {
+              if (Array.isArray(settingsData.frozen_days)) {
+                frozenDays = settingsData.frozen_days;
+              } else if (typeof settingsData.frozen_days === 'object') {
+                frozenDays = settingsData.frozen_days.days || [];
+                if (settingsData.frozen_days.isGlobalFreezeActive !== undefined) {
+                  isGlobalFreezeActive = !!settingsData.frozen_days.isGlobalFreezeActive;
+                }
+                if (settingsData.frozen_days.globalFreezeStartDate) {
+                  globalFreezeStartDate = settingsData.frozen_days.globalFreezeStartDate;
+                }
+              }
+            } else {
+              loadLocalFreezeSettings();
+            }
+          } else {
+            loadLocalFreezeSettings();
+          }
+        } catch (sErr) {
+          console.warn("Chyba při čtení frozen_days z DB:", sErr);
+          loadLocalFreezeSettings();
+        }
+
+        updateFreezeUI();
+
+        // 2. Načtení logů dávek
         const { data, error } = await db
           .from('doses')
           .select('id, amount, note, timestamp')
@@ -625,37 +668,95 @@
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
 
+    function isDateFrozen(dateISO) {
+      if (!dateISO) return false;
+      if (frozenDays && frozenDays.includes(dateISO)) return true;
+      if (isGlobalFreezeActive) {
+        const todayISO = getDateKey(new Date());
+        const startISO = globalFreezeStartDate || todayISO;
+        if (dateISO >= startISO) return true;
+      }
+      return false;
+    }
+
+    function updateFreezeUI() {
+      const headerFreezeBadge = document.getElementById('header-freeze-badge');
+      if (headerFreezeBadge) {
+        if (isGlobalFreezeActive) {
+          headerFreezeBadge.classList.remove('hidden');
+        } else {
+          headerFreezeBadge.classList.add('hidden');
+        }
+      }
+    }
+
+    function loadLocalFreezeSettings() {
+      try {
+        const localFrozen = localStorage.getItem('grammi_frozen_days');
+        if (localFrozen) {
+          const parsed = JSON.parse(localFrozen);
+          frozenDays = Array.isArray(parsed) ? parsed : (parsed.days || []);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            isGlobalFreezeActive = !!parsed.isGlobalFreezeActive;
+            globalFreezeStartDate = parsed.globalFreezeStartDate || null;
+          }
+        }
+        const localGlobal = localStorage.getItem('grammi_global_freeze');
+        if (localGlobal !== null) {
+          isGlobalFreezeActive = localGlobal === 'true';
+        }
+        const localGlobalStart = localStorage.getItem('grammi_global_freeze_start');
+        if (localGlobalStart) {
+          globalFreezeStartDate = localGlobalStart;
+        }
+      } catch (e) {
+        console.warn("Chyba při čtení lokálního nastavení pauzy:", e);
+      }
+    }
+
     function renderAllInsights() {
       if (!logs || logs.length === 0) return;
 
-      const amounts = logs.map(l => l.amount);
-      const totalGrams = amounts.reduce((a, b) => a + b, 0);
+      const nonFrozenLogs = logs.filter(l => !isDateFrozen(getDateKey(l.timestamp)));
+      const amounts = nonFrozenLogs.map(l => l.amount);
+      const activeTotalGrams = amounts.reduce((a, b) => a + b, 0);
 
-      const mean = totalGrams / amounts.length;
+      const mean = amounts.length > 0 ? (activeTotalGrams / amounts.length) : 0;
       const sorted = [...amounts].sort((a, b) => a - b);
       const mid = Math.floor(sorted.length / 2);
-      const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-      const variance = amounts.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / amounts.length;
+      const median = sorted.length === 0 ? 0 : (sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2);
+      const variance = amounts.length > 0 ? (amounts.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / amounts.length) : 0;
       const stdDev = Math.sqrt(variance);
 
       document.getElementById('stat-mean').textContent = mean.toFixed(2);
       document.getElementById('stat-median').textContent = median.toFixed(2);
       document.getElementById('stat-std').textContent = stdDev.toFixed(2);
-      document.getElementById('stat-total-grams').textContent = totalGrams.toFixed(2);
+      document.getElementById('stat-total-grams').textContent = activeTotalGrams.toFixed(2);
 
       const now = new Date();
-      const last30 = new Set();
+      const last30 = [];
       for (let i = 0; i < 30; i++) {
         const d = new Date();
         d.setDate(now.getDate() - i);
-        last30.add(getDateKey(d));
+        last30.push(getDateKey(d));
       }
-      const active30 = new Set(logs.filter(l => last30.has(getDateKey(l.timestamp))).map(l => getDateKey(l.timestamp)));
-      const adherenceText = `${Math.round((active30.size / 30) * 100)}%`;
+      const activeNonFrozen30 = last30.filter(k => !isDateFrozen(k));
+      const loggedActive30 = new Set(logs.filter(l => {
+        const k = getDateKey(l.timestamp);
+        return !isDateFrozen(k) && last30.includes(k);
+      }).map(l => getDateKey(l.timestamp)));
+
+      const adherenceDenominator = activeNonFrozen30.length;
+      const adherenceText = adherenceDenominator > 0 
+        ? `${Math.round((loggedActive30.size / adherenceDenominator) * 100)}%` 
+        : `100%`;
       document.getElementById('stat-adherence').textContent = adherenceText;
 
       let totalMins = 0, count = 0;
       for (let i = 1; i < logs.length; i++) {
+        const d1 = getDateKey(logs[i - 1].timestamp);
+        const d2 = getDateKey(logs[i].timestamp);
+        if (isDateFrozen(d1) || isDateFrozen(d2)) continue;
         const diff = Math.floor((new Date(logs[i].timestamp) - new Date(logs[i - 1].timestamp)) / 60000);
         if (diff >= 30 && diff <= 720) {
           totalMins += diff;
@@ -673,12 +774,23 @@
 
       const firstDate = new Date(logs[0].timestamp);
       const lastDate = new Date(logs[logs.length - 1].timestamp);
-      const diffDays = Math.max(1, Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)));
-      const dailyVelocity = (totalGrams / diffDays).toFixed(2);
+      let activeDaysCount = 0;
+      const cur = new Date(firstDate);
+      cur.setHours(0, 0, 0, 0);
+      const end = new Date(lastDate);
+      end.setHours(0, 0, 0, 0);
+      while (cur <= end) {
+        if (!isDateFrozen(getDateKey(cur))) {
+          activeDaysCount++;
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      activeDaysCount = Math.max(1, activeDaysCount);
+      const dailyVelocity = (activeTotalGrams / activeDaysCount).toFixed(2);
       const projectedMonth = (dailyVelocity * 30).toFixed(0);
 
       currentMetrics = {
-        totalGrams: totalGrams.toFixed(2),
+        totalGrams: activeTotalGrams.toFixed(2),
         mean: mean.toFixed(2),
         median: median.toFixed(2),
         stdDev: stdDev.toFixed(2),
@@ -686,7 +798,7 @@
         avgInterval: avgIntervalText,
         dailyVelocity,
         projectedMonth,
-        logsCount: logs.length
+        logsCount: nonFrozenLogs.length
       };
 
       renderTrendChart();
@@ -981,34 +1093,64 @@
 
       const dates = [];
       const totals = [];
+      const isFrozenList = [];
 
       for (let i = selectedTimeframe - 1; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = getDateKey(d);
-        dates.push(d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' }));
+        const frozen = isDateFrozen(key);
+        isFrozenList.push(frozen);
+
+        const dateStr = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
+        dates.push(frozen ? `${dateStr} ❄` : dateStr);
         const sum = logs.filter(l => getDateKey(l.timestamp) === key).reduce((acc, c) => acc + c.amount, 0);
         totals.push(sum);
       }
 
       const windowSize = selectedTimeframe === 7 ? 3 : 7;
-      const rollingAvg = totals.map((val, idx, arr) => {
+      const rollingAvg = totals.map((val, idx) => {
         const start = Math.max(0, idx - windowSize + 1);
-        const slice = arr.slice(start, idx + 1);
-        return parseFloat((slice.reduce((a, b) => a + b, 0) / slice.length).toFixed(2));
+        let winSum = 0;
+        let winCount = 0;
+        for (let w = start; w <= idx; w++) {
+          if (!isFrozenList[w]) {
+            winSum += totals[w];
+            winCount++;
+          }
+        }
+        if (winCount === 0) return null;
+        return parseFloat((winSum / winCount).toFixed(2));
       });
 
-      let n = totals.length;
-      let sX = 0, sY = 0, sXY = 0, sXX = 0;
-      for (let x = 0; x < n; x++) {
-        sX += x; sY += totals[x]; sXY += x * totals[x]; sXX += x * x;
+      const activePoints = [];
+      for (let x = 0; x < totals.length; x++) {
+        if (!isFrozenList[x]) {
+          activePoints.push({ x, y: totals[x] });
+        }
       }
-      let slope = (n * sXY - sX * sY) / (n * sXX - sX * sX);
-      let intercept = (sY - slope * sX) / n;
-      const regLine = totals.map((_, x) => parseFloat((slope * x + intercept).toFixed(2)));
+
+      let regLine = new Array(totals.length).fill(null);
+      let slope = 0;
+      if (activePoints.length >= 2) {
+        const nPts = activePoints.length;
+        let sX = 0, sY = 0, sXY = 0, sXX = 0;
+        for (const pt of activePoints) {
+          sX += pt.x;
+          sY += pt.y;
+          sXY += pt.x * pt.y;
+          sXX += pt.x * pt.x;
+        }
+        const denom = (nPts * sXX - sX * sX);
+        if (denom !== 0) {
+          slope = (nPts * sXY - sX * sY) / denom;
+          const intercept = (sY - slope * sX) / nPts;
+          regLine = totals.map((_, x) => parseFloat((slope * x + intercept).toFixed(2)));
+        }
+      }
 
       const aiTrendEl = document.getElementById('ai-insight-trend');
-      const diffGrams = (slope * n).toFixed(2);
+      const diffGrams = (slope * totals.length).toFixed(2);
       if (slope > 0.02) {
         aiTrendEl.innerHTML = `Příjem za posledních <strong>${selectedTimeframe} dní</strong> roste přibližně o <strong class="text-amber-400">+${Math.abs(diffGrams)} g</strong> v čase – sledujte nárůst.`;
       } else if (slope < -0.02) {
@@ -1038,6 +1180,7 @@
               borderWidth: 2.5,
               pointRadius: selectedTimeframe === 7 ? 3 : 0,
               pointBackgroundColor: '#2dd4bf',
+              spanGaps: true,
               order: 1
             },
             {
@@ -1054,8 +1197,8 @@
               type: 'bar',
               label: 'Denní zápis',
               data: totals,
-              backgroundColor: 'rgba(30, 41, 59, 0.5)',
-              borderColor: 'rgba(51, 65, 85, 0.7)',
+              backgroundColor: totals.map((_, idx) => isFrozenList[idx] ? 'rgba(56, 189, 248, 0.4)' : 'rgba(30, 41, 59, 0.5)'),
+              borderColor: totals.map((_, idx) => isFrozenList[idx] ? '#38bdf8' : 'rgba(51, 65, 85, 0.7)'),
               borderWidth: 1,
               borderRadius: 3,
               order: 3
@@ -1075,7 +1218,14 @@
               backgroundColor: '#1e293b',
               titleColor: '#f8fafc',
               bodyColor: '#2dd4bf',
-              displayColors: false
+              displayColors: false,
+              callbacks: {
+                label: (c) => {
+                  const idx = c.dataIndex;
+                  const freezeTag = isFrozenList[idx] ? ' [Pauza - Vynecháno z trendu]' : '';
+                  return ` ${c.dataset.label}: ${c.raw !== null ? c.raw + ' g' : '--'}${freezeTag}`;
+                }
+              }
             }
           },
           scales: {
@@ -1102,7 +1252,9 @@
       const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
       const hourlyGrams = new Array(24).fill(0);
 
-      logs.forEach(l => {
+      const activeLogs = logs.filter(l => !isDateFrozen(getDateKey(l.timestamp)));
+
+      activeLogs.forEach(l => {
         const h = new Date(l.timestamp).getHours();
         hourlyGrams[h] += l.amount;
       });
@@ -1185,7 +1337,9 @@
       const sums = new Array(7).fill(0);
       const daySets = [new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set()];
 
-      logs.forEach(l => {
+      const activeLogs = logs.filter(l => !isDateFrozen(getDateKey(l.timestamp)));
+
+      activeLogs.forEach(l => {
         const d = new Date(l.timestamp);
         let idx = d.getDay() - 1;
         if (idx === -1) idx = 6;
@@ -1259,29 +1413,40 @@
       const days14 = [];
       const grams14 = [];
       const intervals14 = [];
+      const isFrozen14 = [];
 
       for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = getDateKey(d);
-        days14.push(d.toLocaleDateString('cs-CZ', { weekday: 'short', day: 'numeric' }));
+        const frozen = isDateFrozen(key);
+        isFrozen14.push(frozen);
+
+        const dayStr = d.toLocaleDateString('cs-CZ', { weekday: 'short', day: 'numeric' });
+        days14.push(frozen ? `${dayStr} ❄` : dayStr);
 
         const dayLogs = logs.filter(l => getDateKey(l.timestamp) === key);
         const sum = dayLogs.reduce((acc, c) => acc + c.amount, 0);
         grams14.push(sum);
 
-        let dMins = 0, cCount = 0;
-        for (let j = 1; j < dayLogs.length; j++) {
-          const diff = Math.floor((new Date(dayLogs[j].timestamp) - new Date(dayLogs[j - 1].timestamp)) / 60000);
-          if (diff >= 30 && diff <= 720) { dMins += diff; cCount++; }
+        if (frozen) {
+          intervals14.push(0);
+        } else {
+          let dMins = 0, cCount = 0;
+          for (let j = 1; j < dayLogs.length; j++) {
+            const diff = Math.floor((new Date(dayLogs[j].timestamp) - new Date(dayLogs[j - 1].timestamp)) / 60000);
+            if (diff >= 30 && diff <= 720) { dMins += diff; cCount++; }
+          }
+          intervals14.push(cCount > 0 ? parseFloat((dMins / cCount / 60).toFixed(1)) : 0);
         }
-        intervals14.push(cCount > 0 ? parseFloat((dMins / cCount / 60).toFixed(1)) : 0);
       }
 
-      const nonZeroIntervals = intervals14.filter(v => v > 0);
+      const nonZeroIntervals = intervals14.filter((v, idx) => v > 0 && !isFrozen14[idx]);
       const avgInterval14 = nonZeroIntervals.length > 0 ? (nonZeroIntervals.reduce((a, b) => a + b, 0) / nonZeroIntervals.length).toFixed(1) : "--";
       const aiDualEl = document.getElementById('ai-insight-dual');
-      aiDualEl.innerHTML = `V posledních 14 dnech držíte průměrný rozestup <strong class="text-purple-400">${avgInterval14} h</strong> mezi zápisy bez sklonu k řetězení.`;
+      if (aiDualEl) {
+        aiDualEl.innerHTML = `V posledních 14 dnech držíte průměrný rozestup <strong class="text-purple-400">${avgInterval14} h</strong> mezi zápisy (vyjma pauz).`;
+      }
 
       if (dualAxisChartInstance) dualAxisChartInstance.destroy();
 
@@ -1305,7 +1470,9 @@
               type: 'bar',
               label: 'Gcka (G)',
               data: grams14,
-              backgroundColor: 'rgba(20, 184, 166, 0.65)',
+              backgroundColor: grams14.map((_, idx) => isFrozen14[idx] ? 'rgba(56, 189, 248, 0.4)' : 'rgba(20, 184, 166, 0.65)'),
+              borderColor: grams14.map((_, idx) => isFrozen14[idx] ? '#38bdf8' : 'transparent'),
+              borderWidth: 1,
               borderRadius: 3,
               yAxisID: 'y'
             }
@@ -1320,7 +1487,14 @@
               labels: { boxWidth: 8, color: '#94a3b8', font: { size: 9 } }
             },
             tooltip: {
-              backgroundColor: '#1e293b'
+              backgroundColor: '#1e293b',
+              callbacks: {
+                label: (c) => {
+                  const idx = c.dataIndex;
+                  const freezeTag = isFrozen14[idx] ? ' [Pauza]' : '';
+                  return ` ${c.dataset.label}: ${c.raw}${freezeTag}`;
+                }
+              }
             }
           },
           scales: {
@@ -1365,8 +1539,19 @@
 
       const firstDate = new Date(logs[0].timestamp);
       const lastDate = new Date(logs[logs.length - 1].timestamp);
-      const diffDays = Math.max(1, Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)));
-      const dailyVelocity = (sum / diffDays).toFixed(2);
+      let activeDaysCount = 0;
+      const cur = new Date(firstDate);
+      cur.setHours(0, 0, 0, 0);
+      const end = new Date(lastDate);
+      end.setHours(0, 0, 0, 0);
+      while (cur <= end) {
+        if (!isDateFrozen(getDateKey(cur))) {
+          activeDaysCount++;
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      activeDaysCount = Math.max(1, activeDaysCount);
+      const dailyVelocity = (sum / activeDaysCount).toFixed(2);
       const projectedMonth = (dailyVelocity * 30).toFixed(0);
 
       const aiCumulEl = document.getElementById('ai-insight-cumul');

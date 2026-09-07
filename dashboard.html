@@ -297,22 +297,22 @@
     #ranks-modal, #whats-new-modal {
       transition: opacity 0.28s ease, backdrop-filter 0.28s ease;
     }
-    #ranks-modal-card, #whats-new-modal-card {
+    #ranks-modal-card, #whats-new-modal-card, #freeze-modal-card {
       transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
     }
-    #ranks-modal.modal-closed, #whats-new-modal.modal-closed {
+    #ranks-modal.modal-closed, #whats-new-modal.modal-closed, #freeze-modal.modal-closed {
       opacity: 0;
       pointer-events: none;
     }
-    #ranks-modal.modal-closed #ranks-modal-card, #whats-new-modal.modal-closed #whats-new-modal-card {
+    #ranks-modal.modal-closed #ranks-modal-card, #whats-new-modal.modal-closed #whats-new-modal-card, #freeze-modal.modal-closed #freeze-modal-card {
       transform: scale(0.92) translateY(18px);
       opacity: 0;
     }
-    #ranks-modal.modal-open, #whats-new-modal.modal-open {
+    #ranks-modal.modal-open, #whats-new-modal.modal-open, #freeze-modal.modal-open {
       opacity: 1;
       pointer-events: auto;
     }
-    #ranks-modal.modal-open #ranks-modal-card, #whats-new-modal.modal-open #whats-new-modal-card {
+    #ranks-modal.modal-open #ranks-modal-card, #whats-new-modal.modal-open #whats-new-modal-card, #freeze-modal.modal-open #freeze-modal-card {
       transform: scale(1) translateY(0);
       opacity: 1;
     }
@@ -571,6 +571,9 @@
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
             </span>
+            <span id="header-freeze-badge" onclick="openFreezeModal()" class="hidden text-sky-300 bg-sky-500/15 border border-sky-400/40 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm cursor-pointer animate-pulse" title="Režim pauzy je aktivní - klikněte pro správu">
+              <i class="fa-solid fa-snowflake text-[8px]"></i> PAUZA
+            </span>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">Up to date</p>
         </div>
@@ -798,10 +801,10 @@
             <!-- Jemné nápovědné indikátory os nahoře -->
             <div class="absolute inset-x-3 top-2 flex justify-between items-center pointer-events-none select-none text-[9px] font-mono font-semibold tracking-wider text-slate-500/60">
               <span id="joypad-axis-x-label" class="transition-colors duration-150 flex items-center gap-1">
-                <i class="fa-solid fa-arrows-left-right text-[8px]"></i> ◄ ±0.01G (Jemné) ►
+                <i class="fa-solid fa-arrows-left-right text-[8px]"></i> ◄ ±0.01g (Jemné) ►
               </span>
               <span id="joypad-axis-y-label" class="transition-colors duration-150 flex items-center gap-1">
-                ▲ +1.00G / ▼ -1.00G (Celé G) <i class="fa-solid fa-arrows-up-down text-[8px]"></i>
+                ▲ +1.00g / ▼ -1.00g (Celé G) <i class="fa-solid fa-arrows-up-down text-[8px]"></i>
               </span>
             </div>
 
@@ -1169,12 +1172,12 @@
 
           <!-- VÝCHOZÍ OBSAH: TLAČÍTKO NOVÝ STAV A DVA BLOKY -->
           <div class="pie-fade-elements w-full flex flex-col justify-end mt-auto space-y-2 relative z-10">
-            <div class="w-full flex justify-center items-center gap-3.5 pt-0">
+            <div class="w-full flex justify-center items-center gap-2 sm:gap-2.5 pt-0">
 
               <button 
                 type="button" 
                 onclick="promptChangePieCapacity()" 
-                class="py-2 px-6 bg-gradient-to-r from-brand-500/25 via-teal-500/35 to-brand-500/25 hover:from-brand-500/40 hover:via-teal-500/50 hover:to-brand-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm"
+                class="py-2 px-3.5 sm:px-4 bg-gradient-to-r from-brand-500/25 via-teal-500/35 to-brand-500/25 hover:from-brand-500/40 hover:via-teal-500/50 hover:to-brand-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm whitespace-nowrap"
                 title="Nastavit nový výchozí stav kapacity"
               >
                 Nový stav
@@ -1183,10 +1186,20 @@
               <button 
                 type="button" 
                 onclick="promptAddPieCapacity()" 
-                class="py-2 px-7 bg-gradient-to-r from-teal-500/25 via-brand-500/35 to-teal-500/25 hover:from-teal-500/40 hover:via-brand-500/50 hover:to-teal-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5"
+                class="py-2 px-3.5 sm:px-4 bg-gradient-to-r from-teal-500/25 via-brand-500/35 to-teal-500/25 hover:from-teal-500/40 hover:via-brand-500/50 hover:to-teal-500/40 text-brand-300 hover:text-white border border-brand-400/50 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-brand-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5 whitespace-nowrap"
                 title="Přidat objem ke stávající kapacitě"
               >
                 <i class="fa-solid fa-plus text-[10px]"></i> Přidat
+              </button>
+
+              <button 
+                type="button" 
+                id="btn-planner-freeze"
+                onclick="openFreezeModal()" 
+                class="py-2 px-3.5 sm:px-4 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-white border border-sky-400/40 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-sky-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5 whitespace-nowrap"
+                title="Režim pauzy (Freeze Mode)"
+              >
+                <i class="fa-solid fa-snowflake text-[10px]"></i> Pauza
               </button>
 
             </div>
@@ -1981,6 +1994,114 @@
     </div>
   </div>
 
+  <!-- MODAL: FREEZE / PAUSE MODE -->
+  <div id="freeze-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 modal-closed hidden">
+    <div id="freeze-modal-card" class="bg-cardbg border border-sky-500/30 w-full max-w-sm rounded-3xl p-4 sm:p-5 shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+      
+      <button type="button" onclick="closeFreezeModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-20 cursor-pointer" title="Zavřít">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Header -->
+      <div class="flex items-center gap-3 shrink-0 mb-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-sky-500 to-cyan-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-sky-500/25 shrink-0">
+          <i class="fa-solid fa-snowflake"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h3 class="text-sm font-black text-white tracking-tight uppercase">Režim pauzy (Freeze Mode)</h3>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight mt-0.5">Vynechá vybrané dny ze statistik průměrů a roadmapy.</p>
+        </div>
+      </div>
+
+      <!-- Scrollable content area -->
+      <div class="space-y-3.5 overflow-y-auto custom-scroll pr-1 flex-1">
+
+        <!-- Section B: Global Ongoing Freeze Toggle -->
+        <div class="bg-darkbg/80 border border-sky-500/25 rounded-2xl p-3 shadow-inner relative overflow-hidden">
+          <div class="flex items-center justify-between gap-2.5">
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-black text-white uppercase tracking-wider">Pozastavit statistiky od teď</span>
+              </div>
+              <p id="freeze-global-status-desc" class="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Všechny dny od dneška budou automaticky vynechány z výpočtů.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              id="btn-toggle-global-freeze" 
+              onclick="toggleGlobalFreeze()"
+              class="w-12 h-6.5 rounded-full p-0.5 transition-colors duration-300 relative shrink-0 cursor-pointer bg-slate-700"
+              title="Přepnout globální pauzu"
+            >
+              <div id="toggle-global-freeze-knob" class="w-5.5 h-5.5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center text-[10px] text-slate-700">
+                <i class="fa-solid fa-play text-[8px] ml-0.5"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section A: Retroactive Calendar Picker -->
+        <div class="bg-darkbg/60 border border-borderbg/80 rounded-2xl p-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-black text-white uppercase tracking-wider block">Retroaktivní kalendář</span>
+              <span class="text-[10px] text-slate-400 block">Kliknutím na den zapnete/vypnete zmrazení dne.</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="prevFreezeMonth()" class="w-6 h-6 rounded-lg bg-cardbg hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs cursor-pointer active:scale-95 transition-all" title="Předchozí měsíc">
+                <i class="fa-solid fa-chevron-left text-[9px]"></i>
+              </button>
+              <span id="freeze-calendar-month-label" class="text-[11px] font-bold text-sky-300 min-w-[75px] text-center font-mono">--</span>
+              <button type="button" onclick="nextFreezeMonth()" class="w-6 h-6 rounded-lg bg-cardbg hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs cursor-pointer active:scale-95 transition-all" title="Další měsíc">
+                <i class="fa-solid fa-chevron-right text-[9px]"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Day of week headers -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-slate-500 uppercase">
+            <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
+          </div>
+
+          <!-- Mini Calendar Grid -->
+          <div id="freeze-calendar-grid" class="grid grid-cols-7 gap-1">
+            <!-- Dynamically populated by renderFreezeModalCalendar() -->
+          </div>
+
+          <!-- Legend -->
+          <div class="flex items-center justify-between pt-1 border-t border-borderbg/40 text-[9px] text-slate-400">
+            <span class="flex items-center gap-1"><span class="text-sky-400 text-[10px]">❄</span> Zmrazeno</span>
+            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 inline-block"></span> Se zápisem</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded border border-purple-400/60 inline-block"></span> Dnes</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Section C: Action Buttons -->
+      <div class="pt-3 shrink-0 flex items-center gap-2 border-t border-borderbg/50 mt-1">
+        <button 
+          type="button" 
+          onclick="closeFreezeModal()" 
+          class="flex-1 py-2.5 bg-darkbg hover:bg-slate-800/80 border border-borderbg rounded-2xl text-xs font-bold text-slate-400 hover:text-white transition-all active:scale-[0.98] cursor-pointer"
+        >
+          Zrušit
+        </button>
+        <button 
+          type="button" 
+          onclick="saveFreezeChanges()" 
+          class="flex-[1.6] py-2.5 bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-500 hover:from-sky-400 hover:via-cyan-400 hover:to-sky-400 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-sky-500/20 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <i class="fa-solid fa-check text-xs"></i> Uložit změny
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <div id="custom-time-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-cardbg border border-borderbg w-full max-w-xs rounded-2xl p-4 shadow-2xl relative flex flex-col gap-3">
       <div class="flex justify-between items-center border-b border-borderbg pb-2">
@@ -2082,6 +2203,13 @@
     let currentDisplayName = "";
     let currentUserAvatar = "";
     let logs = [];
+    let frozenDays = []; // Array of ISO date strings: ['YYYY-MM-DD', ...]
+    let isGlobalFreezeActive = false;
+    let globalFreezeStartDate = null;
+    let stagedFrozenDays = [];
+    let stagedGlobalFreeze = false;
+    let freezeModalYear = new Date().getFullYear();
+    let freezeModalMonth = new Date().getMonth();
     let targetIntervalHours = 4.0;
     let dailyLimitGrams = 5.0;
     let pieCapacityGrams = 50.0;
@@ -2251,9 +2379,10 @@
         daysMap[l.dateKey] = (daysMap[l.dateKey] || 0) + l.amount;
       });
       const dayKeys = Object.keys(daysMap).sort();
-      const recentKeys = dayKeys.slice(-14);
-      const recentSum = recentKeys.reduce((acc, k) => acc + daysMap[k], 0);
-      const avgDaily = recentKeys.length > 0 ? (recentSum / recentKeys.length) : (logs.length > 0 ? logs[0].amount : 2.5);
+      const activeRecentKeys = dayKeys.filter(k => !isDateFrozen(k)).slice(-14);
+      const recentSum = activeRecentKeys.reduce((acc, k) => acc + daysMap[k], 0);
+      const activeLogs = logs.filter(l => !isDateFrozen(l.dateKey));
+      const avgDaily = activeRecentKeys.length > 0 ? (recentSum / activeRecentKeys.length) : (activeLogs.length > 0 ? activeLogs[0].amount : 2.5);
       const safeAvgDaily = Math.max(0.1, parseFloat(avgDaily.toFixed(2)));
 
       if (avgDailyEl) avgDailyEl.textContent = safeAvgDaily.toFixed(2);
@@ -2272,11 +2401,11 @@
 
       const weeklyBurn = (safeAvgDaily * 7).toFixed(1);
 
-      const half = Math.floor(recentKeys.length / 2);
+      const half = Math.floor(activeRecentKeys.length / 2);
       let pacingDelta = 0;
-      if (recentKeys.length >= 4) {
-        const firstHalf = recentKeys.slice(0, half).reduce((acc, k) => acc + daysMap[k], 0) / half;
-        const secondHalf = recentKeys.slice(half).reduce((acc, k) => acc + daysMap[k], 0) / (recentKeys.length - half);
+      if (activeRecentKeys.length >= 4) {
+        const firstHalf = activeRecentKeys.slice(0, half).reduce((acc, k) => acc + daysMap[k], 0) / half;
+        const secondHalf = activeRecentKeys.slice(half).reduce((acc, k) => acc + daysMap[k], 0) / (activeRecentKeys.length - half);
         pacingDelta = parseFloat(((secondHalf - firstHalf) * 7).toFixed(2));
       }
 
@@ -2309,19 +2438,38 @@
       const labels = [];
       const historyCurve = [];
       const forecastCurve = [];
+      const historyPointStyles = [];
+      const historyPointRadii = [];
+      const historyPointColors = [];
+      const historyPointBorders = [];
+      const historyIsFrozen = [];
 
       for (let i = 5; i >= 1; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
+        const dateKey = getDateKey(d);
+        const frozen = isDateFrozen(dateKey);
         labels.push(`${d.getDate()}.${d.getMonth() + 1}.`);
         const historicalEst = Math.min(capacity, parseFloat((currentRemaining + (avgDaily * i)).toFixed(2)));
         historyCurve.push(historicalEst);
         forecastCurve.push(null);
+        historyPointStyles.push(frozen ? 'rectRot' : 'circle');
+        historyPointRadii.push(frozen ? 4 : 2);
+        historyPointColors.push(frozen ? '#38bdf8' : '#2dd4bf');
+        historyPointBorders.push(frozen ? '#38bdf8' : '#2dd4bf');
+        historyIsFrozen.push(frozen);
       }
 
+      const todayKey = getDateKey(new Date());
+      const isTodayFrozen = isDateFrozen(todayKey);
       labels.push('Dnes');
       historyCurve.push(currentRemaining);
       forecastCurve.push(currentRemaining);
+      historyPointStyles.push(isTodayFrozen ? 'rectRot' : 'circle');
+      historyPointRadii.push(isTodayFrozen ? 4 : 2);
+      historyPointColors.push(isTodayFrozen ? '#38bdf8' : '#2dd4bf');
+      historyPointBorders.push(isTodayFrozen ? '#38bdf8' : '#2dd4bf');
+      historyIsFrozen.push(isTodayFrozen);
 
       const forecastPoints = Math.min(10, Math.max(3, Math.ceil(daysRemaining)));
       for (let i = 1; i <= forecastPoints; i++) {
@@ -2348,8 +2496,10 @@
               borderColor: '#2dd4bf',
               borderWidth: 1.8,
               tension: 0.3,
-              pointRadius: 2,
-              pointBackgroundColor: '#2dd4bf',
+              pointRadius: historyPointRadii,
+              pointStyle: historyPointStyles,
+              pointBackgroundColor: historyPointColors,
+              pointBorderColor: historyPointBorders,
               fill: false
             },
             {
@@ -2379,7 +2529,10 @@
               borderColor: 'rgba(255, 255, 255, 0.1)',
               borderWidth: 1,
               callbacks: {
-                label: (c) => ` Stav kapacity: ${c.raw !== null ? c.raw + ' G' : '--'}`
+                label: (c) => {
+                  const freezeTag = (c.datasetIndex === 0 && historyIsFrozen[c.dataIndex]) ? ' [Pauza - Vynecháno]' : '';
+                  return ` Stav kapacity: ${c.raw !== null ? c.raw + ' G' : '--'}${freezeTag}`;
+                }
               }
             }
           },
@@ -2659,15 +2812,24 @@
 
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() + selectedHourlyDayOffset);
+      const targetKey = getDateKey(targetDate);
+      const isFrozen = isDateFrozen(targetKey);
 
+      let dateText = '';
       if (selectedHourlyDayOffset === 0) {
-        labelEl.innerHTML = `<i class="fa-regular fa-calendar text-[10px] text-brand-400"></i> Dnes (${targetDate.getDate()}.${targetDate.getMonth() + 1}.)`;
+        dateText = `Dnes (${targetDate.getDate()}.${targetDate.getMonth() + 1}.)`;
       } else if (selectedHourlyDayOffset === -1) {
-        labelEl.innerHTML = `<i class="fa-regular fa-calendar text-[10px] text-brand-400"></i> Včera (${targetDate.getDate()}.${targetDate.getMonth() + 1}.)`;
+        dateText = `Včera (${targetDate.getDate()}.${targetDate.getMonth() + 1}.)`;
       } else {
         const weekday = targetDate.toLocaleDateString('cs-CZ', { weekday: 'short' });
-        labelEl.innerHTML = `<i class="fa-regular fa-calendar text-[10px] text-brand-400"></i> ${weekday.toUpperCase()} ${targetDate.getDate()}.${targetDate.getMonth() + 1}.`;
+        dateText = `${weekday.toUpperCase()} ${targetDate.getDate()}.${targetDate.getMonth() + 1}.`;
       }
+
+      const freezeBadgeHtml = isFrozen 
+        ? '<span class="text-sky-300 font-bold ml-1.5 inline-flex items-center gap-1"><i class="fa-solid fa-snowflake text-[9px]"></i> PAUZA</span>' 
+        : '';
+
+      labelEl.innerHTML = `<i class="fa-regular fa-calendar text-[10px] text-brand-400"></i> ${dateText}${freezeBadgeHtml}`;
 
       if (selectedHourlyDayOffset <= -7) {
         btnPrev.disabled = true;
@@ -3339,6 +3501,234 @@
       }
     }
 
+    /* ==========================================
+       FREEZE / PAUSE MODE SYSTEM
+       ========================================== */
+
+    function isDateFrozen(dateISO) {
+      if (!dateISO) return false;
+      if (frozenDays && frozenDays.includes(dateISO)) return true;
+      if (isGlobalFreezeActive) {
+        const todayISO = getDateKey(new Date());
+        const startISO = globalFreezeStartDate || todayISO;
+        if (dateISO >= startISO) return true;
+      }
+      return false;
+    }
+
+    function updateFreezeUI() {
+      // Header tag
+      const headerFreezeBadge = document.getElementById('header-freeze-badge');
+      if (headerFreezeBadge) {
+        if (isGlobalFreezeActive) {
+          headerFreezeBadge.classList.remove('hidden');
+        } else {
+          headerFreezeBadge.classList.add('hidden');
+        }
+      }
+
+      // Tab 3 action button
+      const btnFreeze = document.getElementById('btn-planner-freeze');
+      if (btnFreeze) {
+        if (isGlobalFreezeActive) {
+          btnFreeze.innerHTML = `<i class="fa-solid fa-pause text-[10px] animate-pulse"></i> Pauza aktivní`;
+          btnFreeze.className = "py-2 px-3.5 sm:px-4 bg-sky-500/25 hover:bg-sky-500/35 text-sky-200 border border-sky-400/70 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-sky-500/20 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5 whitespace-nowrap animate-pulse";
+        } else {
+          btnFreeze.innerHTML = `<i class="fa-solid fa-snowflake text-[10px]"></i> Pauza`;
+          btnFreeze.className = "py-2 px-3.5 sm:px-4 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-white border border-sky-400/40 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-sky-500/10 active:scale-95 transition-all cursor-pointer backdrop-blur-sm flex items-center gap-1.5 whitespace-nowrap";
+        }
+      }
+    }
+
+    function openFreezeModal() {
+      const now = new Date();
+      freezeModalYear = now.getFullYear();
+      freezeModalMonth = now.getMonth();
+      stagedFrozenDays = [...frozenDays];
+      stagedGlobalFreeze = isGlobalFreezeActive;
+
+      renderFreezeModalCalendar();
+      updateFreezeModalGlobalToggle();
+
+      const modal = document.getElementById('freeze-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+      });
+    }
+
+    function closeFreezeModal() {
+      const modal = document.getElementById('freeze-modal');
+      if (!modal) return;
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-closed');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 280);
+    }
+
+    function prevFreezeMonth() {
+      freezeModalMonth--;
+      if (freezeModalMonth < 0) {
+        freezeModalMonth = 11;
+        freezeModalYear--;
+      }
+      renderFreezeModalCalendar();
+    }
+
+    function nextFreezeMonth() {
+      freezeModalMonth++;
+      if (freezeModalMonth > 11) {
+        freezeModalMonth = 0;
+        freezeModalYear++;
+      }
+      renderFreezeModalCalendar();
+    }
+
+    function toggleGlobalFreeze() {
+      stagedGlobalFreeze = !stagedGlobalFreeze;
+      updateFreezeModalGlobalToggle();
+      renderFreezeModalCalendar();
+    }
+
+    function updateFreezeModalGlobalToggle() {
+      const btn = document.getElementById('btn-toggle-global-freeze');
+      const knob = document.getElementById('toggle-global-freeze-knob');
+      const desc = document.getElementById('freeze-global-status-desc');
+      if (!btn || !knob) return;
+
+      if (stagedGlobalFreeze) {
+        btn.className = "w-12 h-6.5 rounded-full p-0.5 transition-colors duration-300 relative shrink-0 cursor-pointer bg-sky-500 shadow-md shadow-sky-500/30";
+        knob.style.transform = 'translateX(22px)';
+        knob.innerHTML = '<i class="fa-solid fa-snowflake text-[8px] text-sky-500"></i>';
+        if (desc) desc.textContent = "Statistiky jsou pozastaveny. Nové dny se nezapočítávají.";
+      } else {
+        btn.className = "w-12 h-6.5 rounded-full p-0.5 transition-colors duration-300 relative shrink-0 cursor-pointer bg-slate-700";
+        knob.style.transform = 'translateX(0px)';
+        knob.innerHTML = '<i class="fa-solid fa-play text-[8px] ml-0.5 text-slate-600"></i>';
+        if (desc) desc.textContent = "Všechny dny od dneška budou automaticky vynechány z výpočtů.";
+      }
+    }
+
+    function toggleDayFreeze(dateISO) {
+      const modal = document.getElementById('freeze-modal');
+      const isModalOpen = modal && !modal.classList.contains('hidden');
+
+      if (isModalOpen) {
+        const idx = stagedFrozenDays.indexOf(dateISO);
+        if (idx > -1) {
+          stagedFrozenDays.splice(idx, 1);
+        } else {
+          stagedFrozenDays.push(dateISO);
+        }
+        renderFreezeModalCalendar();
+      } else {
+        // Programmatic toggle outside modal
+        const idx = frozenDays.indexOf(dateISO);
+        if (idx > -1) {
+          frozenDays.splice(idx, 1);
+        } else {
+          frozenDays.push(dateISO);
+        }
+        saveSettings();
+        updateFreezeUI();
+        renderAll();
+      }
+    }
+
+    function renderFreezeModalCalendar() {
+      const grid = document.getElementById('freeze-calendar-grid');
+      const label = document.getElementById('freeze-calendar-month-label');
+      if (!grid || !label) return;
+
+      const monthNames = [
+        'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
+        'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'
+      ];
+      label.textContent = `${monthNames[freezeModalMonth]} ${freezeModalYear}`;
+
+      grid.innerHTML = '';
+
+      const firstDate = new Date(freezeModalYear, freezeModalMonth, 1);
+      let startDayOfWeek = firstDate.getDay() - 1;
+      if (startDayOfWeek === -1) startDayOfWeek = 6; // Monday = 0, Sunday = 6
+
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const blank = document.createElement('div');
+        blank.className = "h-8 sm:h-9 opacity-0 pointer-events-none";
+        grid.appendChild(blank);
+      }
+
+      const totalDays = new Date(freezeModalYear, freezeModalMonth + 1, 0).getDate();
+      const todayISO = getDateKey(new Date());
+
+      for (let d = 1; d <= totalDays; d++) {
+        const dateISO = `${freezeModalYear}-${String(freezeModalMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isToday = dateISO === todayISO;
+
+        // Check if frozen in staged or if covered by global freeze
+        const isFrozenExplicit = stagedFrozenDays.includes(dateISO);
+        const isFrozenByGlobal = stagedGlobalFreeze && (dateISO >= todayISO);
+        const isFrozen = isFrozenExplicit || isFrozenByGlobal;
+
+        // Dose logs on this day
+        const dayLogs = logs.filter(l => (l.dateKey === dateISO || getDateKey(l.timestamp) === dateISO));
+        const daySum = dayLogs.reduce((acc, l) => acc + (parseFloat(l.amount) || 0), 0);
+        const hasDoses = dayLogs.length > 0;
+
+        const cell = document.createElement('button');
+        cell.type = "button";
+        cell.onclick = () => toggleDayFreeze(dateISO);
+        
+        let cellClass = "h-8 sm:h-9 rounded-xl flex flex-col items-center justify-center relative transition-all active:scale-90 cursor-pointer font-mono text-xs ";
+
+        if (isFrozen) {
+          cellClass += "bg-sky-500/25 border border-sky-400 text-sky-200 shadow-sm shadow-sky-500/20 ";
+        } else if (isToday) {
+          cellClass += "bg-darkbg border border-purple-400 text-purple-200 font-bold ";
+        } else if (hasDoses) {
+          cellClass += "bg-darkbg/90 hover:bg-slate-800 border border-teal-500/30 text-white ";
+        } else {
+          cellClass += "bg-darkbg/60 hover:bg-slate-800/80 border border-borderbg/50 text-slate-400 ";
+        }
+
+        let inner = `<span class="leading-none">${d}</span>`;
+        if (isFrozen) {
+          inner += `<span class="text-[8px] text-sky-300 leading-none mt-0.5"><i class="fa-solid fa-snowflake"></i></span>`;
+        } else if (hasDoses) {
+          inner += `<span class="w-1 h-1 rounded-full bg-teal-400 mt-0.5 leading-none"></span>`;
+        }
+
+        cell.className = cellClass;
+        cell.innerHTML = inner;
+        cell.title = `${dateISO}${hasDoses ? ` (${daySum.toFixed(2)}G)` : ''}${isFrozen ? ' [Pauza]' : ''}`;
+
+        grid.appendChild(cell);
+      }
+    }
+
+    async function saveFreezeChanges() {
+      frozenDays = [...stagedFrozenDays];
+      const wasGlobal = isGlobalFreezeActive;
+      isGlobalFreezeActive = stagedGlobalFreeze;
+      if (isGlobalFreezeActive && !wasGlobal) {
+        globalFreezeStartDate = getDateKey(new Date());
+      } else if (!isGlobalFreezeActive) {
+        globalFreezeStartDate = null;
+      }
+
+      await saveSettings();
+      updateFreezeUI();
+      renderAll();
+      if (activePlanData) {
+        renderActiveRoadmap();
+      }
+      closeFreezeModal();
+      showToast(isGlobalFreezeActive ? 'Globální pauza aktivována' : 'Změny v pauze uloženy');
+    }
+
     async function loadSettings() {
       try {
         if (currentUserId) {
@@ -3359,6 +3749,22 @@
             if (data.active_plan) {
               activePlanData = data.active_plan;
             }
+
+            if (data.frozen_days) {
+              if (Array.isArray(data.frozen_days)) {
+                frozenDays = data.frozen_days;
+              } else if (typeof data.frozen_days === 'object') {
+                frozenDays = data.frozen_days.days || [];
+                if (data.frozen_days.isGlobalFreezeActive !== undefined) {
+                  isGlobalFreezeActive = !!data.frozen_days.isGlobalFreezeActive;
+                }
+                if (data.frozen_days.globalFreezeStartDate) {
+                  globalFreezeStartDate = data.frozen_days.globalFreezeStartDate;
+                }
+              }
+            } else {
+              loadLocalSettings();
+            }
           } else {
             loadLocalSettings();
           }
@@ -3378,6 +3784,8 @@
 
       const capacityInputEl = document.getElementById('setting-planner-capacity');
       if (capacityInputEl) capacityInputEl.value = pieCapacityGrams.toFixed(1);
+
+      updateFreezeUI();
     }
 
     function loadLocalSettings() {
@@ -3399,6 +3807,19 @@
         } else {
           pieRemainingGrams = pieCapacityGrams;
         }
+
+        const localFrozen = localStorage.getItem('grammi_frozen_days');
+        if (localFrozen) {
+          try { frozenDays = JSON.parse(localFrozen) || []; } catch(e) {}
+        }
+        const localGlobalFreeze = localStorage.getItem('grammi_global_freeze');
+        if (localGlobalFreeze !== null) {
+          isGlobalFreezeActive = localGlobalFreeze === 'true';
+        }
+        const localGlobalStart = localStorage.getItem('grammi_global_freeze_start');
+        if (localGlobalStart) {
+          globalFreezeStartDate = localGlobalStart;
+        }
       } catch(e) {}
     }
 
@@ -3409,8 +3830,20 @@
       }));
       localStorage.setItem(PIE_CAPACITY_KEY, String(pieCapacityGrams));
       localStorage.setItem(PIE_REMAINING_KEY, String(pieRemainingGrams));
+      localStorage.setItem('grammi_frozen_days', JSON.stringify(frozenDays));
+      localStorage.setItem('grammi_global_freeze', String(isGlobalFreezeActive));
+      if (globalFreezeStartDate) {
+        localStorage.setItem('grammi_global_freeze_start', globalFreezeStartDate);
+      } else {
+        localStorage.removeItem('grammi_global_freeze_start');
+      }
 
       if (currentUserId) {
+        const freezePayload = {
+          days: frozenDays,
+          isGlobalFreezeActive: isGlobalFreezeActive,
+          globalFreezeStartDate: globalFreezeStartDate
+        };
         try {
           const { error } = await db
             .from('user_settings')
@@ -3421,6 +3854,7 @@
               planner_capacity: pieCapacityGrams,
               remaining_capacity: pieRemainingGrams,
               active_plan: activePlanData,
+              frozen_days: freezePayload,
               updated_at: new Date().toISOString()
             });
 
@@ -3609,6 +4043,7 @@
         btnPlanner.className = activeBtnClass;
 
         renderPlannerPieChart();
+        updateFreezeUI();
         analyzeUserHistory();
         if (isForecastViewActive) {
           renderForecastModel();
@@ -4158,7 +4593,9 @@
       renderPredictedQuickAmounts();
       updateRankBadge();
       renderPlannerPieChart();
+      updateFreezeUI();
       if (isForecastViewActive) renderForecastModel();
+      if (activePlanData) renderActiveRoadmap();
       if (activeTab === 'stats') {
         renderMainCharts();
         if (isTimeWindowsExpanded) {
@@ -4361,7 +4798,23 @@
         const curr = new Date(chronoLogs[i].timestamp);
         const diffMins = Math.floor((curr - prev) / (1000 * 60));
 
-        if (diffMins >= 30 && diffMins <= 720) {
+        // Gaps spanning across frozen days must not artificially inflate the inter-dose interval
+        const prevKey = getDateKey(prev);
+        const currKey = getDateKey(curr);
+        let spansFrozen = isDateFrozen(prevKey) || isDateFrozen(currKey);
+        if (!spansFrozen && prevKey !== currKey) {
+          let tempD = new Date(prev);
+          tempD.setDate(tempD.getDate() + 1);
+          while (getDateKey(tempD) <= currKey) {
+            if (isDateFrozen(getDateKey(tempD))) {
+              spansFrozen = true;
+              break;
+            }
+            tempD.setDate(tempD.getDate() + 1);
+          }
+        }
+
+        if (!spansFrozen && diffMins >= 30 && diffMins <= 720) {
           totalIntervalMins += diffMins;
           intervalCount++;
         }
@@ -4579,14 +5032,18 @@
       const ctx = canvas.getContext('2d');
       const labels = [];
       const totals = [];
+      const isFrozenList = [];
 
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = getDateKey(d);
+        const frozen = isDateFrozen(key);
+        isFrozenList.push(frozen);
 
         const dayLabel = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
-        labels.push(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1));
+        const dayTitle = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
+        labels.push(frozen ? `${dayTitle} ❄` : dayTitle);
 
         const sum = logs
           .filter(l => getDateKey(l.timestamp) === key)
@@ -4595,8 +5052,17 @@
         totals.push(sum);
       }
 
-      const sumTotal = totals.reduce((a, b) => a + b, 0);
-      const avg = (sumTotal / 7).toFixed(2);
+      // Calculate: sumOfActiveDays / countOfNonFrozenDays (if count is 0, show 0.00)
+      let sumOfActiveDays = 0;
+      let countOfNonFrozenDays = 0;
+      for (let i = 0; i < totals.length; i++) {
+        if (!isFrozenList[i]) {
+          sumOfActiveDays += totals[i];
+          countOfNonFrozenDays++;
+        }
+      }
+
+      const avg = countOfNonFrozenDays > 0 ? (sumOfActiveDays / countOfNonFrozenDays).toFixed(2) : "0.00";
       const avgEl = document.getElementById('tab2-stat-avg');
       if (avgEl) avgEl.textContent = avg;
 
@@ -4609,8 +5075,14 @@
           datasets: [{
             label: 'Gramy',
             data: totals,
-            backgroundColor: totals.map((val, idx) => idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)'),
-            borderColor: totals.map((val, idx) => idx === 6 ? '#14b8a6' : '#334155'),
+            backgroundColor: totals.map((val, idx) => {
+              if (isFrozenList[idx]) return 'rgba(56, 189, 248, 0.4)';
+              return idx === 6 ? 'rgba(20, 184, 166, 0.85)' : 'rgba(30, 41, 59, 0.9)';
+            }),
+            borderColor: totals.map((val, idx) => {
+              if (isFrozenList[idx]) return '#38bdf8';
+              return idx === 6 ? '#14b8a6' : '#334155';
+            }),
             borderWidth: 1.5,
             borderRadius: 4,
             borderSkipped: false,
@@ -4627,7 +5099,11 @@
               bodyColor: '#2dd4bf',
               displayColors: false,
               callbacks: {
-                label: (context) => ` Celkem za den: ${context.raw.toFixed(2)} G`
+                label: (context) => {
+                  const idx = context.dataIndex;
+                  const freezeTag = isFrozenList[idx] ? ' [Pauza - Vynecháno z průměru]' : '';
+                  return ` Celkem za den: ${context.raw.toFixed(2)} G${freezeTag}`;
+                }
               }
             }
           },
@@ -4657,6 +5133,7 @@
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() + selectedHourlyDayOffset);
       const targetKey = getDateKey(targetDate);
+      const isFrozen = isDateFrozen(targetKey);
 
       const hourlyGrams = new Array(24).fill(0);
 
@@ -4684,10 +5161,16 @@
             label: 'Gcka za hodinu',
             data: totals,
             backgroundColor: totals.map(val => {
+              if (isFrozen) {
+                return val > 0 ? (val === maxVal ? 'rgba(56, 189, 248, 0.75)' : 'rgba(56, 189, 248, 0.45)') : 'rgba(30, 41, 59, 0.35)';
+              }
               if (val > 0 && val === maxVal) return 'rgba(45, 212, 191, 0.95)';
               return val > 0 ? 'rgba(20, 184, 166, 0.75)' : 'rgba(30, 41, 59, 0.35)';
             }),
             borderColor: totals.map(val => {
+              if (isFrozen) {
+                return val > 0 ? '#38bdf8' : '#1e293b';
+              }
               if (val > 0 && val === maxVal) return '#2dd4bf';
               return val > 0 ? '#14b8a6' : '#1e293b';
             }),
@@ -4704,10 +5187,10 @@
             tooltip: {
               backgroundColor: '#1e293b',
               titleColor: '#f8fafc',
-              bodyColor: '#2dd4bf',
+              bodyColor: isFrozen ? '#38bdf8' : '#2dd4bf',
               displayColors: false,
               callbacks: {
-                label: (context) => ` Gcek: ${context.raw.toFixed(2)} g`
+                label: (context) => ` Gcek: ${context.raw.toFixed(2)} g${isFrozen ? ' [Pauza]' : ''}`
               }
             }
           },
@@ -4900,7 +5383,7 @@
       });
 
       const dayKeys = Object.keys(daysMap);
-      const recentDays = dayKeys.slice(-14);
+      const recentDays = dayKeys.filter(k => !isDateFrozen(k)).slice(-14);
       const recentSum = recentDays.reduce((acc, k) => acc + daysMap[k], 0);
       const avgDaily = recentDays.length > 0 ? (recentSum / recentDays.length) : 0;
 
@@ -5396,9 +5879,12 @@
         const dayLogs = logs.filter(l => l.dateKey === day.dateISO);
         const actualSum = dayLogs.reduce((acc, l) => acc + l.amount, 0);
         const isPast = day.dateISO < todayISO;
+        const frozen = isDateFrozen(day.dateISO);
 
         let statusDotColor = "bg-slate-600";
-        if (dayLogs.length > 0 || isPast) {
+        if (frozen) {
+          statusDotColor = "bg-sky-400";
+        } else if (dayLogs.length > 0 || isPast) {
           if (activePlanData.strategy === 'maintain') {
             if (actualSum >= day.minGrams && actualSum <= day.maxGrams) statusDotColor = "bg-teal-400";
             else if (actualSum > day.maxGrams) statusDotColor = "bg-rose-400";
@@ -5415,20 +5901,32 @@
         cell.id = `cal-cell-${day.dateISO}`;
         cell.onclick = () => openDayModal(day.dateISO);
 
-        cell.className = `liquid-glass-cell p-1.5 sm:p-2.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative h-16 sm:h-20 w-full ${
+        let cellStyle = `liquid-glass-cell p-1.5 sm:p-2.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative h-16 sm:h-20 w-full ${
           isToday ? 'is-today' : ''
         }`;
+        if (frozen) {
+          cellStyle += ' border-sky-500/40 bg-sky-950/20 shadow-[0_0_10px_rgba(56,189,248,0.1)]';
+        }
+        cell.className = cellStyle;
 
         const parts = day.dateISO.split('-');
         const fullDateDisplay = `${parseInt(parts[2], 10)}.${parseInt(parts[1], 10)}.`;
 
+        const indicator = frozen
+          ? `<span class="text-sky-300 text-[8.5px] flex items-center justify-center leading-none"><i class="fa-solid fa-snowflake"></i></span>`
+          : `<span class="w-2 h-2 rounded-full ${statusDotColor}"></span>`;
+
+        const bottomLabel = frozen
+          ? `<span class="text-[8px] sm:text-[9px] font-black font-mono text-sky-400 leading-none tracking-wider">PAUZA</span>`
+          : `<span class="text-[9px] sm:text-[10px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>`;
+
         cell.innerHTML = `
           <div class="w-full flex justify-between items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-slate-400 leading-none">
             <span>${day.dayIndex}d</span>
-            <span class="w-2 h-2 rounded-full ${statusDotColor}"></span>
+            ${indicator}
           </div>
-          <span class="text-xs sm:text-sm font-black font-mono tracking-tight leading-none ${isToday ? 'text-purple-300 font-extrabold' : 'text-white'}">${fullDateDisplay}</span>
-          <span class="text-[9px] sm:text-[10px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>
+          <span class="text-xs sm:text-sm font-black font-mono tracking-tight leading-none ${isToday ? 'text-purple-300 font-extrabold' : (frozen ? 'text-sky-200' : 'text-white')}">${fullDateDisplay}</span>
+          ${bottomLabel}
         `;
 
         container.appendChild(cell);
@@ -5442,6 +5940,7 @@
       const dayObj = activePlanData.dailySchedule.find(s => s.dateISO === dateISO) || activePlanData.dailySchedule[0];
       const isToday = dateISO === todayISO;
       const isPast = dateISO < todayISO;
+      const isFrozen = isDateFrozen(dateISO);
 
       const titleEl = document.getElementById('modal-day-title');
       const targetValEl = document.getElementById('modal-day-target-val');
@@ -5449,11 +5948,14 @@
       const badgeEl = document.getElementById('modal-day-badge');
 
       if (titleEl) titleEl.textContent = `${dayObj.dateStr} (DEN ${dayObj.dayIndex})`;
-      if (targetValEl) targetValEl.textContent = dayObj.targetDisplay;
-      if (subtitleEl) subtitleEl.textContent = isToday ? "Dnešní aktivní den" : (isPast ? "Minulý den plánu" : "Budoucí plánovaný den");
+      if (targetValEl) targetValEl.textContent = isFrozen ? "PAUZA" : dayObj.targetDisplay;
+      if (subtitleEl) subtitleEl.textContent = isFrozen ? "Den vynechán ze statistik a roadmapy (Pauza)" : (isToday ? "Dnešní aktivní den" : (isPast ? "Minulý den plánu" : "Budoucí plánovaný den"));
 
       if (badgeEl) {
-        if (isToday) {
+        if (isFrozen) {
+          badgeEl.className = "text-[8.5px] font-bold px-2 py-0.5 rounded-md font-mono bg-sky-500/20 text-sky-300 border border-sky-400/50 flex items-center gap-1";
+          badgeEl.innerHTML = `<i class="fa-solid fa-snowflake text-[8px]"></i> PAUZA`;
+        } else if (isToday) {
           badgeEl.className = "text-[8.5px] font-bold px-2 py-0.5 rounded-md font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40";
           badgeEl.textContent = "DNES";
         } else if (isPast) {
@@ -5478,7 +5980,13 @@
       }
 
       if (fBox) {
-        if (dayLogs.length === 0 && !isPast) {
+        if (isFrozen) {
+          fBox.className = "p-2.5 rounded-2xl border flex justify-between items-center text-xs bg-sky-500/15 border-sky-400/40 text-sky-200 shadow-sm";
+          fBox.innerHTML = `
+            <span class="flex items-center gap-1.5 font-bold"><i class="fa-solid fa-snowflake text-sky-300"></i> REŽIM PAUZY (Den vynechán ze sledování cílů)</span>
+            <span class="font-mono font-black text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-400/30">${actualSum.toFixed(2)} G · PAUZA</span>
+          `;
+        } else if (dayLogs.length === 0 && !isPast) {
           fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-darkbg/60 border-borderbg/50 text-slate-300";
           fBox.innerHTML = `
             <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-purple-400"></i> Zápisy zatím neproběhly</span>
@@ -5664,6 +6172,8 @@
 
       const actualDataPoints = [];
       const actualPointColors = [];
+      const actualPointStyles = [];
+      const actualPointRadii = [];
       const recordedEntries = [];
 
       activePlanData.dailySchedule.forEach((day, idx) => {
@@ -5672,22 +6182,34 @@
           const sum = parseFloat(dayLogs.reduce((acc, l) => acc + l.amount, 0).toFixed(2));
           actualDataPoints.push(sum);
 
-          if (strategy === 'maintain') {
+          const isFrozen = isDateFrozen(day.dateISO);
+
+          if (isFrozen) {
+            actualPointColors.push('#38bdf8');
+            actualPointStyles.push('rectRot');
+            actualPointRadii.push(4.5);
+          } else if (strategy === 'maintain') {
             if (sum >= day.minGrams && sum <= day.maxGrams) actualPointColors.push('#2dd4bf');
             else if (sum > day.maxGrams) actualPointColors.push('#f43f5e');
             else actualPointColors.push('#fbbf24');
+            actualPointStyles.push('circle');
+            actualPointRadii.push(3.5);
           } else {
             if (sum <= day.targetGrams && sum > 0) actualPointColors.push('#2dd4bf');
             else if (sum > day.targetGrams) actualPointColors.push('#f43f5e');
             else actualPointColors.push('#64748b');
+            actualPointStyles.push('circle');
+            actualPointRadii.push(3.5);
           }
 
-          if (dayLogs.length > 0) {
+          if (!isFrozen && dayLogs.length > 0) {
             recordedEntries.push({ x: idx, y: sum });
           }
         } else {
           actualDataPoints.push(null);
           actualPointColors.push('transparent');
+          actualPointStyles.push('circle');
+          actualPointRadii.push(0);
         }
       });
 
@@ -5771,7 +6293,8 @@
               fill: false,
               tension: 0.25,
               borderWidth: 1.8,
-              pointRadius: 3.5,
+              pointRadius: actualPointRadii,
+              pointStyle: actualPointStyles,
               pointBackgroundColor: actualPointColors,
               pointBorderColor: '#0b0f17',
               pointBorderWidth: 1,
@@ -5821,7 +6344,9 @@
               callbacks: {
                 label: (c) => {
                   if (c.dataset.label === 'Horní mez' || c.dataset.label === 'Pásmo tolerance (±15%)') return null;
-                  return ` ${c.dataset.label}: ${c.raw !== null ? c.raw + ' G' : '--'}`;
+                  const dayObj = activePlanData?.dailySchedule?.[c.dataIndex];
+                  const freezeTag = (dayObj && isDateFrozen(dayObj.dateISO)) ? ' [Pauza]' : '';
+                  return ` ${c.dataset.label}: ${c.raw !== null ? c.raw + ' G' : '--'}${freezeTag}`;
                 }
               }
             }
