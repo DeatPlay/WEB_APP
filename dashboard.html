@@ -37,6 +37,16 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    :root {
+      /* ==========================================================================
+         KONFIGURACE SPODNÍHO NAVIGAČNÍHO PANELU (LADITELNÉ VELIKOSTI A POZICE)
+         ========================================================================== */
+      --nav-height: 52px;          /* Celková tloušťka / výška navigační lišty */
+      --nav-padding-y: 6px;        /* Vertikální vnitřní odsazení navigace */
+      --nav-padding-x: 6px;        /* Horizontální vnitřní odsazení navigace */
+      --nav-bottom-offset: 2px;    /* Vzdálenost od spodního okraje obrazovky */
+    }
+
     html, body {
       height: 100%;
       overflow: hidden;
@@ -84,19 +94,27 @@
     }
 
     .liquid-glass-nav {
-      background: rgba(15, 23, 42, 0.75);
+      min-height: var(--nav-height, 52px);
+      padding: var(--nav-padding-y, 6px) var(--nav-padding-x, 6px);
+      margin-bottom: var(--nav-bottom-offset, 2px) !important;
+      background: rgba(20, 28, 43, 0.82);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25),
-                  inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.2);
       overflow: visible;
     }
 
     .liquid-pill {
+      position: absolute;
+      top: var(--nav-padding-y, 6px);
+      bottom: var(--nav-padding-y, 6px);
+      left: var(--nav-padding-x, 6px);
+      width: calc((100% - (var(--nav-padding-x, 6px) * 2)) / 3);
       background: linear-gradient(135deg, rgba(45, 212, 191, 0.96) 0%, rgba(20, 184, 166, 0.92) 100%);
-      box-shadow: 0 0 16px rgba(20, 184, 166, 0.35),
-                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.65);
+      box-shadow: 0 0 16px rgba(20, 184, 166, 0.35);
+      border-radius: 9999px;
+      pointer-events: none;
       transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -1885,30 +1903,30 @@
     </main>
 
     <!-- SPODNÍ NAVIGACE S 3 ZÁLOŽKAMI -->
-    <nav class="liquid-glass-nav rounded-full p-1.5 relative grid grid-cols-3 gap-0 shrink-0 mb-2 overflow-visible">
+    <nav class="liquid-glass-nav rounded-full relative grid grid-cols-3 gap-0 shrink-0 select-none">
       <div 
         id="liquid-pill" 
-        class="liquid-pill absolute top-1.5 bottom-1.5 left-1.5 w-[calc(33.333%-0.25rem)] rounded-full pointer-events-none"
+        class="liquid-pill pointer-events-none"
       ></div>
 
       <button 
         id="nav-btn-input" 
         onclick="switchTab('input')" 
-        class="relative z-10 py-2 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950"
+        class="relative z-10 h-full rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950"
       >
         <i class="fa-solid fa-pen-to-square text-xs"></i> Zapsat
       </button>
       <button 
         id="nav-btn-stats" 
         onclick="switchTab('stats')" 
-        class="relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
+        class="relative z-10 h-full rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
       >
         <i class="fa-solid fa-chart-pie text-xs"></i> Statistiky
       </button>
       <button 
         id="nav-btn-planner" 
         onclick="switchTab('planner')" 
-        class="relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
+        class="relative z-10 h-full rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
       >
         <i class="fa-solid fa-calendar-days text-xs"></i> Plánovač
       </button>
@@ -4569,8 +4587,8 @@
       const liquidPill = document.getElementById('liquid-pill');
 
       // 1. Synchronized nav button active states & bottom liquid pill animation
-      const inactiveBtnClass = "relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white";
-      const activeBtnClass = "relative z-10 py-2 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950";
+      const inactiveBtnClass = "relative z-10 h-full rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white";
+      const activeBtnClass = "relative z-10 h-full rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950";
 
       TAB_ORDER.forEach(key => {
         if (btns[key]) {
