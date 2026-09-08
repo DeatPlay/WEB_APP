@@ -225,14 +225,18 @@
       transition: border-color 0.05s ease;
     }
 
-    /* Tactile Micro-Bounce on Number Readout */
+    /* Tactile Micro-Bounce & Smooth Number Roll on Readout */
     #input-amount {
-      transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, text-shadow 0.25s ease;
       transform-origin: center center;
-      will-change: transform;
+      will-change: transform, color, text-shadow;
     }
     .amount-micro-bounce {
-      transform: scale(1.015) !important;
+      transform: scale(1.018) !important;
+    }
+    .amount-rolling {
+      color: #5eead4 !important;
+      text-shadow: 0 0 14px rgba(45, 212, 191, 0.4) !important;
     }
 
     /* Interactive Chips & Quick Pills with Fluid Transitions */
@@ -272,47 +276,190 @@
       box-shadow: 0 0 16px rgba(45, 212, 191, 0.3);
     }
 
-    /* Submit Button Animated Gradient Sweep & Elastic Press */
+    /* ==========================================
+       SUBMIT DOSE MICRO-INTERACTION SYSTEM
+       ========================================== */
     #btn-submit-dose {
+      position: relative;
+      overflow: hidden;
       background: linear-gradient(135deg, #0d9488 0%, #14b8a6 45%, #2dd4bf 85%, #14b8a6 100%);
       background-size: 220% 220%;
       animation: submit-gradient-sweep 4.5s ease infinite alternate;
       box-shadow: 0 4px 22px rgba(20, 184, 166, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.45);
-      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, filter 0.25s ease;
+      transition: transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1), box-shadow 0.32s ease, filter 0.32s ease;
+      will-change: transform, box-shadow, filter;
     }
-    #btn-submit-dose:hover {
+    #btn-submit-dose:hover:not(:disabled):not(.btn-pressing) {
       box-shadow: 0 6px 28px rgba(45, 212, 191, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.65);
       filter: brightness(1.06);
     }
-    #btn-submit-dose:active {
-      transform: scale(0.97);
-      box-shadow: 0 2px 10px rgba(20, 184, 166, 0.3);
-      transition-duration: 0.1s;
+    #btn-submit-dose:disabled {
+      opacity: 1 !important;
     }
     @keyframes submit-gradient-sweep {
       0% { background-position: 0% 50%; }
       100% { background-position: 100% 50%; }
     }
 
-    #ranks-modal, #whats-new-modal {
+    /* Dedicated Viscous Compression Phase (240ms cubic-bezier(0.2, 0.8, 0.2, 1)) & Radiant Bloom */
+    #btn-submit-dose.btn-pressing {
+      transform: scale(0.95) !important;
+      box-shadow: 0 0 24px rgba(45, 212, 191, 0.65), 0 0 45px rgba(20, 184, 166, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+      filter: brightness(1.1) !important;
+      transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.24s ease, filter 0.24s ease !important;
+    }
+
+    /* Diagonal Specular Sheen / In-Flight Shimmer */
+    #btn-submit-dose::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 45%;
+      height: 200%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 25%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(25deg) translateX(-180%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 10;
+    }
+
+    /* Processing Phase: In-Flight Shimmer & Radiant Teal Bloom */
+    #btn-submit-dose.btn-submitting {
+      transform: scale(0.95) !important;
+      box-shadow: 0 0 25px rgba(45, 212, 191, 0.75), 0 0 50px rgba(20, 184, 166, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+      filter: brightness(1.15) !important;
+      animation: btn-submitting-gradient 1.2s ease-in-out infinite alternate !important;
+      transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.24s ease, filter 0.24s ease !important;
+      cursor: wait !important;
+    }
+
+    @keyframes btn-submitting-gradient {
+      0% {
+        background-position: 0% 50%;
+        filter: brightness(1.12);
+      }
+      100% {
+        background-position: 100% 50%;
+        filter: brightness(1.22);
+      }
+    }
+
+    #btn-submit-dose.btn-submitting::after {
+      opacity: 1;
+      animation: btn-specular-shimmer 0.85s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes btn-specular-shimmer {
+      0% {
+        transform: rotate(25deg) translateX(-200%);
+      }
+      100% {
+        transform: rotate(25deg) translateX(450%);
+      }
+    }
+
+    /* Stage 3: Smooth Elastic Release / Rebound to scale(1) over 320ms */
+    #btn-submit-dose.btn-success-settle {
+      transform: scale(1) !important;
+      box-shadow: 0 4px 22px rgba(20, 184, 166, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+      filter: brightness(1) !important;
+      transition: transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1), box-shadow 0.35s ease, filter 0.35s ease !important;
+      cursor: default !important;
+    }
+
+    /* Smooth label transition container */
+    #btn-submit-dose-content {
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      will-change: opacity, transform;
+    }
+
+    /* Error Fallback: Snappy Shake & Rose Aura */
+    #btn-submit-dose.btn-error-shake {
+      animation: btn-shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+      box-shadow: 0 0 22px rgba(244, 63, 94, 0.7), 0 0 45px rgba(244, 63, 94, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+      filter: brightness(1.05) !important;
+      transition: box-shadow 0.3s ease, filter 0.3s ease !important;
+      cursor: not-allowed !important;
+    }
+
+    @keyframes btn-shake {
+      0%, 100% { transform: translateX(0) scale(1); }
+      15%, 45%, 75% { transform: translateX(-4px) scale(0.98); }
+      30%, 60%, 90% { transform: translateX(4px) scale(0.98); }
+    }
+
+    /* ==========================================
+       ANOMALY WARNING BANNER FLUID TRANSITIONS
+       ========================================== */
+    #dose-anomaly-banner {
+      display: inline-flex;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      vertical-align: middle;
+      box-sizing: border-box;
+      will-change: max-width, opacity, transform;
+      transition: max-width 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                  padding 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                  margin 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                  border-width 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #dose-anomaly-banner.banner-hidden {
+      max-width: 0px !important;
+      opacity: 0 !important;
+      transform: translateY(-4px) scale(0.92) !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-width: 0 !important;
+      margin-left: -0.375rem !important;
+      pointer-events: none !important;
+      transition-duration: 240ms;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #dose-anomaly-banner.banner-visible {
+      max-width: 260px !important;
+      opacity: 1 !important;
+      transform: translateY(0) scale(1) !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+      border-width: 1px !important;
+      margin-left: 0 !important;
+      pointer-events: auto !important;
+      transition-duration: 320ms;
+      transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #ranks-modal, #whats-new-modal, #anomaly-modal {
       transition: opacity 0.28s ease, backdrop-filter 0.28s ease;
     }
-    #ranks-modal-card, #whats-new-modal-card, #freeze-modal-card {
+    #ranks-modal-card, #whats-new-modal-card, #freeze-modal-card, #anomaly-modal-card {
       transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
     }
-    #ranks-modal.modal-closed, #whats-new-modal.modal-closed, #freeze-modal.modal-closed {
+    #ranks-modal.modal-closed, #whats-new-modal.modal-closed, #freeze-modal.modal-closed, #anomaly-modal.modal-closed {
       opacity: 0;
       pointer-events: none;
     }
-    #ranks-modal.modal-closed #ranks-modal-card, #whats-new-modal.modal-closed #whats-new-modal-card, #freeze-modal.modal-closed #freeze-modal-card {
+    #ranks-modal.modal-closed #ranks-modal-card, #whats-new-modal.modal-closed #whats-new-modal-card, #freeze-modal.modal-closed #freeze-modal-card, #anomaly-modal.modal-closed #anomaly-modal-card {
       transform: scale(0.92) translateY(18px);
       opacity: 0;
     }
-    #ranks-modal.modal-open, #whats-new-modal.modal-open, #freeze-modal.modal-open {
+    #ranks-modal.modal-open, #whats-new-modal.modal-open, #freeze-modal.modal-open, #anomaly-modal.modal-open {
       opacity: 1;
       pointer-events: auto;
     }
-    #ranks-modal.modal-open #ranks-modal-card, #whats-new-modal.modal-open #whats-new-modal-card, #freeze-modal.modal-open #freeze-modal-card {
+    #ranks-modal.modal-open #ranks-modal-card, #whats-new-modal.modal-open #whats-new-modal-card, #freeze-modal.modal-open #freeze-modal-card, #anomaly-modal.modal-open #anomaly-modal-card {
       transform: scale(1) translateY(0);
       opacity: 1;
     }
@@ -566,7 +713,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.5.1
+              v1.6
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -676,15 +823,33 @@
       </div>
 
       <!-- HLAVNÍ KARTA ZÁPISU (THUMB CONTROL CENTER V DOSAHU PALCE) -->
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col h-full overflow-visible">
+      <div id="main-input-card" class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex-1 flex flex-col h-full overflow-visible">
         <form id="add-dose-form" onsubmit="handleFormSubmit(event)" class="flex-1 flex flex-col h-full justify-between gap-2 overflow-visible">
           
           <!-- HORNÍ ŘÁDEK KARTY: Titulek a Teď odznak -->
-          <div class="flex justify-between items-center shrink-0">
-            <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
-              <i class="fa-solid fa-circle-plus text-brand-400"></i> Nový zápis
-            </h2>
-            <button type="button" onclick="setCurrentTime()" class="text-[10px] text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 px-2 py-0.5 rounded-md font-mono flex items-center gap-1 transition-all active:scale-95" title="Obnovit na aktuální čas">
+          <div class="flex justify-between items-center shrink-0 min-h-[26px]">
+            <div class="flex items-center gap-1.5 min-w-0 flex-1 mr-2">
+              <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider shrink-0">
+                <i class="fa-solid fa-circle-plus text-brand-400"></i> Nový zápis
+              </h2>
+
+              <!-- ANIMOVANÁ BUBLINA ANOMÁLIE PŘÍMO VEDLE TITULKU (KLIKATELNÁ) -->
+              <div 
+                id="dose-anomaly-banner" 
+                onclick="openAnomalyModal()"
+                class="banner-hidden items-center gap-1 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 text-[10px] font-semibold rounded-full py-0.5 shadow-sm min-w-0 cursor-pointer select-none active:scale-95"
+                style="visibility: hidden;"
+                role="alert"
+                aria-live="polite"
+                aria-hidden="true"
+                title="Klikněte pro zobrazení detailu anomálie a možnosti správy"
+              >
+                <i class="fa-solid fa-triangle-exclamation text-amber-400 shrink-0 text-[9px] animate-pulse"></i>
+                <span id="dose-anomaly-text" class="truncate font-medium"></span>
+              </div>
+            </div>
+
+            <button type="button" onclick="setCurrentTime()" class="text-[10px] text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 px-2 py-0.5 rounded-md font-mono flex items-center gap-1 transition-all active:scale-95 shrink-0" title="Obnovit na aktuální čas">
               <i class="fa-solid fa-bolt text-[9px]"></i> <span id="current-time-badge">Teď</span>
             </button>
           </div>
@@ -820,9 +985,11 @@
           <button 
             type="submit" 
             id="btn-submit-dose"
-            class="w-full py-3 text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider shrink-0 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.97]"
+            class="w-full h-12 min-h-[48px] text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider shrink-0 cursor-pointer flex items-center justify-center gap-2 select-none"
           >
-            <i class="fa-solid fa-plus text-base"></i> Přidat
+            <span id="btn-submit-dose-content" class="flex items-center justify-center gap-2 pointer-events-none transition-all duration-150">
+              <i class="fa-solid fa-plus text-base"></i> Přidat
+            </span>
           </button>
         </form>
       </div>
@@ -1887,9 +2054,36 @@
         <div class="bg-darkbg/80 border border-brand-500/50 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.5.1
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.6
             </span>
             <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Aktuální verze</span>
+          </div>
+          <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Přidáno více <strong>animací</strong> do webu.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Nové volení pomocí <strong>adaptivního touchpadu</strong>.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Přidané varování o <strong>vyšším</strong> zápisu.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <i class="fa-solid fa-check text-brand-400 text-[10px] mt-0.5"></i>
+              <span>Možnost zpětně <strong>POZASTAVIT</strong> dny do statistik tlačítkem PAUZA v plánovači.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-darkbg/80 border border-brand-500/50 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit text-brand-400"></i> v1.5.1
+            </span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">Předpověď</span>
           </div>
           <ul class="text-[11px] text-slate-300 space-y-1 pl-1">
             <li class="flex items-start gap-1.5">
@@ -1967,7 +2161,7 @@
         <div>
           <div class="flex items-center gap-1.5">
             <h3 class="text-sm font-black text-white tracking-tight uppercase">Co je nového?</h3>
-            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.5.1</span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.6</span>
           </div>
           <p class="text-[11px] text-slate-400">Přehled nejnovějších změn a funkcí</p>
         </div>
@@ -1976,11 +2170,19 @@
       <div class="bg-darkbg/70 border border-borderbg/80 rounded-2xl p-3 space-y-2 text-xs text-slate-300">
         <div class="flex items-start gap-2">
           <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
-          <span><strong>HISTORIE DNŮ:</strong> U hodinového grafu si nyní můžete přepínat kterýkoliv den až 7 dní zpět.</span>
+          <span>Přidáno více <strong>animací</strong> do webu.</span>
         </div>
         <div class="flex items-start gap-2">
           <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
-          <span><strong>PŘEDPOVĚĎ:</strong> Možnost výběru z 4 predikovaných velikostí Gcek při zápisu.</span>
+          <span>Nové volení pomocí <strong>adaptivního touchpadu</strong>.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span>Přidané varování o <strong>vyšším</strong> zápisu.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span>Možnost zpětně <strong>POZASTAVIT</strong> dny do statistik tlačítkem PAUZA v plánovači.</span>
         </div>
       </div>
 
@@ -1991,6 +2193,90 @@
       >
         Rozumím, pokračovat
       </button>
+    </div>
+  </div>
+
+  <!-- POPUP BANNER / MODAL: DETAIL ANOMÁLIE SPOTŘEBY -->
+  <div 
+    id="anomaly-modal" 
+    class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-closed hidden"
+    onclick="if (event.target === this) closeAnomalyModal(false);"
+  >
+    <div id="anomaly-modal-card" class="bg-cardbg border border-amber-500/30 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative flex flex-col gap-3.5">
+      
+      <button 
+        type="button" 
+        onclick="closeAnomalyModal(false)" 
+        class="absolute right-4 top-4 text-slate-400 hover:text-white text-base z-10 cursor-pointer"
+        title="Zavřít"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Hlavička modalu -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/35 flex items-center justify-center text-amber-400 text-lg shadow-lg shadow-amber-500/10 shrink-0">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h3 class="text-sm font-black text-white tracking-tight uppercase">Upozornění na anomálii</h3>
+            <span class="text-[9.5px] font-bold text-amber-300 bg-amber-500/15 border border-amber-500/25 px-1.5 py-0.2 rounded-full uppercase">Výkyv</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Statistické vyhodnocení zápisů</p>
+        </div>
+      </div>
+
+      <!-- Detailní výpis parametrů anomálie -->
+      <div class="bg-darkbg/80 border border-borderbg rounded-2xl p-3.5 space-y-2.5 text-xs text-slate-300">
+        <div class="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5">
+          <i class="fa-solid fa-circle-info text-amber-400 text-xs mt-0.5 shrink-0"></i>
+          <p id="anomaly-modal-message" class="font-bold text-amber-200 text-xs leading-snug">Detekován abnormální výkyv spotřeby</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-borderbg/60 text-[11px]">
+          <div class="bg-cardbg/80 p-2 rounded-xl border border-borderbg/50">
+            <span class="text-[9.5px] text-slate-400 uppercase font-semibold block">Váš obvyklý průměr</span>
+            <span id="anomaly-modal-avg-dose" class="font-black text-white font-mono text-xs">-- G</span>
+          </div>
+          <div class="bg-cardbg/80 p-2 rounded-xl border border-borderbg/50">
+            <span class="text-[9.5px] text-slate-400 uppercase font-semibold block">Běžný koridor</span>
+            <span id="anomaly-modal-threshold" class="font-black text-brand-400 font-mono text-xs">-- G</span>
+          </div>
+          <div class="bg-cardbg/80 p-2 rounded-xl border border-borderbg/50">
+            <span class="text-[9.5px] text-slate-400 uppercase font-semibold block">Dnes celkem</span>
+            <span id="anomaly-modal-today-sum" class="font-black text-white font-mono text-xs">-- G</span>
+          </div>
+          <div class="bg-cardbg/80 p-2 rounded-xl border border-borderbg/50">
+            <span class="text-[9.5px] text-slate-400 uppercase font-semibold block">Denní limit</span>
+            <span id="anomaly-modal-daily-limit" class="font-black text-sky-400 font-mono text-xs">-- G</span>
+          </div>
+        </div>
+
+        <p id="anomaly-modal-explanation" class="text-[11px] text-slate-400 leading-relaxed pt-1">
+          Zápis nebo tempo dne se výrazně odchyluje od vaší běžné rovnováhy.
+        </p>
+      </div>
+
+      <!-- Akční tlačítka pro zavření nebo trvalé skrytí -->
+      <div class="flex items-center gap-2 pt-1">
+        <button 
+          type="button" 
+          onclick="closeAnomalyModal(true)" 
+          class="flex-1 py-2.5 px-3 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+          title="Skryje toto varování, aby se nezobrazovalo"
+        >
+          <i class="fa-solid fa-bell-slash text-[10px] text-slate-400"></i> Skrýt varování
+        </button>
+
+        <button 
+          type="button" 
+          onclick="closeAnomalyModal(false)" 
+          class="flex-1 py-2.5 px-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          Rozumím
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2140,7 +2426,7 @@
           <input 
             type="text" 
             id="input-note" 
-            placeholder="Soustředění, práce, včerejší dávka..." 
+            placeholder="Soustředění, práce, včerejší zápis..." 
             class="w-full bg-darkbg border border-borderbg rounded-xl py-2 px-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 placeholder:text-slate-600"
           >
         </div>
@@ -2979,31 +3265,55 @@
       });
     }
 
+
+    let isDoseSubmitting = false;
+
     async function handleFormSubmit(e) {
       e.preventDefault();
+      if (isDoseSubmitting) return;
+
       const submitBtn = document.getElementById('btn-submit-dose');
+      const btnContent = document.getElementById('btn-submit-dose-content');
       const amountInput = document.getElementById('input-amount');
       const noteInput = document.getElementById('input-note');
       const timeInput = document.getElementById('input-time');
       const dateInput = document.getElementById('input-date');
 
+      // Ensure any active rolling animation settles exactly on final target before submit
+      if (typeof smoothRollAmountTo === 'function' && typeof numberRollState !== 'undefined' && numberRollState.target !== undefined) {
+        smoothRollAmountTo(numberRollState.target, true);
+      }
+
       const amount = parseFloat(amountInput.value);
       if (isNaN(amount) || amount <= 0) return;
+
+      isDoseSubmitting = true;
+      submitBtn.style.pointerEvents = 'none';
 
       let chosenDate = dateInput.value || getDateKey(new Date());
       let chosenTime = timeInput.value || '12:00';
       const customTimestamp = new Date(`${chosenDate}T${chosenTime}:00`).toISOString();
       const note = noteInput ? noteInput.value.trim() : '';
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Ukládám...';
-
-      let coords = { lat: null, lng: null };
-      if (isLocationEnabled) {
-        coords = await getCurrentLocation();
+      // 1. Snappy native vibration on click
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(14); } catch (err) {}
       }
 
-      try {
+      // 2. Stage 1: Dedicated Viscous Compression (240ms cubic-bezier(0.2, 0.8, 0.2, 1)) & Radiant Bloom
+      submitBtn.classList.remove('btn-success-settle', 'btn-error-shake', 'btn-submitting');
+      submitBtn.classList.add('btn-pressing');
+
+      // Allow full press animation (240ms) to visibly unfold before swapping text or disabling
+      const pressDelayPromise = new Promise(resolve => setTimeout(resolve, 240));
+
+      // Asynchronous database task running in parallel with press
+      const dbTask = (async () => {
+        let coords = { lat: null, lng: null };
+        if (isLocationEnabled) {
+          coords = await getCurrentLocation();
+        }
+
         const { data, error } = await db
           .from('doses')
           .insert([{
@@ -3017,10 +3327,33 @@
           .select();
 
         if (error) {
-          console.error('Chyba při vkládání:', error);
-          showToast('Chyba při ukládání do DB');
-          return;
+          throw error;
         }
+        return data;
+      })();
+
+      // After press animation completes (240ms), transition into shimmer/submitting state smoothly
+      const transitionToProcessingPromise = pressDelayPromise.then(() => {
+        submitBtn.classList.remove('btn-pressing');
+        submitBtn.classList.add('btn-submitting');
+        submitBtn.disabled = true;
+
+        if (btnContent) {
+          btnContent.style.opacity = '0';
+          setTimeout(() => {
+            btnContent.innerHTML = '<i class="fa-solid fa-check text-base drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] animate-pulse"></i> Ukládám...';
+            btnContent.style.opacity = '1';
+          }, 120);
+        } else {
+          submitBtn.innerHTML = '<i class="fa-solid fa-check text-base drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] animate-pulse"></i> Ukládám...';
+        }
+      });
+
+      // Minimum processing shimmer duration (total ~480ms: 240ms press + 240ms shimmer)
+      const minProcessingPromise = new Promise(resolve => setTimeout(resolve, 480));
+
+      try {
+        const [data] = await Promise.all([dbTask, pressDelayPromise, transitionToProcessingPromise, minProcessingPromise]);
 
         if (data && data[0]) {
           const addedAmount = parseFloat(data[0].amount);
@@ -3036,24 +3369,76 @@
           });
 
           pieRemainingGrams = Math.max(0, parseFloat((pieRemainingGrams - addedAmount).toFixed(2)));
-          await saveSettings();
-
+          const savePromise = saveSettings();
           sortLogs();
           renderAll();
+          await savePromise;
+        }
+
+        // 3. Stage 3: Success & Elastic Release / Rebound to scale(1) over 320ms
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate([10, 30, 15]); } catch (err) {}
+        }
+
+        submitBtn.classList.remove('btn-submitting', 'btn-pressing');
+        submitBtn.classList.add('btn-success-settle');
+
+        if (btnContent) {
+          btnContent.innerHTML = '<i class="fa-solid fa-check text-base drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]"></i> Uloženo';
+          btnContent.style.opacity = '1';
+        } else {
+          submitBtn.innerHTML = '<i class="fa-solid fa-check text-base drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]"></i> Uloženo';
         }
 
         resetToNow();
-        
         isLocationEnabled = false;
         updateLocationButtonUI();
-
         showToast(`Přidáno ${amount.toFixed(2)}g (Zbývá v zásobníku: ${pieRemainingGrams.toFixed(2)}g)`);
+
+        // Settle smoothly: 320ms rebound, then clean restore of idle state
+        setTimeout(() => {
+          submitBtn.classList.remove('btn-success-settle');
+          submitBtn.disabled = false;
+          submitBtn.style.pointerEvents = '';
+          isDoseSubmitting = false;
+          if (btnContent) {
+            btnContent.innerHTML = '<i class="fa-solid fa-plus text-base"></i> Přidat';
+          } else {
+            submitBtn.innerHTML = '<i class="fa-solid fa-plus text-base"></i> Přidat';
+          }
+        }, 340);
+
       } catch (err) {
-        console.error(err);
-        showToast('Chyba sítě při ukládání');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-sm"></i> Přidat';
+        console.error('Chyba při ukládání do DB:', err);
+
+        // Error haptic
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate([40, 60, 40]); } catch (e) {}
+        }
+
+        submitBtn.classList.remove('btn-submitting', 'btn-pressing');
+        submitBtn.classList.add('btn-error-shake');
+
+        if (btnContent) {
+          btnContent.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-base"></i> Chyba';
+          btnContent.style.opacity = '1';
+        } else {
+          submitBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-base"></i> Chyba';
+        }
+
+        showToast('Chyba při ukládání do DB');
+
+        setTimeout(() => {
+          submitBtn.classList.remove('btn-error-shake');
+          submitBtn.disabled = false;
+          submitBtn.style.pointerEvents = '';
+          isDoseSubmitting = false;
+          if (btnContent) {
+            btnContent.innerHTML = '<i class="fa-solid fa-plus text-base"></i> Přidat';
+          } else {
+            submitBtn.innerHTML = '<i class="fa-solid fa-plus text-base"></i> Přidat';
+          }
+        }, 600);
       }
     }
 
@@ -4001,6 +4386,8 @@
       label.classList.remove('text-brand-400');
       resetBtn.classList.add('hidden');
       isCustomTimeSet = false;
+      isAnomalyDismissedForCurrentEntry = false;
+      isAnomalyWarningDismissed = false;
     }
 
     function switchTab(tab) {
@@ -4028,6 +4415,7 @@
         tabInput.classList.remove('hidden');
         liquidPill.style.transform = 'translateX(0%)';
         btnInput.className = activeBtnClass;
+        checkAnomalyWarning();
       } else if (tab === 'stats') {
         tabStats.classList.remove('hidden');
         liquidPill.style.transform = 'translateX(100%)';
@@ -4145,39 +4533,372 @@
     function triggerAmountBounce() {
       const input = document.getElementById('input-amount');
       if (!input) return;
+      input.classList.remove('amount-micro-bounce');
+      void input.offsetWidth;
       input.classList.add('amount-micro-bounce');
       clearTimeout(input._bounceTimer);
       input._bounceTimer = setTimeout(() => {
         input.classList.remove('amount-micro-bounce');
-      }, 150);
+      }, 160);
+    }
+
+    /* ==========================================
+       SMOOTH NUMBER ROLL ENGINE (#input-amount)
+       (Fluid requestAnimationFrame lerp dampening)
+       ========================================== */
+    const numberRollState = {
+      current: 2.00,
+      target: 2.00,
+      rafId: null,
+      lastTimestamp: null,
+      isRolling: false
+    };
+
+    function smoothRollAmountTo(targetNum, instant = false) {
+      const input = document.getElementById('input-amount');
+      if (!input) return;
+
+      const validTarget = Math.max(0, isNaN(targetNum) ? 0 : Number(targetNum));
+      numberRollState.target = validTarget;
+
+      const isTyping = (document.activeElement === input);
+
+      if (instant) {
+        if (numberRollState.rafId) {
+          cancelAnimationFrame(numberRollState.rafId);
+          numberRollState.rafId = null;
+        }
+        numberRollState.current = validTarget;
+        numberRollState.isRolling = false;
+        if (!isTyping) {
+          input.value = validTarget.toFixed(2);
+        }
+        input.classList.remove('amount-rolling');
+        return;
+      }
+
+      if (isNaN(numberRollState.current)) {
+        numberRollState.current = parseFloat(input.value) || validTarget;
+      }
+
+      // If already within sub-cent epsilon, settle immediately
+      if (Math.abs(numberRollState.current - validTarget) < 0.004) {
+        numberRollState.current = validTarget;
+        if (!isTyping) {
+          input.value = validTarget.toFixed(2);
+        }
+        if (!touchpadState?.isDragging) {
+          input.classList.remove('amount-rolling');
+        }
+        if (numberRollState.rafId) {
+          cancelAnimationFrame(numberRollState.rafId);
+          numberRollState.rafId = null;
+        }
+        numberRollState.isRolling = false;
+        return;
+      }
+
+      input.classList.add('amount-rolling');
+      numberRollState.isRolling = true;
+
+      if (!numberRollState.rafId) {
+        numberRollState.lastTimestamp = performance.now();
+        numberRollState.rafId = requestAnimationFrame(stepNumberRoll);
+      }
+    }
+
+    function stepNumberRoll(now) {
+      const input = document.getElementById('input-amount');
+      if (!input) {
+        numberRollState.rafId = null;
+        numberRollState.isRolling = false;
+        return;
+      }
+
+      // If user is actively typing in input, halt animation to avoid fighting keystrokes
+      if (document.activeElement === input) {
+        numberRollState.rafId = null;
+        numberRollState.isRolling = false;
+        numberRollState.current = parseFloat(input.value) || numberRollState.target;
+        input.classList.remove('amount-rolling');
+        return;
+      }
+
+      const last = numberRollState.lastTimestamp || now;
+      const dt = Math.min(64, Math.max(1, now - last));
+      numberRollState.lastTimestamp = now;
+
+      // Relaxed, organic damping factor (~180ms–240ms settling time)
+      const k = 15;
+      const alpha = 1 - Math.exp(-k * (dt / 1000));
+      numberRollState.current += (numberRollState.target - numberRollState.current) * alpha;
+
+      if (Math.abs(numberRollState.target - numberRollState.current) < 0.004) {
+        numberRollState.current = numberRollState.target;
+        input.value = numberRollState.target.toFixed(2);
+        if (!touchpadState?.isDragging) {
+          input.classList.remove('amount-rolling');
+        }
+        numberRollState.rafId = null;
+        numberRollState.isRolling = false;
+        return;
+      }
+
+      input.value = numberRollState.current.toFixed(2);
+      numberRollState.rafId = requestAnimationFrame(stepNumberRoll);
     }
 
     function setQuickAmount(val) {
-      const input = document.getElementById('input-amount');
       const slider = document.getElementById('input-slider');
-      const numVal = parseFloat(val).toFixed(2);
-      if (input) {
-        input.value = numVal;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        triggerAmountBounce();
-      }
-      if (slider) slider.value = numVal;
-      syncTouchpadState(numVal);
+      const numVal = parseFloat(val);
+      if (isNaN(numVal)) return;
+      const formatted = numVal.toFixed(2);
+      if (slider) slider.value = formatted;
+      syncTouchpadState(formatted);
+      smoothRollAmountTo(numVal);
+      triggerAmountBounce();
+      checkAnomalyWarning(numVal);
     }
 
     function syncInputFromSlider(val) {
-      const input = document.getElementById('input-amount');
-      if (input) input.value = parseFloat(val).toFixed(2);
+      const numVal = parseFloat(val);
+      if (isNaN(numVal)) return;
+      smoothRollAmountTo(numVal);
       syncTouchpadState(val);
+      checkAnomalyWarning(numVal);
     }
 
     function syncSliderFromInput(val) {
       const slider = document.getElementById('input-slider');
       if (slider && val) slider.value = val;
+      const numVal = parseFloat(val);
+      if (!isNaN(numVal)) {
+        smoothRollAmountTo(numVal, true);
+      }
       if (!touchpadState.isDragging) {
         syncTouchpadState(val);
       }
+      checkAnomalyWarning(numVal);
+    }
+
+    /* ==========================================
+       ABNORMAL SPIKE / CONSUMPTION ANOMALY WARNING SYSTEM
+       ========================================== */
+    let anomalyBaselineMetrics = null;
+    let isAnomalyDismissedForCurrentEntry = false;
+    let isAnomalyWarningDismissed = false; // Backward compatibility alias
+
+    function recalculateAnomalyBaseline() {
+      if (!logs || logs.length === 0) {
+        anomalyBaselineMetrics = null;
+        return;
+      }
+
+      // Filter non-frozen logs strictly
+      const activeLogs = logs.filter(l => {
+        const dKey = l.dateKey || getDateKey(l.timestamp);
+        return !isDateFrozen(dKey);
+      });
+
+      // Require at least 3 active doses for statistical baseline
+      if (activeLogs.length < 3) {
+        anomalyBaselineMetrics = null;
+        return;
+      }
+
+      // 1. Single dose statistics (μ and σ)
+      const doseAmounts = activeLogs.map(l => l.amount);
+      const n = doseAmounts.length;
+      const meanDose = doseAmounts.reduce((a, b) => a + b, 0) / n;
+      const variance = doseAmounts.reduce((acc, val) => acc + Math.pow(val - meanDose, 2), 0) / n;
+      const stdDevDose = Math.sqrt(variance);
+
+      // 2. Daily totals from non-frozen days (last 14 active days)
+      const todayKey = getDateKey(new Date());
+      const daysMap = {};
+      activeLogs.forEach(l => {
+        const dKey = l.dateKey || getDateKey(l.timestamp);
+        daysMap[dKey] = (daysMap[dKey] || 0) + l.amount;
+      });
+
+      const dayKeys = Object.keys(daysMap).sort();
+      const pastDays = dayKeys.filter(k => k !== todayKey && !isDateFrozen(k));
+      const baselineKeys = pastDays.length >= 2 ? pastDays.slice(-14) : dayKeys.filter(k => !isDateFrozen(k)).slice(-14);
+      const baselineSum = baselineKeys.reduce((acc, k) => acc + daysMap[k], 0);
+      const avgDailyGrams = baselineKeys.length > 0 ? (baselineSum / baselineKeys.length) : 0;
+      const todayGrams = daysMap[todayKey] || 0;
+
+      // Threshold: μ + (2.0 * σ), or 2x mean if standard deviation is very low (< 0.25 * μ or threshold < 1.5 * μ)
+      let singleDoseThreshold = meanDose + (2.0 * stdDevDose);
+      if (stdDevDose < 0.25 * meanDose || singleDoseThreshold < 1.5 * meanDose) {
+        singleDoseThreshold = 2.0 * meanDose;
+      }
+
+      anomalyBaselineMetrics = {
+        meanDose,
+        stdDevDose,
+        singleDoseThreshold,
+        avgDailyGrams,
+        todayGrams,
+        isTodayFrozen: isDateFrozen(todayKey)
+      };
+    }
+
+    function checkAnomalyWarning(selectedAmount) {
+      const banner = document.getElementById('dose-anomaly-banner');
+      const textEl = document.getElementById('dose-anomaly-text');
+      if (!banner || !textEl) return;
+
+      if (!logs || logs.length === 0) {
+        hideAnomalyWarning();
+        return;
+      }
+
+      if (!anomalyBaselineMetrics) {
+        recalculateAnomalyBaseline();
+      }
+
+      if (!anomalyBaselineMetrics) {
+        hideAnomalyWarning();
+        return;
+      }
+
+      const { meanDose, singleDoseThreshold, avgDailyGrams, todayGrams, isTodayFrozen } = anomalyBaselineMetrics;
+
+      let inputVal = selectedAmount;
+      if (inputVal === undefined || isNaN(inputVal)) {
+        const inputEl = document.getElementById('input-amount');
+        inputVal = inputEl ? parseFloat(inputEl.value) : 0;
+      }
+
+      // Case A: Spike on single dose input
+      const isSingleDoseSpike = (inputVal > singleDoseThreshold && inputVal > meanDose);
+
+      // Hysteresis re-arming: if the dose drops back into the safe zone, re-arm dismiss state for future spikes
+      if (!isSingleDoseSpike && isAnomalyDismissedForCurrentEntry) {
+        isAnomalyDismissedForCurrentEntry = false;
+        isAnomalyWarningDismissed = false;
+      }
+
+      // If dismissed for current entry and currently in anomaly territory, stay hidden and ignore micro-movements
+      if (isAnomalyDismissedForCurrentEntry) {
+        hideAnomalyWarning();
+        return;
+      }
+
+      // Case B: Spike on daily pace (only evaluated if today is not frozen)
+      let isDailyPaceSpike = false;
+      let dailyPaceMsg = '';
+
+      if (!isTodayFrozen) {
+        if (dailyLimitGrams > 0 && todayGrams >= dailyLimitGrams) {
+          isDailyPaceSpike = true;
+          dailyPaceMsg = `Vysoké tempo dne: denní limit překročen (${todayGrams.toFixed(2)} / ${dailyLimitGrams.toFixed(2)} G)`;
+        } else if (avgDailyGrams > 0 && todayGrams > avgDailyGrams * 1.5) {
+          const pacePct = Math.round(((todayGrams - avgDailyGrams) / avgDailyGrams) * 100);
+          isDailyPaceSpike = true;
+          dailyPaceMsg = `Vysoké tempo dne: +${pacePct} % oproti normálu`;
+        }
+      }
+
+      // Show warning banner with prioritization (Single dose spike takes precedence while adjusting input)
+      if (isSingleDoseSpike) {
+        const pctOver = Math.round(((inputVal - meanDose) / meanDose) * 100);
+        showAnomalyWarning(`Abnormální zápis: o ${pctOver} % vyšší než váš obvyklý průměr`);
+      } else if (isDailyPaceSpike) {
+        showAnomalyWarning(dailyPaceMsg);
+      } else {
+        hideAnomalyWarning();
+      }
+    }
+
+    function showAnomalyWarning(message) {
+      const banner = document.getElementById('dose-anomaly-banner');
+      const textEl = document.getElementById('dose-anomaly-text');
+      if (!banner || !textEl) return;
+
+      textEl.textContent = message;
+      banner.title = message;
+
+      if (!banner.classList.contains('banner-visible')) {
+        clearTimeout(banner._hideTimer);
+        banner.style.visibility = 'visible';
+        banner.classList.remove('banner-hidden', 'hidden');
+        void banner.offsetWidth; // force reflow for smooth fluid transition
+        banner.classList.add('banner-visible');
+        banner.setAttribute('aria-hidden', 'false');
+      }
+    }
+
+    function hideAnomalyWarning() {
+      const banner = document.getElementById('dose-anomaly-banner');
+      if (!banner || banner.classList.contains('banner-hidden')) return;
+
+      banner.classList.remove('banner-visible');
+      banner.classList.add('banner-hidden');
+      banner.setAttribute('aria-hidden', 'true');
+
+      clearTimeout(banner._hideTimer);
+      banner._hideTimer = setTimeout(() => {
+        if (banner.classList.contains('banner-hidden')) {
+          banner.style.visibility = 'hidden';
+        }
+      }, 240);
+    }
+
+    function openAnomalyModal() {
+      const modal = document.getElementById('anomaly-modal');
+      if (!modal) return;
+
+      const messageEl = document.getElementById('anomaly-modal-message');
+      const avgDoseEl = document.getElementById('anomaly-modal-avg-dose');
+      const thresholdEl = document.getElementById('anomaly-modal-threshold');
+      const todaySumEl = document.getElementById('anomaly-modal-today-sum');
+      const limitEl = document.getElementById('anomaly-modal-daily-limit');
+      const explEl = document.getElementById('anomaly-modal-explanation');
+
+      const bannerText = document.getElementById('dose-anomaly-text')?.textContent || '';
+      if (messageEl) messageEl.textContent = bannerText || 'Detekován abnormální výkyv spotřeby';
+
+      if (anomalyBaselineMetrics) {
+        if (avgDoseEl) avgDoseEl.textContent = `${anomalyBaselineMetrics.meanDose.toFixed(2)} G`;
+        if (thresholdEl) thresholdEl.textContent = `do ${anomalyBaselineMetrics.singleDoseThreshold.toFixed(2)} G`;
+        if (todaySumEl) todaySumEl.textContent = `${anomalyBaselineMetrics.todayGrams.toFixed(2)} G`;
+        if (limitEl) limitEl.textContent = dailyLimitGrams > 0 ? `${dailyLimitGrams.toFixed(1)} G` : '--';
+      }
+
+      const inputVal = parseFloat(document.getElementById('input-amount')?.value) || 0;
+      if (explEl) {
+        if (anomalyBaselineMetrics && inputVal > anomalyBaselineMetrics.singleDoseThreshold) {
+          explEl.textContent = `Aktuálně nastavený zápis (${inputVal.toFixed(2)} G) výrazně převyšuje váš obvyklý zápis (${anomalyBaselineMetrics.meanDose.toFixed(2)} G). Pokud si přejete tento zápis přesto zapsat, pokračujte běžným způsobem. Tlačítkem níže můžete varování skrýt, aby se nezobrazovalo.`;
+        } else {
+          explEl.textContent = `Dnešní tempo nebo celkový součet zápisů roste rychleji než váš běžný průměr posledních aktivních dní. Tlačítkem níže můžete varování skrýt, aby se nezobrazovalo.`;
+        }
+      }
+
+      modal.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+      });
+    }
+
+    function closeAnomalyModal(dismissIndicator = false) {
+      const modal = document.getElementById('anomaly-modal');
+      if (!modal) return;
+
+      if (dismissIndicator) {
+        isAnomalyDismissedForCurrentEntry = true;
+        isAnomalyWarningDismissed = true;
+        hideAnomalyWarning();
+        showToast('Varování před anomálií bylo skryto pro tento zápis');
+      }
+
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-closed');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 280);
     }
 
     function initTouchpad() {
@@ -4373,14 +5094,13 @@
 
         if (targetH !== touchpadState.currentHundredths) {
           touchpadState.currentHundredths = targetH;
-          const formattedVal = (targetH / 100).toFixed(2);
+          const targetNum = targetH / 100;
+          const formattedVal = targetNum.toFixed(2);
 
-          if (input) {
-            input.value = formattedVal;
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            triggerAmountBounce();
-          }
+          smoothRollAmountTo(targetNum);
+
           if (slider) slider.value = formattedVal;
+          checkAnomalyWarning(targetNum);
 
           const diffH = targetH - touchpadState.startHundredths;
           const diffG = diffH / 100;
@@ -4400,6 +5120,10 @@
         touchpadState.isDragging = false;
         touchpadState.pointerId = null;
         touchpadState.corridor = null;
+
+        // Smoothly glide rolling animation to exact final resting float
+        const finalVal = touchpadState.currentHundredths / 100;
+        smoothRollAmountTo(finalVal, false);
 
         // Fade out dynamic markers, retain locked value without jump
         if (originMarker) {
@@ -4502,6 +5226,14 @@
     // Initialize Touchpad & Living Surface
     initTouchpad();
     initTouchpadStarfield();
+
+    // Reaktivní kontrola anomálií při jakékoliv změně vstupní dávky
+    const amountInputEl = document.getElementById('input-amount');
+    if (amountInputEl) {
+      amountInputEl.addEventListener('input', (e) => {
+        checkAnomalyWarning(parseFloat(e.target.value));
+      });
+    }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -4864,6 +5596,8 @@
         if (periods.noc > maxVal) { maxVal = periods.noc; topLabel = 'Nejčastěji: Noc'; }
       }
       document.getElementById('tab2-top-window-badge').textContent = topLabel;
+      recalculateAnomalyBaseline();
+      checkAnomalyWarning();
     }
 
     function renderPlannerPieChart() {
@@ -5581,11 +6315,11 @@
     function generateDoseSlots(totalGrams, count, peakH) {
       const slots = [];
       if (count === 1) {
-        slots.push({ time: `${peakH}:00`, amount: totalGrams, label: "Hlavní dávka" });
+        slots.push({ time: `${peakH}:00`, amount: totalGrams, label: "Hlavní zápis" });
       } else if (count === 2) {
         const secH = (peakH + 5) % 24;
-        slots.push({ time: `${peakH}:00`, amount: parseFloat((totalGrams * 0.65).toFixed(2)), label: "Špičková dávka" });
-        slots.push({ time: `${secH}:00`, amount: parseFloat((totalGrams * 0.35).toFixed(2)), label: "Udržovací dávka" });
+        slots.push({ time: `${peakH}:00`, amount: parseFloat((totalGrams * 0.65).toFixed(2)), label: "Špičkový zápis" });
+        slots.push({ time: `${secH}:00`, amount: parseFloat((totalGrams * 0.35).toFixed(2)), label: "Udržovací zápis" });
       } else if (count === 3) {
         const t1 = Math.max(6, peakH - 2);
         const t2 = peakH + 2;
@@ -5596,7 +6330,7 @@
       } else if (count === 4) {
         const dose = parseFloat((totalGrams / 4).toFixed(2));
         [8, 12, 16, 20].forEach((h, idx) => {
-          slots.push({ time: `${h}:00`, amount: dose, label: `Dávka ${idx + 1}` });
+          slots.push({ time: `${h}:00`, amount: dose, label: `Zápis ${idx + 1}` });
         });
       }
       return slots;
