@@ -84,22 +84,133 @@
     }
 
     .liquid-glass-nav {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(24px) saturate(190%);
-      -webkit-backdrop-filter: blur(24px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6),
-                  inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25),
+                  inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+      overflow: visible;
     }
 
     .liquid-pill {
-      background: linear-gradient(135deg, rgba(45, 212, 191, 0.95) 0%, rgba(20, 184, 166, 0.9) 100%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.45),
-                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.75),
-                  inset 0 -1px 1px 0 rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.96) 0%, rgba(20, 184, 166, 0.92) 100%);
+      box-shadow: 0 0 16px rgba(20, 184, 166, 0.35),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.65);
       transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* SMOOTH LOG HISTORY ACCORDION (CSS GRID 0fr -> 1fr) */
+    .history-accordion-grid {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s cubic-bezier(0.33, 1, 0.68, 1);
+      overflow: hidden;
+    }
+
+    .history-accordion-grid.is-open {
+      grid-template-rows: 1fr;
+    }
+
+    .history-accordion-content {
+      min-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 0.26s cubic-bezier(0.33, 1, 0.68, 1),
+                  transform 0.26s cubic-bezier(0.33, 1, 0.68, 1),
+                  visibility 0.26s;
+    }
+
+    .history-accordion-grid.is-open .history-accordion-content {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition-delay: 0.04s;
+    }
+
+    /* TABS VIEWPORT & FLUID DIRECTIONAL ANIMATIONS */
+    .tabs-viewport {
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 100%;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      width: 100%;
+      flex: 1 1 0%;
+    }
+
+    .tab-pane {
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      will-change: transform, opacity;
+    }
+
+    @keyframes tabSlideInForward {
+      0% {
+        opacity: 0;
+        transform: translate3d(24px, 0, 0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes tabSlideOutForward {
+      0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(-24px, 0, 0);
+      }
+    }
+
+    @keyframes tabSlideInBackward {
+      0% {
+        opacity: 0;
+        transform: translate3d(-24px, 0, 0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes tabSlideOutBackward {
+      0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(24px, 0, 0);
+      }
+    }
+
+    .tab-anim-in-forward {
+      animation: tabSlideInForward 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    .tab-anim-out-forward {
+      animation: tabSlideOutForward 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+      pointer-events: none;
+    }
+
+    .tab-anim-in-backward {
+      animation: tabSlideInBackward 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    .tab-anim-out-backward {
+      animation: tabSlideOutBackward 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+      pointer-events: none;
     }
 
     input[type="time"], input[type="date"] {
@@ -713,7 +824,7 @@
           <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
             Grammi
             <button onclick="openExportModal('changelog')" class="text-brand-400 hover:bg-brand-500/20 font-medium text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 transition-all active:scale-95 cursor-pointer" title="Zobrazit Changelog">
-              v1.6
+              v1.6.1-ql
             </button>
             <span id="header-dev-badge" class="hidden text-amber-300 bg-amber-500/15 border border-amber-500/30 text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-sm">
               <i class="fa-solid fa-code text-[8px]"></i> DEV
@@ -742,8 +853,11 @@
       </div>
     </header>
 
-    <!-- TAB 1: ZAPSAT -->
-    <div id="tab-input" class="flex-1 flex flex-col gap-2 overflow-hidden">
+    <!-- HLAVNÍ KONTEJNER ZÁLOŽEK S PLYNULÝMI PŘECHODY -->
+    <main id="tabs-viewport" class="tabs-viewport flex-1 min-h-0 w-full relative">
+
+      <!-- TAB 1: ZAPSAT -->
+      <div id="tab-input" class="tab-pane flex-1 flex flex-col gap-2 overflow-hidden">
 
       <!-- SOUHRN DNEŠKA (KOMPAKTNÍ HORNÍ LIŠTA) -->
       <div class="bg-cardbg border border-borderbg rounded-xl p-2 px-3 flex justify-between items-center shrink-0 shadow-md">
@@ -995,8 +1109,8 @@
       </div>
     </div>
 
-    <!-- TAB 2: STATISTIKY -->
-    <div id="tab-stats" class="flex-1 flex flex-col gap-2 overflow-y-auto custom-scroll pr-0.5 hidden">
+      <!-- TAB 2: STATISTIKY -->
+      <div id="tab-stats" class="tab-pane flex-1 flex flex-col gap-2 overflow-y-auto custom-scroll pr-0.5 hidden">
 
       <div class="grid grid-cols-2 gap-2 shrink-0">
         <div class="bg-cardbg border border-borderbg rounded-xl p-2.5">
@@ -1160,72 +1274,107 @@
         </div>
       </div>
 
-      <button 
-        type="button"
-        onclick="navigateToPage('leaderboard.html')"
-        class="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-brand-500/15 to-amber-500/15 hover:from-amber-500/25 hover:via-brand-500/25 hover:to-amber-500/25 border border-amber-500/30 rounded-2xl text-xs font-extrabold text-amber-300 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0 cursor-pointer"
-      >
-        <span class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
-            <i class="fa-solid fa-trophy text-xs"></i>
-          </span>
-          Leaderboard
-        </span>
-        <i class="fa-solid fa-arrow-right text-[11px] text-amber-400/80"></i>
-      </button>
-
-      <button 
-        type="button"
-        onclick="navigateToPage('mapa.html')"
-        class="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-500/15 via-brand-500/15 to-emerald-500/15 hover:from-emerald-500/25 hover:via-brand-500/25 hover:to-emerald-500/25 border border-brand-500/30 rounded-2xl text-xs font-extrabold text-brand-400 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0 cursor-pointer mb-0"
-      >
-        <span class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400">
-            <i class="fa-solid fa-map-location-dot text-xs"></i>
-          </span>
-          Mapa
-        </span>
-        <i class="fa-solid fa-arrow-right text-[11px] text-brand-400/80"></i>
-      </button>
-
-      <button 
-        type="button"
-        onclick="navigateToPage('insight.html')"
-        class="w-full py-2.5 px-3 bg-gradient-to-r from-purple-500/15 via-brand-500/15 to-purple-500/15 hover:from-purple-500/25 hover:via-brand-500/25 hover:to-purple-500/25 border border-purple-500/30 rounded-2xl text-xs font-extrabold text-purple-300 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all shrink-0 cursor-pointer mb-0"
-      >
-        <span class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
-            <i class="fa-solid fa-brain text-xs"></i>
-          </span>
-          Insights 
-        </span>
-        <i class="fa-solid fa-arrow-right text-[11px] text-purple-400/80"></i>
-      </button>
-
-      <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl shrink-0 flex flex-col mb-1">
+      <!-- 2x2 RESPONZIVNÍ GRID NAVIGAČNÍCH WIDGETŮ -->
+      <div class="grid grid-cols-2 gap-2 shrink-0">
+        <!-- 1. LEADERBOARD (Amber) -->
         <button 
-          type="button" 
-          onclick="toggleHistoryAccordion()" 
-          class="flex justify-between items-center w-full text-left cursor-pointer"
+          type="button"
+          onclick="navigateToPage('leaderboard.html')"
+          class="group relative flex items-center gap-2.5 py-3 px-3 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-cardbg/80 border border-amber-500/30 hover:border-amber-400/50 backdrop-blur-md shadow-md active:scale-95 transition-all text-left cursor-pointer overflow-hidden"
         >
-          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
-            <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Kompletní historie
-          </h2>
-          <div class="flex items-center gap-2">
-            <span id="log-count-badge" class="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md">0 záznamů</span>
-            <i id="history-accordion-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+            <i class="fa-solid fa-trophy text-xs"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-amber-300 tracking-tight leading-tight">Leaderboard</span>
+              <i class="fa-solid fa-arrow-right text-[9px] text-amber-400/60 group-hover:translate-x-0.5 transition-transform"></i>
+            </div>
+            <span class="text-[9.5px] text-slate-400 block truncate font-medium">Žebříček</span>
           </div>
         </button>
 
-        <div id="tab2-log-container-wrapper" class="hidden mt-2.5 pt-2.5 border-t border-borderbg/60">
-          <div id="tab2-log-container" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1">
+        <!-- 2. MAPA (Emerald/Teal) -->
+        <button 
+          type="button"
+          onclick="navigateToPage('mapa.html')"
+          class="group relative flex items-center gap-2.5 py-3 px-3 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-brand-500/5 to-cardbg/80 border border-brand-500/30 hover:border-brand-400/50 backdrop-blur-md shadow-md active:scale-95 transition-all text-left cursor-pointer overflow-hidden"
+        >
+          <div class="w-8 h-8 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-400 shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+            <i class="fa-solid fa-map-location-dot text-xs"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-brand-300 tracking-tight leading-tight">Mapa</span>
+              <i class="fa-solid fa-arrow-right text-[9px] text-brand-400/60 group-hover:translate-x-0.5 transition-transform"></i>
+            </div>
+            <span class="text-[9.5px] text-slate-400 block truncate font-medium">Místa a zóny</span>
+          </div>
+        </button>
+
+        <!-- 3. INSIGHTS (Purple) -->
+        <button 
+          type="button"
+          onclick="navigateToPage('insight.html')"
+          class="group relative flex items-center gap-2.5 py-3 px-3 rounded-2xl bg-gradient-to-br from-purple-500/15 via-purple-500/5 to-cardbg/80 border border-purple-500/30 hover:border-purple-400/50 backdrop-blur-md shadow-md active:scale-95 transition-all text-left cursor-pointer overflow-hidden"
+        >
+          <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+            <i class="fa-solid fa-brain text-xs"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-purple-300 tracking-tight leading-tight">Insights</span>
+              <i class="fa-solid fa-arrow-right text-[9px] text-purple-400/60 group-hover:translate-x-0.5 transition-transform"></i>
+            </div>
+            <span class="text-[9.5px] text-slate-400 block truncate font-medium">Analytika</span>
+          </div>
+        </button>
+
+        <!-- 4. KOMPLETNÍ HISTORIE (Slate/Teal) -->
+        <button 
+          type="button" 
+          onclick="toggleHistoryAccordion()" 
+          class="group relative flex items-center gap-2.5 py-3 px-3 rounded-2xl bg-gradient-to-br from-slate-800/60 via-teal-950/20 to-cardbg/80 border border-teal-500/25 hover:border-teal-400/45 backdrop-blur-md shadow-md active:scale-95 transition-all text-left cursor-pointer overflow-hidden"
+        >
+          <div class="w-8 h-8 rounded-xl bg-teal-500/15 border border-teal-500/25 flex items-center justify-center text-teal-300 shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+            <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-slate-200 tracking-tight leading-tight">Historie</span>
+              <i id="history-accordion-icon" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300"></i>
+            </div>
+            <span id="log-count-badge" class="text-[9.5px] text-slate-400 block truncate font-medium">0 záznamů</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- ROZBALOVACÍ AKORDEON HISTORIE (PŘÍMO POD 2x2 GRIDEM) -->
+      <div id="tab2-log-container-wrapper" class="history-accordion-grid shrink-0">
+        <div class="history-accordion-content min-h-0">
+          <div class="bg-cardbg border border-borderbg rounded-2xl p-3 shadow-xl flex flex-col my-1">
+            <div class="flex justify-between items-center pb-2 border-b border-borderbg/60 mb-2">
+              <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+                <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Kompletní historie
+              </h2>
+              <button 
+                type="button" 
+                onclick="toggleHistoryAccordion()" 
+                class="text-slate-400 hover:text-white text-xs p-1 cursor-pointer transition-colors"
+                title="Zavřít historii"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div id="tab2-log-container" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1">
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- TAB 3: PLÁNOVAČ -->
-    <div id="tab-planner" class="flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-2 relative hidden">
+    <div id="tab-planner" class="tab-pane flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-2 relative hidden">
 
       <!-- HLAVNÍ KARTA: ZÁSOBNÍK A ZŮSTATEK -->
       <section id="capacity-main-card" class="seamless-container rounded-3xl p-4 flex flex-col justify-between relative backdrop-blur-md shrink-0 shadow-2xl overflow-hidden min-h-[370px]">
@@ -1733,32 +1882,33 @@
       </div>
 
     </div>
+    </main>
 
     <!-- SPODNÍ NAVIGACE S 3 ZÁLOŽKAMI -->
-    <nav class="liquid-glass-nav rounded-full p-1 relative grid grid-cols-3 gap-0 shrink-0 mb-2">
+    <nav class="liquid-glass-nav rounded-full p-1.5 relative grid grid-cols-3 gap-0 shrink-0 mb-2 overflow-visible">
       <div 
         id="liquid-pill" 
-        class="liquid-pill absolute top-1 bottom-1 left-1 w-[calc(33.333%-0.15rem)] rounded-full pointer-events-none"
+        class="liquid-pill absolute top-1.5 bottom-1.5 left-1.5 w-[calc(33.333%-0.25rem)] rounded-full pointer-events-none"
       ></div>
 
       <button 
         id="nav-btn-input" 
         onclick="switchTab('input')" 
-        class="relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950"
+        class="relative z-10 py-2 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950"
       >
         <i class="fa-solid fa-pen-to-square text-xs"></i> Zapsat
       </button>
       <button 
         id="nav-btn-stats" 
         onclick="switchTab('stats')" 
-        class="relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
+        class="relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
       >
         <i class="fa-solid fa-chart-pie text-xs"></i> Statistiky
       </button>
       <button 
         id="nav-btn-planner" 
         onclick="switchTab('planner')" 
-        class="relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
+        class="relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white"
       >
         <i class="fa-solid fa-calendar-days text-xs"></i> Plánovač
       </button>
@@ -2078,7 +2228,7 @@
           </ul>
         </div>
 
-        <div class="bg-darkbg/80 border border-brand-500/50 rounded-xl p-3 space-y-1.5">
+        <div class="bg-darkbg/80 border border-brand-500/10 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="font-extrabold text-xs text-brand-400 flex items-center gap-1.5">
               <i class="fa-solid fa-code-commit text-brand-400"></i> v1.5.1
@@ -3875,14 +4025,18 @@
     function toggleHistoryAccordion() {
       const wrapper = document.getElementById('tab2-log-container-wrapper');
       const icon = document.getElementById('history-accordion-icon');
+      if (!wrapper) return;
       
-      const isHidden = wrapper.classList.contains('hidden');
-      if (isHidden) {
-        wrapper.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
+      const isOpen = wrapper.classList.contains('is-open');
+      if (!isOpen) {
+        wrapper.classList.add('is-open');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+        setTimeout(() => {
+          wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 120);
       } else {
-        wrapper.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
+        wrapper.classList.remove('is-open');
+        if (icon) icon.style.transform = 'rotate(0deg)';
       }
     }
 
@@ -4390,46 +4544,126 @@
       isAnomalyWarningDismissed = false;
     }
 
+    let tabTransitionTimeout = null;
+    const TAB_ORDER = ['input', 'stats', 'planner'];
+
     function switchTab(tab) {
+      const tabs = {
+        input: document.getElementById('tab-input'),
+        stats: document.getElementById('tab-stats'),
+        planner: document.getElementById('tab-planner')
+      };
+
+      if (activeTab === tab && tabs[tab] && !tabs[tab].classList.contains('hidden')) {
+        return;
+      }
+
+      const prevTab = activeTab;
       activeTab = tab;
-      const tabInput = document.getElementById('tab-input');
-      const tabStats = document.getElementById('tab-stats');
-      const tabPlanner = document.getElementById('tab-planner');
-      const btnInput = document.getElementById('nav-btn-input');
-      const btnStats = document.getElementById('nav-btn-stats');
-      const btnPlanner = document.getElementById('nav-btn-planner');
+
+      const btns = {
+        input: document.getElementById('nav-btn-input'),
+        stats: document.getElementById('nav-btn-stats'),
+        planner: document.getElementById('nav-btn-planner')
+      };
       const liquidPill = document.getElementById('liquid-pill');
 
-      tabInput.classList.add('hidden');
-      tabStats.classList.add('hidden');
-      tabPlanner.classList.add('hidden');
+      // 1. Synchronized nav button active states & bottom liquid pill animation
+      const inactiveBtnClass = "relative z-10 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white";
+      const activeBtnClass = "relative z-10 py-2 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950";
 
-      const inactiveBtnClass = "relative z-10 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-400 hover:text-white";
-      const activeBtnClass = "relative z-10 py-2.5 rounded-full font-black text-xs flex items-center justify-center gap-1.5 transition-colors duration-300 text-slate-950";
+      TAB_ORDER.forEach(key => {
+        if (btns[key]) {
+          btns[key].className = (key === tab) ? activeBtnClass : inactiveBtnClass;
+        }
+      });
 
-      btnInput.className = inactiveBtnClass;
-      btnStats.className = inactiveBtnClass;
-      btnPlanner.className = inactiveBtnClass;
+      if (liquidPill) {
+        if (tab === 'input') liquidPill.style.transform = 'translateX(0%)';
+        else if (tab === 'stats') liquidPill.style.transform = 'translateX(100%)';
+        else if (tab === 'planner') liquidPill.style.transform = 'translateX(200%)';
+      }
 
+      // 2. Animated fluid directional tab transitions
+      const prevIndex = TAB_ORDER.indexOf(prevTab);
+      const newIndex = TAB_ORDER.indexOf(tab);
+      const isForward = newIndex >= prevIndex;
+
+      if (tabTransitionTimeout) {
+        clearTimeout(tabTransitionTimeout);
+        tabTransitionTimeout = null;
+      }
+
+      const allAnimClasses = [
+        'tab-anim-in-forward', 'tab-anim-out-forward',
+        'tab-anim-in-backward', 'tab-anim-out-backward'
+      ];
+
+      const currentEl = tabs[prevTab];
+      const targetEl = tabs[tab];
+
+      TAB_ORDER.forEach(t => {
+        if (tabs[t]) tabs[t].classList.remove(...allAnimClasses);
+      });
+
+      if (currentEl && targetEl && currentEl !== targetEl && !currentEl.classList.contains('hidden')) {
+        // Show target tab and trigger CSS keyframe animation
+        targetEl.classList.remove('hidden');
+
+        if (isForward) {
+          currentEl.classList.add('tab-anim-out-forward');
+          targetEl.classList.add('tab-anim-in-forward');
+        } else {
+          currentEl.classList.add('tab-anim-out-backward');
+          targetEl.classList.add('tab-anim-in-backward');
+        }
+
+        // Hide any other non-involved tabs immediately
+        TAB_ORDER.forEach(t => {
+          if (t !== tab && t !== prevTab && tabs[t]) {
+            tabs[t].classList.add('hidden');
+          }
+        });
+
+        // After animation duration finishes (380ms matching liquid pill), finalize DOM state
+        tabTransitionTimeout = setTimeout(() => {
+          if (currentEl) {
+            currentEl.classList.add('hidden');
+            currentEl.classList.remove(...allAnimClasses);
+          }
+          if (targetEl) {
+            targetEl.classList.remove(...allAnimClasses);
+          }
+          tabTransitionTimeout = null;
+
+          // Resize Chart.js instances to ensure 100% crisp sharpness
+          if (tab === 'stats') {
+            if (weeklyChartInstance) weeklyChartInstance.resize();
+            if (todayHourlyChartInstance) todayHourlyChartInstance.resize();
+          } else if (tab === 'planner') {
+            if (plannerPieChartInstance) plannerPieChartInstance.resize();
+            if (planChartInstance) planChartInstance.resize();
+          }
+        }, 380);
+      } else {
+        TAB_ORDER.forEach(t => {
+          if (tabs[t]) {
+            if (t === tab) tabs[t].classList.remove('hidden');
+            else tabs[t].classList.add('hidden');
+            tabs[t].classList.remove(...allAnimClasses);
+          }
+        });
+      }
+
+      // 3. Tab content initialization & chart rendering
       if (tab === 'input') {
-        tabInput.classList.remove('hidden');
-        liquidPill.style.transform = 'translateX(0%)';
-        btnInput.className = activeBtnClass;
         checkAnomalyWarning();
       } else if (tab === 'stats') {
-        tabStats.classList.remove('hidden');
-        liquidPill.style.transform = 'translateX(100%)';
-        btnStats.className = activeBtnClass;
-
         renderMainCharts();
         if (isTimeWindowsExpanded) {
           renderHourlyChart();
         }
       } else if (tab === 'planner') {
-        tabPlanner.classList.remove('hidden');
-        liquidPill.style.transform = 'translateX(200%)';
-        btnPlanner.className = activeBtnClass;
-
         renderPlannerPieChart();
         updateFreezeUI();
         analyzeUserHistory();
