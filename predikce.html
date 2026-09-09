@@ -168,12 +168,20 @@
         </div>
 
         <!-- RYCHLÉ ČIPY -->
-        <div class="grid grid-cols-4 gap-1.5">
+        <div class="grid grid-cols-5 gap-1">
+          <button 
+            type="button" 
+            id="chip-0"
+            onclick="setTargetDaysAhead(0)" 
+            class="chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
+          >
+            Dnes
+          </button>
           <button 
             type="button" 
             id="chip-3"
             onclick="setTargetDaysAhead(3)" 
-            class="chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
+            class="chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
           >
             +3 dny
           </button>
@@ -181,7 +189,7 @@
             type="button" 
             id="chip-7"
             onclick="setTargetDaysAhead(7)" 
-            class="chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-cyan-500/20 border-cyan-400/40 text-cyan-300 shadow-sm"
+            class="chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-cyan-500/20 border-cyan-400/40 text-cyan-300 shadow-sm"
           >
             +7 dní
           </button>
@@ -189,7 +197,7 @@
             type="button" 
             id="chip-14"
             onclick="setTargetDaysAhead(14)" 
-            class="chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
+            class="chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
           >
             +14 dní
           </button>
@@ -197,7 +205,7 @@
             type="button" 
             id="chip-30"
             onclick="setTargetDaysAhead(30)" 
-            class="chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
+            class="chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white"
           >
             +30 dní
           </button>
@@ -685,37 +693,39 @@
        VÝBĚR DATA A RYCHLÉ ČIPY
        ========================================================= */
     function initTargetDate() {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      const target = new Date();
+      const target = new Date(today);
       target.setDate(target.getDate() + targetDaysAhead);
 
       targetDateStr = getDateKey(target);
 
       const input = document.getElementById('target-date-input');
       if (input) {
-        input.min = getDateKey(tomorrow);
+        input.min = getDateKey(today);
         input.value = targetDateStr;
       }
       updateChipActiveState();
     }
 
     function updateChipActiveState() {
-      [3, 7, 14, 30].forEach(days => {
+      [0, 3, 7, 14, 30].forEach(days => {
         const chip = document.getElementById(`chip-${days}`);
         if (!chip) return;
         if (days === targetDaysAhead) {
-          chip.className = "chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-cyan-500/20 border-cyan-400/40 text-cyan-300 shadow-sm";
+          chip.className = "chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-cyan-500/20 border-cyan-400/40 text-cyan-300 shadow-sm";
         } else {
-          chip.className = "chip-btn py-1.5 px-1 rounded-xl text-[11px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white";
+          chip.className = "chip-btn py-1.5 px-0.5 rounded-xl text-[10.5px] font-bold border transition-all active:scale-95 cursor-pointer text-center bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white";
         }
       });
     }
 
     function setTargetDaysAhead(days) {
       targetDaysAhead = days;
-      const target = new Date();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(today);
       target.setDate(target.getDate() + days);
       targetDateStr = getDateKey(target);
 
@@ -737,7 +747,7 @@
       chosen.setHours(0, 0, 0, 0);
 
       const diffDays = Math.round((chosen - today) / (1000 * 60 * 60 * 24));
-      targetDaysAhead = Math.max(1, diffDays);
+      targetDaysAhead = Math.max(0, diffDays);
 
       updateChipActiveState();
       recalculateAllModels();
@@ -827,14 +837,24 @@
        VÝPOČET DOMINANTNÍ DENNÍ FREKVENCE (MODE COUNT)
        ========================================================= */
     function getDominantDailyFrequency(logsList) {
+      const todayKey = getDateKey(new Date());
       const dayGroups = {};
+
+      // DŮLEŽITÉ: Počítáme POUZE z uzavřených dnů před dneškem!
       logsList.forEach(l => {
-        if (!dayGroups[l.dateKey]) dayGroups[l.dateKey] = [];
-        dayGroups[l.dateKey].push(l);
+        if (l.dateKey < todayKey) {
+          if (!dayGroups[l.dateKey]) dayGroups[l.dateKey] = [];
+          dayGroups[l.dateKey].push(l);
+        }
       });
 
       const activeDayKeys = Object.keys(dayGroups).filter(k => !isDateFrozen(k));
-      if (activeDayKeys.length === 0) return 3;
+
+      // Pokud nemáme dokončené minulé dny (nový účet nebo první den)
+      if (activeDayKeys.length === 0) {
+        const todayLogsCount = logsList.filter(l => l.dateKey === todayKey).length;
+        return Math.max(1, Math.min(4, Math.max(3, todayLogsCount)));
+      }
 
       const counts = activeDayKeys.map(k => dayGroups[k].length);
       const freqMap = {};
@@ -853,7 +873,6 @@
         }
       }
 
-      // Pokud máme málo dat (méně než 2 dny), použijeme zaokrouhlený průměr
       if (counts.length < 2) {
         const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
         return Math.max(1, Math.min(4, Math.round(avg)));
@@ -870,17 +889,26 @@
         logs = getFallbackLogs();
       }
 
-      // 1. Seskupení aktivních dnů a denních součtů
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayKey = getDateKey(today);
+
+      // 1. Seskupení denních součtů
       const daysMap = {};
       logs.forEach(l => {
         daysMap[l.dateKey] = (daysMap[l.dateKey] || 0) + l.amount;
       });
 
-      const allDays = Object.keys(daysMap).sort();
-      const activeDays = allDays.filter(k => !isDateFrozen(k));
+      const todaySoFar = daysMap[todayKey] || 0;
+      const todayLogs = logs.filter(l => l.dateKey === todayKey);
 
-      // 2. Lineární regrese z posledních aktivních dnů (14 až 21 dnů)
-      const recentKeys = activeDays.slice(-21);
+      // 2. DOKONČENÉ MINULÉ DNY (striktně před dneškem a nezmrazené)
+      // Dnešek se NIKDY nezahrnuje do historického statistického datasetu!
+      const allPastDays = Object.keys(daysMap).filter(k => k < todayKey).sort();
+      const activePastDays = allPastDays.filter(k => !isDateFrozen(k));
+
+      // 3. Lineární regrese a trend ze stabilních minulých dnů (posledních až 21 dnů)
+      const recentKeys = activePastDays.slice(-21);
       let slope = 0; // G na den
       let intercept = 2.0;
 
@@ -902,35 +930,45 @@
         } else {
           intercept = sumY / n;
         }
+
+        // Zabezpečení proti extrémním výkyvům při malém počtu dnů
+        const maxSlope = n < 5 ? 0.15 : 0.35;
+        slope = Math.max(-maxSlope, Math.min(maxSlope, slope));
       } else if (recentKeys.length === 1) {
         intercept = daysMap[recentKeys[0]];
+        slope = 0;
+      } else {
+        // Robustní fallback pro nový účet bez minulých dnů
+        intercept = todaySoFar > 0 ? Math.max(2.0, todaySoFar * 2.5) : 2.0;
+        slope = 0;
       }
 
-      // 3. Sezónnost dnů v týdnu (Weekday Seasonality)
+      // 4. Sezónnost dnů v týdnu (Weekday Seasonality) - POUZE z uzavřených minulých dnů
       const weekdaySums = [0, 0, 0, 0, 0, 0, 0];
       const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
 
-      activeDays.forEach(k => {
+      activePastDays.forEach(k => {
         const d = new Date(k);
-        const dow = d.getDay(); // 0 = Neděle, 1 = Pondělí...
+        const dow = d.getDay();
         weekdaySums[dow] += daysMap[k];
         weekdayCounts[dow]++;
       });
 
-      const totalActiveSum = activeDays.reduce((acc, k) => acc + daysMap[k], 0);
-      const overallAvg = activeDays.length > 0 ? (totalActiveSum / activeDays.length) : Math.max(1.0, intercept);
+      const totalActivePastSum = activePastDays.reduce((acc, k) => acc + daysMap[k], 0);
+      const overallAvg = activePastDays.length > 0 
+        ? (totalActivePastSum / activePastDays.length) 
+        : Math.max(1.0, intercept);
 
       const weekdayFactors = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
       for (let w = 0; w < 7; w++) {
         if (weekdayCounts[w] > 0 && overallAvg > 0) {
           const dowAvg = weekdaySums[w] / weekdayCounts[w];
           let factor = dowAvg / overallAvg;
-          // Bounded rozsah sezónnosti pro stabilní predikci (0.75 až 1.30)
           weekdayFactors[w] = Math.max(0.75, Math.min(1.30, factor));
         }
       }
 
-      // 4. Výpočet směrodatné odchylky reziduí (Standard Deviation of Residuals σ)
+      // 5. Směrodatná odchylka reziduí (σ) POUZE z uzavřených dnů
       let sumSqResiduals = 0;
       let residualCount = 0;
       recentKeys.forEach((k, idx) => {
@@ -948,45 +986,97 @@
       }
       sigma = Math.max(0.20, Math.min(1.20, sigma));
 
-      // 5. Projekce trajektorie a predikovaného cílového dne
-      const daysOffset = Math.max(1, targetDaysAhead);
+      // 6. Výpočet očekávaného plného denního objemu pro DNEŠEK (expectedTodayTotal)
+      let expectedTodayTotal = 2.0;
+      const todayDow = today.getDay();
+      const todayWeekdayFactor = weekdayFactors[todayDow] || 1.0;
+
+      if (activePastDays.length >= 2) {
+        const lastPastKey = recentKeys[recentKeys.length - 1];
+        const lastPastDate = new Date(lastPastKey);
+        lastPastDate.setHours(0, 0, 0, 0);
+        const daysSinceLast = Math.max(1, Math.round((today - lastPastDate) / (1000 * 60 * 60 * 24)));
+        const lastPastFitted = intercept + slope * (recentKeys.length - 1);
+        const todayBaseLevel = Math.max(0.4, lastPastFitted + slope * daysSinceLast);
+        expectedTodayTotal = Math.max(0.4, todayBaseLevel * todayWeekdayFactor);
+      } else if (activePastDays.length === 1) {
+        expectedTodayTotal = Math.max(0.4, daysMap[activePastDays[0]] * todayWeekdayFactor);
+      } else {
+        expectedTodayTotal = todaySoFar > 0 ? Math.max(2.0, todaySoFar * 2.5) : 2.0;
+      }
+      expectedTodayTotal = parseFloat(expectedTodayTotal.toFixed(2));
+
+      // 7. Vyhodnocení cílového data
       const targetDateObj = new Date(targetDateStr);
-      const targetDow = isNaN(targetDateObj.getTime()) ? 1 : targetDateObj.getDay();
+      targetDateObj.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((targetDateObj - today) / (1000 * 60 * 60 * 24));
+      const isTodaySelected = (diffDays === 0 || targetDaysAhead === 0);
+
+      const targetDow = isNaN(targetDateObj.getTime()) ? todayDow : targetDateObj.getDay();
       const targetWeekdayFactor = weekdayFactors[targetDow] || 1.0;
 
-      // Vykreslení nového grafu trajektorie dekompozice
-      const { predictedTargetGrams } = renderTrajectoryChart(
-        recentKeys, 
-        daysMap, 
-        slope, 
-        intercept, 
-        daysOffset, 
-        weekdayFactors, 
-        sigma
-      );
+      // 8. Vykreslení grafu trajektorie dekompozice
+      const { predictedTargetGrams } = renderTrajectoryChart({
+        recentKeys,
+        daysMap,
+        slope,
+        intercept,
+        daysOffset: Math.max(0, targetDaysAhead),
+        weekdayFactors,
+        sigma,
+        expectedTodayTotal,
+        todaySoFar,
+        isTodaySelected
+      });
 
-      const predictedDailyTotal = predictedTargetGrams;
+      const predictedDailyTotal = isTodaySelected ? expectedTodayTotal : predictedTargetGrams;
 
       // Rozdíl oproti nedávnému průměru
-      const recentAvg = recentKeys.length > 0 ? (recentKeys.reduce((acc, k) => acc + daysMap[k], 0) / recentKeys.length) : predictedDailyTotal;
+      const recentAvg = recentKeys.length > 0 
+        ? (recentKeys.reduce((acc, k) => acc + daysMap[k], 0) / recentKeys.length) 
+        : predictedDailyTotal;
       const paceDiff = predictedDailyTotal - recentAvg;
 
-      renderCorePredictionMetrics(predictedDailyTotal, paceDiff, targetWeekdayFactor, targetDateObj);
+      // 9. Aktualizace všech komponent rozhraní
+      renderCorePredictionMetrics({
+        dailyTotal: predictedDailyTotal,
+        paceDiff,
+        weekdayFactor: targetWeekdayFactor,
+        targetDateObj,
+        isTodaySelected,
+        todaySoFar,
+        expectedTodayTotal
+      });
+
       renderBaselineVsDelta(predictedDailyTotal, logs);
-      renderTimelineSlots(predictedDailyTotal, logs);
+      renderTimelineSlots({
+        predictedDailyTotal,
+        logsList: logs,
+        isTodaySelected,
+        todaySoFar,
+        expectedTodayTotal
+      });
     }
 
     /* =========================================================
        UI: HLAVNÍ METRIKY
        ========================================================= */
-    function renderCorePredictionMetrics(dailyTotal, paceDiff, weekdayFactor, targetDateObj) {
+    function renderCorePredictionMetrics(opts) {
+      const {
+        dailyTotal,
+        paceDiff,
+        weekdayFactor,
+        targetDateObj,
+        isTodaySelected,
+        todaySoFar,
+        expectedTodayTotal
+      } = opts;
+
       const sumEl = document.getElementById('predicted-daily-sum');
       const dayLabelEl = document.getElementById('target-day-label');
       const pacingBadge = document.getElementById('pacing-badge');
       const noteEl = document.getElementById('regression-delta-note');
       const weekdayLabel = document.getElementById('weekday-factor-label');
-
-      if (sumEl) sumEl.textContent = dailyTotal.toFixed(2);
 
       const dayNames = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
       const dayName = isNaN(targetDateObj.getTime()) ? 'Vybraný den' : dayNames[targetDateObj.getDay()];
@@ -994,25 +1084,61 @@
         ? targetDateStr 
         : `${targetDateObj.getDate()}.${targetDateObj.getMonth() + 1}.${targetDateObj.getFullYear()}`;
 
-      if (dayLabelEl) {
-        dayLabelEl.textContent = `Projekce pro ${dayName}, ${formattedDate} (${targetDaysAhead} ${getDaysInflection(targetDaysAhead)})`;
-      }
+      if (isTodaySelected) {
+        const remaining = Math.max(0, expectedTodayTotal - todaySoFar);
+        if (sumEl) sumEl.textContent = expectedTodayTotal.toFixed(2);
 
-      if (pacingBadge) {
-        if (paceDiff > 0.3) {
-          pacingBadge.textContent = `Zrychlené tempo (+${paceDiff.toFixed(2)} G)`;
-          pacingBadge.className = "px-2.5 py-1 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-300 text-[10.5px] font-bold font-mono shadow-sm";
-        } else if (paceDiff < -0.3) {
-          pacingBadge.textContent = `Zklidnění tempa (${paceDiff.toFixed(2)} G)`;
-          pacingBadge.className = "px-2.5 py-1 rounded-xl bg-teal-500/15 border border-teal-400/40 text-teal-300 text-[10.5px] font-bold font-mono shadow-sm";
-        } else {
-          pacingBadge.textContent = "Stabilní tempo zápisů";
-          pacingBadge.className = "px-2.5 py-1 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-[10.5px] font-bold font-mono shadow-sm";
+        if (dayLabelEl) {
+          if (todaySoFar > 0) {
+            dayLabelEl.innerHTML = `<span class="text-cyan-300 font-bold">Dnes (průběh):</span> zapsáno <span class="font-mono font-bold text-white">${todaySoFar.toFixed(2)} G</span> z očekávaných <span class="font-mono font-bold text-slate-200">${expectedTodayTotal.toFixed(2)} G</span>`;
+          } else {
+            dayLabelEl.textContent = `Projekce pro Dnes, ${formattedDate} (dnes zatím bez zápisu)`;
+          }
         }
-      }
 
-      if (noteEl) {
-        noteEl.textContent = `Horizont: +${targetDaysAhead}d | Trend: ${paceDiff >= 0 ? '+' : ''}${(paceDiff * 7).toFixed(1)} G/týden`;
+        if (pacingBadge) {
+          if (todaySoFar >= expectedTodayTotal) {
+            pacingBadge.textContent = `Denní model naplněn (${todaySoFar.toFixed(2)} G)`;
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10.5px] font-bold font-mono shadow-sm";
+          } else if (todaySoFar > 0) {
+            pacingBadge.textContent = `Dnes zbývá: ~${remaining.toFixed(2)} G`;
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 text-[10.5px] font-bold font-mono shadow-sm";
+          } else {
+            pacingBadge.textContent = "Čeká na první zápis";
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-[10.5px] font-bold font-mono shadow-sm";
+          }
+        }
+
+        if (noteEl) {
+          if (todaySoFar > 0) {
+            noteEl.textContent = `Zapsáno ${todaySoFar.toFixed(2)} G | Zbývá ${remaining.toFixed(2)} G do modelu`;
+          } else {
+            noteEl.textContent = `Očekávaný celodenní objem: ${expectedTodayTotal.toFixed(2)} G`;
+          }
+        }
+      } else {
+        if (sumEl) sumEl.textContent = dailyTotal.toFixed(2);
+
+        if (dayLabelEl) {
+          dayLabelEl.textContent = `Projekce pro ${dayName}, ${formattedDate} (+${targetDaysAhead} ${getDaysInflection(targetDaysAhead)})`;
+        }
+
+        if (pacingBadge) {
+          if (paceDiff > 0.3) {
+            pacingBadge.textContent = `Zrychlené tempo (+${paceDiff.toFixed(2)} G)`;
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-300 text-[10.5px] font-bold font-mono shadow-sm";
+          } else if (paceDiff < -0.3) {
+            pacingBadge.textContent = `Zklidnění tempa (${paceDiff.toFixed(2)} G)`;
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-teal-500/15 border border-teal-400/40 text-teal-300 text-[10.5px] font-bold font-mono shadow-sm";
+          } else {
+            pacingBadge.textContent = "Stabilní tempo zápisů";
+            pacingBadge.className = "px-2.5 py-1 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-[10.5px] font-bold font-mono shadow-sm";
+          }
+        }
+
+        if (noteEl) {
+          noteEl.textContent = `Horizont: +${targetDaysAhead}d | Trend: ${paceDiff >= 0 ? '+' : ''}${(paceDiff * 7).toFixed(1)} G/týden`;
+        }
       }
 
       if (weekdayLabel) {
@@ -1031,21 +1157,21 @@
        UI: STRUKTURA PRŮMĚRNÉHO ZÁPISU (BASELINE VS DELTA)
        ========================================================= */
     function renderBaselineVsDelta(predictedDailyTotal, logsList) {
-      // Dominantní frekvence určuje počet zápisů
       const dominantSlots = getDominantDailyFrequency(logsList);
-
-      // Předpokládaná velikost průměrného zápisu v cílový den
       const projectedEntrySize = predictedDailyTotal / dominantSlots;
 
-      // Historická baseline: medián nebo 35. percentil historických zápisů
-      const allAmounts = logsList.map(l => l.amount).sort((a, b) => a - b);
+      // Historická baseline ze stabilních uzavřených dnů
+      const todayKey = getDateKey(new Date());
+      const pastLogs = logsList.filter(l => l.dateKey < todayKey);
+      const targetLogs = pastLogs.length > 0 ? pastLogs : logsList;
+
+      const allAmounts = targetLogs.map(l => l.amount).sort((a, b) => a - b);
       let baselineEntry = 1.5;
       if (allAmounts.length > 0) {
-        const p30Idx = Math.floor(allAmounts.length * 0.35);
-        baselineEntry = allAmounts[p30Idx] || allAmounts[0];
+        const p35Idx = Math.floor(allAmounts.length * 0.35);
+        baselineEntry = allAmounts[p35Idx] || allAmounts[0];
       }
 
-      // Bezpečný standard nesmí přesáhnout samotnou celkovou velikost zápisu
       baselineEntry = Math.min(projectedEntrySize, Math.max(0.4, baselineEntry));
 
       const deltaGrams = Math.max(0, projectedEntrySize - baselineEntry);
@@ -1059,13 +1185,11 @@
         deltaPct = 0;
       }
 
-      // Aktualizace progress baru
       const barBase = document.getElementById('bar-baseline');
       const barDelta = document.getElementById('bar-delta');
       if (barBase) barBase.style.width = `${baselinePct}%`;
       if (barDelta) barDelta.style.width = `${deltaPct}%`;
 
-      // Textové popisky
       const basePctEl = document.getElementById('baseline-pct');
       const baseGramsEl = document.getElementById('baseline-grams');
       const deltaPctEl = document.getElementById('delta-pct');
@@ -1081,25 +1205,37 @@
     /* =========================================================
        UI: ČASOVÁ PROJEKCE DNE (ADAPTIVNÍ PODLE SKUTEČNÉ FREKVENCE)
        ========================================================= */
-    function renderTimelineSlots(predictedDailyTotal, logsList) {
+    function renderTimelineSlots(opts) {
+      const {
+        predictedDailyTotal,
+        logsList,
+        isTodaySelected,
+        todaySoFar,
+        expectedTodayTotal
+      } = opts;
+
       const container = document.getElementById('slots-container');
       const intervalBadge = document.getElementById('timeline-interval-badge');
       if (!container) return;
 
-      const dayGroups = {};
-      logsList.forEach(l => {
-        if (!dayGroups[l.dateKey]) dayGroups[l.dateKey] = [];
-        dayGroups[l.dateKey].push(l);
-      });
+      const todayKey = getDateKey(new Date());
 
-      const activeDayKeys = Object.keys(dayGroups).filter(k => !isDateFrozen(k));
-
-      // 1. Zjistit dominantní denní frekvenci (mode count)
+      // 1. Dominantní denní frekvence z uzavřených minulých dnů
       const dominantCount = getDominantDailyFrequency(logsList);
 
-      // 2. Zjistit reálné intervaly mezi zápisy ve stejný den
+      // 2. Analýza minulých dnů pro intervaly a váhy
+      const dayGroups = {};
+      logsList.forEach(l => {
+        if (l.dateKey < todayKey) {
+          if (!dayGroups[l.dateKey]) dayGroups[l.dateKey] = [];
+          dayGroups[l.dateKey].push(l);
+        }
+      });
+
+      const activePastKeys = Object.keys(dayGroups).filter(k => !isDateFrozen(k));
+
       const intervalsMinutes = [];
-      activeDayKeys.forEach(k => {
+      activePastKeys.forEach(k => {
         const logsInDay = dayGroups[k];
         if (logsInDay && logsInDay.length > 1) {
           const sorted = logsInDay.slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -1116,22 +1252,35 @@
         ? Math.round(intervalsMinutes.reduce((a, b) => a + b, 0) / intervalsMinutes.length) 
         : (dominantCount === 1 ? 0 : Math.round(720 / (dominantCount - 1)));
 
+      // Dnešní již zapsané záznamy
+      const todayLogs = logsList
+        .filter(l => l.dateKey === todayKey)
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
       if (intervalBadge) {
-        if (dominantCount === 1) {
-          intervalBadge.textContent = "Typicky 1 zápis za den";
+        if (isTodaySelected) {
+          if (todayLogs.length > 0) {
+            intervalBadge.textContent = `Dnes zapsáno: ${todayLogs.length} z ~${dominantCount} (${todaySoFar.toFixed(2)} G)`;
+          } else {
+            intervalBadge.textContent = `Dnes čeká ~${dominantCount} ${dominantCount === 1 ? 'zápis' : (dominantCount < 5 ? 'zápisy' : 'zápisů')}`;
+          }
         } else {
-          const intervalHours = Math.floor(avgIntervalMin / 60);
-          const intervalRestMin = avgIntervalMin % 60;
-          intervalBadge.textContent = `Rozestup: ~${intervalHours} h ${intervalRestMin > 0 ? intervalRestMin + ' min' : ''}`;
+          if (dominantCount === 1) {
+            intervalBadge.textContent = "Typicky 1 zápis za den";
+          } else {
+            const intervalHours = Math.floor(avgIntervalMin / 60);
+            const intervalRestMin = avgIntervalMin % 60;
+            intervalBadge.textContent = `Rozestup: ~${intervalHours} h ${intervalRestMin > 0 ? intervalRestMin + ' min' : ''}`;
+          }
         }
       }
 
-      // 3. Analýza reálného historického podílu pro jednotlivé sloty (1., 2., 3. zápis dne)
+      // 3. Analýza reálného historického podílu pro jednotlivé sloty
       const slotHours = Array(dominantCount).fill(0);
       const slotHourCounts = Array(dominantCount).fill(0);
       const collectedShares = Array.from({ length: dominantCount }, () => []);
 
-      activeDayKeys.forEach(k => {
+      activePastKeys.forEach(k => {
         const dayLogs = dayGroups[k].slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         const daySum = dayLogs.reduce((acc, l) => acc + l.amount, 0);
         if (daySum > 0) {
@@ -1167,7 +1316,7 @@
         { icon: "fa-star-and-crescent text-indigo-400", bgBadge: "bg-indigo-500/10 text-indigo-300 border-indigo-500/20" }
       ];
 
-      // Výpočet zprůměrovaných podílů s jemným mantinelem (max ±5% od rovnoměrného rozdělení)
+      // Výpočet vyvážených podílů (±5% mantinel)
       const baseShare = 1 / dominantCount;
       let totalRawShare = 0;
       const computedShares = [];
@@ -1176,61 +1325,110 @@
         let avgShare = collectedShares[i].length > 0 
           ? (collectedShares[i].reduce((a, b) => a + b, 0) / collectedShares[i].length)
           : baseShare;
-        
-        // Zamezení nesmyslným výkyvům: max ±5% od rovnoměrného rozdělení
         avgShare = Math.max(baseShare - 0.05, Math.min(baseShare + 0.05, avgShare));
         computedShares.push(avgShare);
         totalRawShare += avgShare;
       }
 
-      // Normalizace na přesných 100%
       const normalizedShares = computedShares.map(s => s / totalRawShare);
 
       container.innerHTML = '';
 
-      let allocatedGrams = 0;
-      for (let i = 0; i < dominantCount; i++) {
-        const avgH = slotHourCounts[i] > 0 
-          ? (slotHours[i] / slotHourCounts[i]) 
-          : defaultHours[i];
-        
-        const h = Math.floor(avgH);
-        const m = Math.round((avgH - h) * 60);
-        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      const totalSlotsToRender = isTodaySelected 
+        ? Math.max(dominantCount, todayLogs.length) 
+        : dominantCount;
 
-        let slotGrams;
-        if (i === dominantCount - 1) {
-          // Poslední slot dorovná případnou zaokrouhlovací odchylku na přesný celkový součet
-          slotGrams = Math.max(0.1, parseFloat((predictedDailyTotal - allocatedGrams).toFixed(2)));
+      const remainingTodayGrams = Math.max(0, expectedTodayTotal - todaySoFar);
+      const remainingSlotsCount = Math.max(1, dominantCount - todayLogs.length);
+
+      let allocatedFutureGrams = 0;
+
+      for (let i = 0; i < totalSlotsToRender; i++) {
+        const isCompletedToday = (isTodaySelected && i < todayLogs.length);
+        const completedLog = isCompletedToday ? todayLogs[i] : null;
+
+        let timeStr = "";
+        let slotGrams = 0;
+        let isFulfilled = false;
+
+        if (isCompletedToday && completedLog) {
+          const logDate = new Date(completedLog.timestamp);
+          timeStr = `${String(logDate.getHours()).padStart(2, '0')}:${String(logDate.getMinutes()).padStart(2, '0')}`;
+          slotGrams = completedLog.amount;
+          isFulfilled = true;
         } else {
-          slotGrams = Math.max(0.1, parseFloat((predictedDailyTotal * normalizedShares[i]).toFixed(2)));
-          allocatedGrams += slotGrams;
+          const avgH = slotHourCounts[i] > 0 
+            ? (slotHours[i] / slotHourCounts[i]) 
+            : (defaultHours[i] || (8 + i * 4));
+          const h = Math.floor(avgH);
+          const m = Math.round((avgH - h) * 60);
+          timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+          if (isTodaySelected) {
+            const remainingIdx = i - todayLogs.length;
+            if (remainingIdx === remainingSlotsCount - 1) {
+              slotGrams = Math.max(0.1, parseFloat((remainingTodayGrams - allocatedFutureGrams).toFixed(2)));
+            } else {
+              const portion = normalizedShares[i] || (1 / remainingSlotsCount);
+              slotGrams = Math.max(0.1, parseFloat((remainingTodayGrams * portion).toFixed(2)));
+              allocatedFutureGrams += slotGrams;
+            }
+          } else {
+            if (i === totalSlotsToRender - 1) {
+              slotGrams = Math.max(0.1, parseFloat((predictedDailyTotal - allocatedFutureGrams).toFixed(2)));
+            } else {
+              slotGrams = Math.max(0.1, parseFloat((predictedDailyTotal * normalizedShares[i]).toFixed(2)));
+              allocatedFutureGrams += slotGrams;
+            }
+          }
         }
 
-        const iconInfo = defaultIcons[i] || defaultIcons[0];
-        const name = defaultNames[i] || `Zápis ${i + 1}`;
+        const iconInfo = defaultIcons[i % defaultIcons.length];
+        const name = (completedLog && completedLog.note) 
+          ? completedLog.note 
+          : (defaultNames[i] || `Zápis ${i + 1}`);
 
         const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2.5 rounded-xl bg-darkbg/80 border border-borderbg/80 hover:border-cyan-500/30 transition-all";
+        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+          isFulfilled 
+            ? 'bg-emerald-950/20 border-emerald-500/30' 
+            : 'bg-darkbg/80 border-borderbg/80 hover:border-cyan-500/30'
+        }`;
+
+        const badgeHtml = isFulfilled
+          ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 flex items-center gap-1">
+              <i class="fa-solid fa-check text-[8.5px]"></i> Hotovo
+            </span>`
+          : `<span class="text-[9.5px] font-mono font-semibold px-1.5 py-0.5 rounded border ${iconInfo.bgBadge}">
+              Slot ${i + 1}
+            </span>`;
+
+        const timeLabelHtml = isFulfilled
+          ? `<span class="text-[10px] text-emerald-400/90 font-mono font-semibold">Čas zápisu: ${timeStr}</span>`
+          : `<span class="text-[10px] text-slate-400 font-mono">Očekávaný čas: ~${timeStr}</span>`;
+
+        const gramLabelHtml = isFulfilled
+          ? `<span class="text-xs font-mono font-black text-emerald-300">${slotGrams.toFixed(2)} G</span>
+             <span class="block text-[9px] text-emerald-400/80 font-medium">zapsáno</span>`
+          : `<span class="text-xs font-mono font-extrabold text-cyan-300">~${slotGrams.toFixed(2)} G</span>
+             <span class="block text-[9px] text-slate-500 font-medium">${isTodaySelected ? 'zbývá v okně' : 'odhad slotu'}</span>`;
+
         row.innerHTML = `
           <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg bg-cardbg border border-borderbg flex items-center justify-center text-xs">
-              <i class="fa-solid ${iconInfo.icon}"></i>
+            <div class="w-7 h-7 rounded-lg ${isFulfilled ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-cardbg border-borderbg'} border flex items-center justify-center text-xs">
+              <i class="fa-solid ${isFulfilled ? 'fa-check' : iconInfo.icon}"></i>
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-200">${name}</span>
-                <span class="text-[9.5px] font-mono font-semibold px-1.5 py-0.5 rounded border ${iconInfo.bgBadge}">
-                  Slot ${i + 1}
-                </span>
+                <span class="text-xs font-bold ${isFulfilled ? 'text-white' : 'text-slate-200'}">${name}</span>
+                ${badgeHtml}
               </div>
-              <span class="text-[10px] text-slate-400 font-mono">Očekávaný čas: ~${timeStr}</span>
+              ${timeLabelHtml}
             </div>
           </div>
 
           <div class="text-right">
-            <span class="text-xs font-mono font-extrabold text-cyan-300">~${slotGrams.toFixed(2)} G</span>
-            <span class="block text-[9px] text-slate-500 font-medium">odhad slotu</span>
+            ${gramLabelHtml}
           </div>
         `;
         container.appendChild(row);
@@ -1240,16 +1438,29 @@
     /* =========================================================
        CHART.JS: AUTENTICKÁ DEKOMPOZICE S PÁSMEM SPOLEHLIVOSTI (±σ)
        ========================================================= */
-    function renderTrajectoryChart(recentKeys, daysMap, slope, intercept, daysOffset, weekdayFactors, sigma) {
+    function renderTrajectoryChart(opts) {
+      const {
+        recentKeys,
+        daysMap,
+        slope,
+        intercept,
+        daysOffset,
+        weekdayFactors,
+        sigma,
+        expectedTodayTotal,
+        todaySoFar,
+        isTodaySelected
+      } = opts;
+
       if (typeof Chart === 'undefined') {
         console.warn("Chart.js knihovna ještě není načtena.");
-        return { predictedTargetGrams: Math.max(0.3, intercept) };
+        return { predictedTargetGrams: expectedTodayTotal };
       }
 
       const canvas = document.getElementById('trajectoryChart');
-      if (!canvas) return { predictedTargetGrams: Math.max(0.3, intercept) };
+      if (!canvas) return { predictedTargetGrams: expectedTodayTotal };
       const ctx = canvas.getContext('2d');
-      if (!ctx) return { predictedTargetGrams: Math.max(0.3, intercept) };
+      if (!ctx) return { predictedTargetGrams: expectedTodayTotal };
 
       if (trajectoryChartInstance) {
         try {
@@ -1277,37 +1488,46 @@
         const dayLabel = i === 0 ? 'Dnes' : `${d.getDate()}.${d.getMonth() + 1}.`;
         labels.push(dayLabel);
 
-        const val = daysMap[key] !== undefined ? daysMap[key] : null;
-        historicalData.push(val);
+        if (i > 0) {
+          // Uzavřený minulý den
+          const val = daysMap[key] !== undefined ? daysMap[key] : null;
+          historicalData.push(val);
+        } else {
+          // Dnes - v historickém poli se napojí na očekávaný stabilní výchozí bod dne
+          historicalData.push(null);
+        }
+
         projectedData.push(null);
         upperBoundData.push(null);
         lowerBoundData.push(null);
       }
 
       // 2. Výchozí spojovací bod (index 13 / Dnes)
-      let vToday = historicalData[13];
-      if (vToday === null || vToday === undefined) {
-        for (let j = 12; j >= 0; j--) {
-          if (historicalData[j] !== null && historicalData[j] !== undefined) {
-            vToday = historicalData[j];
-            break;
-          }
-        }
-      }
-      if (vToday === null || vToday === undefined) {
-        const dowToday = today.getDay();
-        const factorToday = (weekdayFactors && weekdayFactors[dowToday]) || 1.0;
-        vToday = Math.max(0.4, (intercept + slope * recentKeys.length) * factorToday);
-      }
-      vToday = parseFloat(vToday.toFixed(2));
+      // Vychází ze stabilního expectedTodayTotal, čímž zamezuje zhroucení při dílčím ranním zápisu
+      const vToday = expectedTodayTotal;
 
-      // Spojovací bod na indexu 13: zaručuje plynulý start bez mezery
       projectedData[13] = vToday;
       upperBoundData[13] = vToday;
       lowerBoundData[13] = vToday;
 
+      // Zajištění spojitého napojení historické křivky na dnešek bez skoků
+      let hasPastHistory = false;
+      for (let j = 12; j >= 0; j--) {
+        if (historicalData[j] !== null && historicalData[j] !== undefined) {
+          hasPastHistory = true;
+          break;
+        }
+      }
+      if (hasPastHistory) {
+        historicalData[13] = vToday;
+      }
+
       // 3. Prediktivní projekce den po dni do cílového data
-      const targetDays = Math.min(30, Math.max(1, daysOffset));
+      const targetDays = Math.min(30, Math.max(0, daysOffset));
+      const todayDow = today.getDay();
+      const todayFactor = (weekdayFactors && weekdayFactors[todayDow]) || 1.0;
+      const currentBaseLevel = vToday / todayFactor;
+
       let currentDampedSlope = slope;
       let cumulativeTrend = 0;
       let finalTargetGrams = vToday;
@@ -1319,16 +1539,16 @@
 
         historicalData.push(null);
 
-        // Tlumení trendu při horizontu nad 7 dní (softly dampen)
+        // Tlumení trendu při horizontu nad 7 dní
         if (f > 7) {
           currentDampedSlope *= 0.95;
         }
         cumulativeTrend += currentDampedSlope;
 
         // Základní hladina trendu
-        const trendLevel = Math.max(0.3, vToday + cumulativeTrend);
+        const trendLevel = Math.max(0.3, currentBaseLevel + cumulativeTrend);
 
-        // Aplikace sezónnosti dne v týdnu
+        // Sezónnost dne v týdnu
         const dow = d.getDay();
         const factor = (weekdayFactors && weekdayFactors[dow]) || 1.0;
         const projectedVal = Math.max(0.25, parseFloat((trendLevel * factor).toFixed(2)));
@@ -1338,7 +1558,7 @@
           finalTargetGrams = projectedVal;
         }
 
-        // Dynamické pásmo spolehlivosti (±1σ) s mírným rozšiřováním do budoucna
+        // Pásmo spolehlivosti (±1σ)
         const horizonSigma = sigma * Math.sqrt(1 + 0.04 * f);
         const upperVal = parseFloat((projectedVal + horizonSigma).toFixed(2));
         const lowerVal = Math.max(0.15, parseFloat((projectedVal - horizonSigma).toFixed(2)));
@@ -1384,7 +1604,7 @@
                 tension: 0.35,
                 spanGaps: true
               },
-              // 2. Spodní mez spolehlivosti (-1σ) - vyplňuje k horní mezi (Dataset 1)
+              // 2. Spodní mez spolehlivosti (-1σ) - vyplňuje k horní mezi
               {
                 label: 'Pásmo běžného rozptylu (±σ)',
                 data: lowerBoundData,
@@ -1408,7 +1628,7 @@
                 tension: 0.35,
                 pointRadius: (context) => {
                   const idx = context.dataIndex;
-                  return idx === labels.length - 1 ? 5 : (idx === 13 ? 2.5 : 0);
+                  return idx === labels.length - 1 ? 5 : (idx === 13 ? 3.5 : 0);
                 },
                 pointBackgroundColor: '#38bdf8',
                 pointHoverRadius: 6,
@@ -1438,12 +1658,15 @@
                 boxPadding: 4,
                 cornerRadius: 10,
                 filter: function(tooltipItem) {
-                  // Zobrazit pouze Historii (0) nebo Očekávaný vývoj (3), skrýt meze rozptylu (1 a 2)
                   return tooltipItem.datasetIndex === 0 || tooltipItem.datasetIndex === 3;
                 },
                 callbacks: {
                   title: function(items) {
-                    return items && items[0] ? items[0].label : '';
+                    if (!items || !items.length) return '';
+                    const idx = items[0].dataIndex;
+                    if (idx === 13) return 'Dnes (průběžný den)';
+                    if (idx < 13) return `Historie (${items[0].label})`;
+                    return `Projekce (${items[0].label})`;
                   },
                   label: function(context) {
                     const val = context.parsed.y;
@@ -1451,12 +1674,18 @@
                     const idx = context.dataIndex;
 
                     if (context.datasetIndex === 0) {
+                      if (idx === 13) {
+                        return todaySoFar > 0 
+                          ? ` Dnes zapsáno: ${todaySoFar.toFixed(2)} G` 
+                          : ` Dnes zatím bez zápisu`;
+                      }
                       return ` Skutečnost: ${val.toFixed(2)} G`;
                     }
 
                     if (context.datasetIndex === 3) {
                       if (idx === 13) {
-                        return ` Výchozí bod (dnes): ${val.toFixed(2)} G`;
+                        const rem = Math.max(0, val - todaySoFar);
+                        return ` Očekávaný model dne: ${val.toFixed(2)} G (zbývá ~${rem.toFixed(2)} G)`;
                       }
                       const low = lowerBoundData[idx];
                       const high = upperBoundData[idx];
