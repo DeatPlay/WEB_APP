@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="cs" class="dark h-full">
 <head>
+  <script>
+    (function() {
+      var ua = navigator.userAgent || '';
+      var isWatch = /AppleWatch|watchOS/i.test(ua) || (window.screen.width > 0 && window.screen.width <= 250);
+      if (isWatch && !window.location.pathname.endsWith('awatch.html')) {
+        window.location.replace('awatch.html');
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="view-transition" content="same-origin">
