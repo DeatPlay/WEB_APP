@@ -2,20 +2,12 @@
 <html lang="cs" class="dark h-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="view-transition" content="same-origin">
   <title>Mapa | Grammi</title>
 
-  <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0b0f17">
-
-  <!-- iOS Safari PWA Standalone Settings -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Grammi">
-
-  <!-- iOS Safari Touch Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 
@@ -54,26 +46,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    :root {
-      /* ==========================================================================
-         MANUAL SCREEN CALIBRATION (EASILY TUNE OFFSETS HERE)
-         ========================================================================== */
-      --app-top-offset: 14px;      /* Extra spacing below Dynamic Island / Status bar */
-      --app-bottom-offset: 4px;    /* Extra spacing above iOS Home Indicator bar */
-    }
-
     html, body {
       height: 100%;
       overflow: hidden;
     }
     body {
-      height: 100dvh !important;
-      box-sizing: border-box !important;
-      padding-top: calc(env(safe-area-inset-top, 0px) + var(--app-top-offset, 14px)) !important;
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--app-bottom-offset, 4px)) !important;
-      padding-left: max(0.625rem, env(safe-area-inset-left, 0px)) !important;
-      padding-right: max(0.625rem, env(safe-area-inset-right, 0px)) !important;
-      overflow: hidden !important;
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #0b0f17;
       color: #f1f5f9;
@@ -158,7 +135,7 @@
     }
   </style>
 </head>
-<body id="main-body" class="h-dvh flex justify-center select-none antialiased relative">
+<body id="main-body" class="h-dvh flex justify-center p-2.5 pb-6 sm:p-4 sm:pb-7 select-none antialiased relative">
 
   <div class="ambient-glow"></div>
 
