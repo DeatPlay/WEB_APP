@@ -11,7 +11,7 @@
 
   <!-- iOS Safari PWA Standalone Settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Grammi">
 
   <!-- iOS Safari Touch Icons -->
@@ -59,6 +59,8 @@
       color: #f1f5f9;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      padding-top: max(0.625rem, env(safe-area-inset-top)) !important;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
     }
 
     /* Ambient glow v pozadí vycentrované na obsah */
