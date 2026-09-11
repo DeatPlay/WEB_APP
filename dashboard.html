@@ -620,18 +620,79 @@
       box-shadow: none !important;
     }
 
-    @keyframes ledBreathing {
+    .summary-accordion-container {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0.38s;
+    }
+    .summary-accordion-container.expanded {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .summary-accordion-inner {
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    #main-input-card {
+      max-height: 1200px;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease, margin 0.35s ease;
+      will-change: opacity, transform, max-height;
+    }
+    #main-input-card.input-card-hidden {
+      opacity: 0 !important;
+      transform: scale(0.96) translateY(-8px) !important;
+      max-height: 0 !important;
+      min-height: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      border-width: 0 !important;
+      border-color: transparent !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      flex: 0 0 0 !important;
+      visibility: hidden;
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1), padding 0.28s ease, margin 0.28s ease, visibility 0.38s;
+    }
+
+    @keyframes iconBreathing {
       0%, 100% {
-        transform: scale(0.92);
-        opacity: 0.75;
+        transform: scale(0.96);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 1.5px currentColor);
+        text-shadow: 0 0 2px currentColor;
       }
       50% {
-        transform: scale(1.15);
+        transform: scale(1.04);
         opacity: 1;
+        filter: drop-shadow(0 0 3px currentColor);
+        text-shadow: 0 0 4px currentColor;
+      }
+    }
+    @keyframes ledBreathing {
+      0%, 100% {
+        transform: scale(0.96);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 1.5px currentColor);
+        text-shadow: 0 0 2px currentColor;
+      }
+      50% {
+        transform: scale(1.04);
+        opacity: 1;
+        filter: drop-shadow(0 0 3px currentColor);
+        text-shadow: 0 0 4px currentColor;
       }
     }
     .led-pulse-anim {
-      animation: ledBreathing 3.2s ease-in-out infinite;
+      animation: iconBreathing 3.2s ease-in-out infinite;
+      will-change: transform, filter, opacity;
     }
 
     @keyframes vitalsPulse {
@@ -930,12 +991,12 @@
     <main id="tabs-viewport" class="tabs-viewport flex-1 min-h-0 w-full relative">
 
       <!-- TAB 1: ZAPSAT -->
-      <div id="tab-input" class="tab-pane flex-1 flex flex-col gap-2 overflow-hidden">
+      <div id="tab-input" class="tab-pane flex-1 flex flex-col gap-2 overflow-y-auto custom-scroll">
 
       <!-- UNIFIED TWO-TIER ERGONOMIC STATUS & SUMMARY MODULE -->
       <div id="unified-status-vitals-module" class="flex flex-col gap-0 overflow-hidden rounded-2xl border border-teal-400/35 shadow-md shrink-0 transition-all duration-500">
         
-        <!-- UPPER TIER: SHRNUTÍ VÝVOJE CAPSULE TRIGGER (MINIMAL 4-LED CLUSTER) -->
+        <!-- UPPER TIER: SHRNUTÍ VÝVOJE CAPSULE TRIGGER (4 CENTERED METRIC ICONS) -->
         <div 
           id="vitals-summary-capsule" 
           role="button" 
@@ -952,15 +1013,23 @@
             <span class="text-xs font-black uppercase tracking-wider text-white">Shrnutí</span>
           </div>
 
-          <!-- Střed: 4 stavové LED diody přímo v horizontálním středu lišty -->
+          <!-- Střed: 4 stavové vektorové ikony přímo v horizontálním středu lišty -->
           <div 
             id="summary-led-cluster" 
-            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-2 px-2.5 py-1 rounded-full bg-black/40 border border-white/5 shadow-inner transition-all duration-300"
+            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-2.5 px-3 py-1 rounded-full bg-black/50 border border-white/10 shadow-inner transition-all duration-300 backdrop-blur-sm"
           >
-            <span id="led-dot-spotreba" class="w-2 h-2 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] led-pulse-anim" title="Spotřeba"></span>
-            <span id="led-dot-rozestupy" class="w-2 h-2 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] led-pulse-anim" title="Rozestupy"></span>
-            <span id="led-dot-konzistence" class="w-2 h-2 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] led-pulse-anim" title="Konzistence"></span>
-            <span id="led-dot-zasobnik" class="w-2 h-2 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] led-pulse-anim" title="Zásobník"></span>
+            <span id="led-dot-spotreba" class="w-4 h-4 flex items-center justify-center text-xs text-teal-400 transition-all duration-300 led-pulse-anim" title="Spotřeba">
+              <i class="fa-solid fa-chart-simple fa-fw"></i>
+            </span>
+            <span id="led-dot-rozestupy" class="w-4 h-4 flex items-center justify-center text-xs text-teal-400 transition-all duration-300 led-pulse-anim" title="Rozestupy">
+              <i class="fa-solid fa-clock-rotate-left fa-fw"></i>
+            </span>
+            <span id="led-dot-konzistence" class="w-4 h-4 flex items-center justify-center text-xs text-teal-400 transition-all duration-300 led-pulse-anim" title="Konzistence">
+              <i class="fa-solid fa-wave-square fa-fw"></i>
+            </span>
+            <span id="led-dot-zasobnik" class="w-4 h-4 flex items-center justify-center text-xs text-teal-400 transition-all duration-300 led-pulse-anim" title="Kapacita">
+              <i class="fa-solid fa-battery-half fa-fw"></i>
+            </span>
           </div>
 
           <!-- Pravá strana: Tlačítko se šipkou dolů (rotace 180° při otevření) -->
@@ -978,6 +1047,147 @@
             <span id="tab1-today-grams">0.00</span>
             <span id="tab1-today-count">0</span>
             <span id="tab1-last-time">--:--</span>
+          </div>
+        </div>
+
+        <!-- ACCORDION CONTAINER: ROZVÍRÁ SE PŘÍMO MEZI HORNÍ LIŠTOU A STAVEM -->
+        <div id="summary-accordion-container" class="summary-accordion-container">
+          <div class="summary-accordion-inner">
+            <div 
+              id="summary-view-card" 
+              class="origin-top p-3 sm:p-3.5 space-y-2.5 border-t border-b border-white/[0.06] bg-[#0c1322]/90 backdrop-blur-md select-none"
+            >
+              <!-- 1. HORNÍ ŘÁDEK / HERO TRAJECTORY BANNER -->
+              <div id="vitals-hero-banner" class="relative overflow-hidden rounded-xl border border-teal-500/30 bg-gradient-to-br from-teal-500/15 via-cardbg/90 to-[#121b2d] p-3 sm:p-3.5 shadow-sm shrink-0">
+                <div class="relative z-10 flex items-center justify-between gap-3">
+                  <div class="space-y-1 flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide" id="vitals-hero-badge">
+                        <span id="vitals-hero-badge-icon" class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                        <span id="vitals-hero-badge-text">Typické rozmezí</span>
+                      </div>
+                      <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Shrnutí vývoje</span>
+                    </div>
+                    <h4 id="vitals-hero-title" class="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug truncate">Vyrovnaná trajektorie</h4>
+                    <p id="vitals-hero-desc" class="text-[11px] sm:text-xs text-slate-300 leading-snug line-clamp-2">
+                      Všechny 4 sledované parametry se drží v definovaném koridoru. Průměrné denní množství i rozestupy mezi záznamy vykazují stabilní tempo.
+                    </p>
+                  </div>
+                  <div class="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm" id="vitals-hero-glyph">
+                    <i class="fa-solid fa-scale-balanced text-teal-400 text-base sm:text-lg"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. STŘEDNÍ ČÁST: 4 DLAŽDICE VEDLE SEBE -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
+                <!-- Dlaždice 1: Spotřeba -->
+                <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
+                  <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
+                    <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-chart-simple text-teal-400 text-[10px]"></i> Spotřeba</span>
+                    <span id="tile-led-spotreba" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Spotřeba"></span>
+                  </div>
+                  <div>
+                    <div class="flex items-baseline gap-1">
+                      <span id="vitals-tile1-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
+                      <span class="text-[9px] font-bold text-slate-400 font-mono">G/d</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                      <span id="vitals-tile1-delta" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">0%</span>
+                      <span id="vitals-tile1-base" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">vs. --</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dlaždice 2: Rozestupy -->
+                <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
+                  <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
+                    <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-clock-rotate-left text-sky-400 text-[10px]"></i> Rozestupy</span>
+                    <span id="tile-led-rozestupy" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Rozestupy"></span>
+                  </div>
+                  <div>
+                    <div class="flex items-baseline gap-1">
+                      <span id="vitals-tile2-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
+                      <span class="text-[9px] font-bold text-slate-400 font-mono">h</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                      <span id="vitals-tile2-delta" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">0m</span>
+                      <span id="vitals-tile2-base" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">vs. --</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dlaždice 3: Konzistence -->
+                <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
+                  <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
+                    <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-wave-square text-purple-400 text-[10px]"></i> Konzistence</span>
+                    <span id="tile-led-konzistence" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Konzistence"></span>
+                  </div>
+                  <div>
+                    <div class="flex items-baseline gap-1">
+                      <span id="vitals-tile3-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight truncate">Stabilní</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                      <span id="vitals-tile3-badge" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">Vysoká</span>
+                      <span id="vitals-tile3-spikes" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">0 výk.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dlaždice 4: Zásobník -->
+                <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
+                  <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
+                    <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-battery-half text-amber-400 text-[10px]"></i> Zásobník</span>
+                    <span id="tile-led-zasobnik" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Zásobník"></span>
+                  </div>
+                  <div>
+                    <div class="flex items-baseline gap-1">
+                      <span id="vitals-tile4-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
+                      <span class="text-[9px] font-bold text-slate-400 font-mono">G</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                      <span id="vitals-tile4-badge" class="font-mono font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">100%</span>
+                      <span id="vitals-tile4-burn" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">Tempo</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. DOLNÍ ČÁST: LIDSKÉ SHRNUTÍ VÝVOJE + ZPĚT TLAČÍTKO -->
+              <div class="space-y-2">
+                <div id="vitals-narrative-card" class="rounded-xl border border-teal-500/20 bg-gradient-to-br from-[#121929] via-[#0f1523] to-[#121929] p-3 sm:p-3.5 shadow-sm space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-5 h-5 rounded-md bg-teal-500/15 border border-teal-500/25 flex items-center justify-center text-teal-400">
+                          <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i>
+                        </div>
+                        <h5 class="text-[11px] sm:text-xs font-black uppercase text-slate-200 tracking-wider">Shrnutí vývoje</h5>
+                      </div>
+                      <span class="text-[9.5px] text-slate-400 font-mono bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/5">
+                        Aktivních dnů: <strong id="vitals-active-days-count" class="text-white font-mono">0</strong>
+                      </span>
+                    </div>
+                    <p id="vitals-narrative-text" class="text-xs sm:text-[13px] text-slate-200 leading-relaxed font-normal">
+                      Vyhodnocuji dlouhodobá data...
+                    </p>
+                  </div>
+                  <div class="text-[9px] text-slate-500 font-mono flex items-center justify-between pt-1 border-t border-white/5">
+                    <span>Statistická trajektorie</span>
+                    <span>Zmrazené dny vyřazeny</span>
+                  </div>
+                </div>
+
+                <!-- Tlačítko Zpět na zápis se šipkou nahoru -->
+                <button 
+                  type="button" 
+                  onclick="toggleSummaryExpand()" 
+                  class="w-full h-10 min-h-[40px] bg-gradient-to-r from-teal-500/90 to-teal-400/90 hover:from-teal-400 hover:to-teal-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-teal-500/20 shrink-0 select-none"
+                >
+                  <i class="fa-solid fa-chevron-up text-xs"></i> Zpět na zápis
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1207,143 +1417,6 @@
             </span>
           </button>
         </form>
-      </div>
-
-      <!-- KARTA SHRNUTÍ VÝVOJE (INLINE EXPANDED VIEW - FULL-HEIGHT PROPORTIONAL LAYOUT) -->
-      <div 
-        id="summary-view-card" 
-        class="hidden opacity-0 -translate-y-2 scale-y-[0.96] origin-top bg-cardbg border border-borderbg rounded-2xl p-3.5 sm:p-4 shadow-xl flex-1 flex flex-col justify-between overflow-hidden transition-all duration-380 ease-[cubic-bezier(0.16,1,0.3,1)] select-none"
-      >
-        <!-- 1. HORNÍ ŘÁDEK / HERO TRAJECTORY BANNER -->
-        <div id="vitals-hero-banner" class="relative overflow-hidden rounded-xl border border-teal-500/30 bg-gradient-to-br from-teal-500/15 via-cardbg/90 to-[#121b2d] p-3 sm:p-3.5 shadow-sm shrink-0">
-          <div class="relative z-10 flex items-center justify-between gap-3">
-            <div class="space-y-1 flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide" id="vitals-hero-badge">
-                  <span id="vitals-hero-badge-icon" class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-                  <span id="vitals-hero-badge-text">Typické rozmezí</span>
-                </div>
-                <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Shrnutí vývoje</span>
-              </div>
-              <h4 id="vitals-hero-title" class="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug truncate">Vyrovnaná trajektorie</h4>
-              <p id="vitals-hero-desc" class="text-[11px] sm:text-xs text-slate-300 leading-snug line-clamp-2">
-                Všechny 4 sledované parametry se drží v definovaném koridoru. Průměrné denní množství i rozestupy mezi záznamy vykazují stabilní tempo.
-              </p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm" id="vitals-hero-glyph">
-              <i class="fa-solid fa-scale-balanced text-teal-400 text-base sm:text-lg"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. STŘEDNÍ ČÁST: 4 DLAŽDICE VEDLE SEBE (2x2 NA MOBILU, 4 VEDLE SEBE NA TABLETU/PC) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-2 my-2 shrink-0">
-          <!-- Dlaždice 1: Spotřeba -->
-          <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-            <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
-              <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-chart-simple text-teal-400 text-[10px]"></i> Spotřeba</span>
-              <span id="tile-led-spotreba" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Spotřeba"></span>
-            </div>
-            <div>
-              <div class="flex items-baseline gap-1">
-                <span id="vitals-tile1-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
-                <span class="text-[9px] font-bold text-slate-400 font-mono">G/d</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span id="vitals-tile1-delta" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">0%</span>
-                <span id="vitals-tile1-base" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">vs. --</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dlaždice 2: Rozestupy -->
-          <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-            <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
-              <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-clock-rotate-left text-sky-400 text-[10px]"></i> Rozestupy</span>
-              <span id="tile-led-rozestupy" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Rozestupy"></span>
-            </div>
-            <div>
-              <div class="flex items-baseline gap-1">
-                <span id="vitals-tile2-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
-                <span class="text-[9px] font-bold text-slate-400 font-mono">h</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span id="vitals-tile2-delta" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">0m</span>
-                <span id="vitals-tile2-base" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">vs. --</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dlaždice 3: Konzistence -->
-          <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-            <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
-              <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-wave-square text-purple-400 text-[10px]"></i> Konzistence</span>
-              <span id="tile-led-konzistence" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Konzistence"></span>
-            </div>
-            <div>
-              <div class="flex items-baseline gap-1">
-                <span id="vitals-tile3-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight truncate">Stabilní</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span id="vitals-tile3-badge" class="font-mono font-black text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">Vysoká</span>
-                <span id="vitals-tile3-spikes" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">0 výk.</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dlaždice 4: Zásobník -->
-          <div class="rounded-xl border border-white/5 bg-[#121826]/95 p-2.5 sm:p-3 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-            <div class="flex items-center justify-between text-slate-400 text-[9.5px] uppercase font-bold tracking-wider mb-1">
-              <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-battery-half text-amber-400 text-[10px]"></i> Zásobník</span>
-              <span id="tile-led-zasobnik" class="w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)] shrink-0" title="Zásobník"></span>
-            </div>
-            <div>
-              <div class="flex items-baseline gap-1">
-                <span id="vitals-tile4-current" class="text-lg sm:text-xl font-black text-white font-mono tracking-tight">--</span>
-                <span class="text-[9px] font-bold text-slate-400 font-mono">G</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span id="vitals-tile4-badge" class="font-mono font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] shrink-0">100%</span>
-                <span id="vitals-tile4-burn" class="text-[8px] sm:text-[9px] text-slate-500 font-mono truncate">Tempo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. DOLNÍ ČÁST: LIDSKÉ SHRNUTÍ VÝVOJE + ZPĚT TLAČÍTKO -->
-        <div class="space-y-2 flex-1 flex flex-col justify-between min-h-0">
-          <div id="vitals-narrative-card" class="rounded-xl border border-teal-500/20 bg-gradient-to-br from-[#121929] via-[#0f1523] to-[#121929] p-3.5 sm:p-4 shadow-sm space-y-2 flex-1 flex flex-col justify-between overflow-y-auto custom-scroll">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1.5">
-                  <div class="w-5 h-5 rounded-md bg-teal-500/15 border border-teal-500/25 flex items-center justify-center text-teal-400">
-                    <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i>
-                  </div>
-                  <h5 class="text-[11px] sm:text-xs font-black uppercase text-slate-200 tracking-wider">Shrnutí vývoje</h5>
-                </div>
-                <span class="text-[9.5px] text-slate-400 font-mono bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/5">
-                  Aktivních dnů: <strong id="vitals-active-days-count" class="text-white font-mono">0</strong>
-                </span>
-              </div>
-              <p id="vitals-narrative-text" class="text-xs sm:text-[13px] text-slate-200 leading-relaxed font-normal">
-                Vyhodnocuji dlouhodobá data...
-              </p>
-            </div>
-            <div class="text-[9px] text-slate-500 font-mono flex items-center justify-between pt-1 border-t border-white/5">
-              <span>Statistická trajektorie</span>
-              <span>Zmrazené dny vyřazeny</span>
-            </div>
-          </div>
-
-          <!-- Tlačítko Zpět na zápis se šipkou nahoru -->
-          <button 
-            type="button" 
-            onclick="toggleSummaryExpand()" 
-            class="w-full h-11 min-h-[44px] bg-gradient-to-r from-teal-500 to-teal-400 hover:from-teal-400 hover:to-teal-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-teal-500/20 shrink-0 select-none"
-          >
-            <i class="fa-solid fa-arrow-up text-xs"></i> Zpět na zápis
-          </button>
-        </div>
       </div>
     </div>
 
@@ -6025,12 +6098,41 @@
           tile4BadgeClass: 'text-teal-400 bg-teal-500/10',
           narrative: 'Zatím v aplikaci není dostatek záznamů pro porovnání 7denního vývoje oproti referenčnímu základu. Pokračujte v běžném zápisu — jakmile nasbíráte alespoň 2 až 3 dny, systém automaticky vykreslí matematický trend a stabilitu čerpání.',
           activeDaysCount: 0,
-          ledSpotreba: { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' },
-          ledRozestupy: { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' },
-          ledKonzistence: { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' },
+          ledSpotreba: {
+            color: 'bg-teal-400',
+            shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            dotColor: 'bg-teal-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            textColor: 'text-teal-400',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]',
+            icon: 'fa-chart-simple'
+          },
+          ledRozestupy: {
+            color: 'bg-teal-400',
+            shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            dotColor: 'bg-teal-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            textColor: 'text-teal-400',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]',
+            icon: 'fa-clock-rotate-left'
+          },
+          ledKonzistence: {
+            color: 'bg-teal-400',
+            shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            dotColor: 'bg-teal-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]',
+            textColor: 'text-teal-400',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]',
+            icon: 'fa-wave-square'
+          },
           ledZasobnik: {
             color: remPct <= 20 ? 'bg-rose-400' : (remPct <= 45 ? 'bg-amber-400' : 'bg-teal-400'),
-            shadow: remPct <= 20 ? 'shadow-[0_0_6px_rgba(251,113,133,0.8)]' : (remPct <= 45 ? 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' : 'shadow-[0_0_6px_rgba(45,212,191,0.8)]')
+            shadow: remPct <= 20 ? 'shadow-[0_0_6px_rgba(251,113,133,0.8)]' : (remPct <= 45 ? 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' : 'shadow-[0_0_6px_rgba(45,212,191,0.8)]'),
+            dotColor: remPct <= 20 ? 'bg-rose-400' : (remPct <= 45 ? 'bg-amber-400' : 'bg-teal-400'),
+            dotShadow: remPct <= 20 ? 'shadow-[0_0_6px_rgba(251,113,133,0.8)]' : (remPct <= 45 ? 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' : 'shadow-[0_0_6px_rgba(45,212,191,0.8)]'),
+            textColor: remPct <= 20 ? 'text-rose-400' : (remPct <= 45 ? 'text-amber-400' : 'text-teal-400'),
+            glowClass: remPct <= 20 ? '[filter:drop-shadow(0_0_5px_rgba(251,113,133,0.85))]' : (remPct <= 45 ? '[filter:drop-shadow(0_0_5px_rgba(251,191,36,0.85))]' : '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]'),
+            icon: 'fa-battery-half'
           }
         };
         applyVitalsToUI(vitalsAuditData);
@@ -6091,10 +6193,42 @@
           tile4BadgeClass: 'text-sky-300 bg-sky-500/10',
           narrative: 'Aplikace se nachází v režimu pauzy. Dlouhodobé sledování je bezpečně zakonzervováno a nové záznamy během pauzy neovlivňují referenční hodnoty ani průměrná denní množství.',
           activeDaysCount,
-          ledSpotreba: { color: 'bg-sky-400', shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]' },
-          ledRozestupy: { color: 'bg-sky-400', shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]' },
-          ledKonzistence: { color: 'bg-sky-400', shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]' },
-          ledZasobnik: { color: 'bg-sky-400', shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]' }
+          ledSpotreba: {
+            color: 'bg-sky-400',
+            shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            dotColor: 'bg-sky-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            textColor: 'text-sky-300',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(56,189,248,0.85))]',
+            icon: 'fa-chart-simple'
+          },
+          ledRozestupy: {
+            color: 'bg-sky-400',
+            shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            dotColor: 'bg-sky-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            textColor: 'text-sky-300',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(56,189,248,0.85))]',
+            icon: 'fa-clock-rotate-left'
+          },
+          ledKonzistence: {
+            color: 'bg-sky-400',
+            shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            dotColor: 'bg-sky-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            textColor: 'text-sky-300',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(56,189,248,0.85))]',
+            icon: 'fa-wave-square'
+          },
+          ledZasobnik: {
+            color: 'bg-sky-400',
+            shadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            dotColor: 'bg-sky-400',
+            dotShadow: 'shadow-[0_0_6px_rgba(56,189,248,0.8)]',
+            textColor: 'text-sky-300',
+            glowClass: '[filter:drop-shadow(0_0_5px_rgba(56,189,248,0.85))]',
+            icon: 'fa-battery-half'
+          }
         };
         applyVitalsToUI(vitalsAuditData);
         return;
@@ -6219,6 +6353,17 @@
         heroDesc = `Zaznamenáváme pokles průměrného denního objemu o ${Math.abs(Math.round(deltaDailyPct))} % a prodloužení časových odstupů. Parametry vykazují sestupnou trajektorii.`;
         iconClass = 'fa-arrow-trend-down';
         iconColor = 'text-emerald-400';
+      } else if (deltaDailyPct >= 25) {
+        trendType = 'spiking';
+        verdict = 'Výrazný nárůst';
+        subline = `7d průměr: +${Math.round(deltaDailyPct)} % oproti základu`;
+        badgeText = 'Výrazné zrychlení';
+        badgeClass = 'bg-rose-500/15 text-rose-300 border border-rose-400/30';
+        dotColor = 'bg-rose-400';
+        heroTitle = 'Výrazný nárůst objemu za poslední dny';
+        heroDesc = `Průměrný denní objem se zvýšil o +${Math.round(deltaDailyPct)} % oproti referenčnímu základu. Doporučujeme zvýšit pozornost a sledovat časové rozestupy.`;
+        iconClass = 'fa-arrow-trend-up';
+        iconColor = 'text-rose-400';
       } else if (deltaDailyPct >= 8) {
         trendType = 'accelerating';
         verdict = 'Narůstající';
@@ -6250,7 +6395,7 @@
       let tile1DeltaText = `${deltaDailyPct >= 0 ? '+' : ''}${Math.round(deltaDailyPct)} %`;
       let tile1DeltaClass = deltaDailyPct <= -7 
         ? 'text-emerald-400 bg-emerald-500/10' 
-        : (deltaDailyPct >= 8 ? 'text-amber-400 bg-amber-500/10' : 'text-teal-400 bg-teal-500/10');
+        : (deltaDailyPct >= 25 ? 'text-rose-400 bg-rose-500/10' : (deltaDailyPct >= 8 ? 'text-amber-400 bg-amber-500/10' : 'text-teal-400 bg-teal-500/10'));
 
       // Dlaždice 2: Rozestupy
       let tile2CurrentText = recentIntervalMins > 0 ? (recentIntervalMins / 60).toFixed(1) : (typeof targetIntervalHours !== 'undefined' ? targetIntervalHours.toFixed(1) : '4.0');
@@ -6258,7 +6403,7 @@
       let tile2DeltaText = deltaIntervalMins !== 0 ? `${deltaIntervalMins > 0 ? '+' : ''}${deltaIntervalMins} min` : 'Vyrovnané';
       let tile2DeltaClass = deltaIntervalMins >= 15 
         ? 'text-emerald-400 bg-emerald-500/10' 
-        : (deltaIntervalMins <= -20 ? 'text-amber-400 bg-amber-500/10' : 'text-teal-400 bg-teal-500/10');
+        : (deltaIntervalMins <= -45 ? 'text-rose-400 bg-rose-500/10' : (deltaIntervalMins <= -20 ? 'text-amber-400 bg-amber-500/10' : 'text-teal-400 bg-teal-500/10'));
 
       // Dlaždice 4: Úbytek kapacity (Zásobník)
       const burnRateText = recentDailyMean > 0 ? `Tempo: ~${recentDailyMean.toFixed(1)} G/d` : 'Tempo: ~0.0 G/d';
@@ -6266,30 +6411,38 @@
       if (remPct <= 20) tile4BadgeClass = 'text-rose-400 bg-rose-500/10';
       else if (remPct <= 45) tile4BadgeClass = 'text-amber-400 bg-amber-500/10';
 
-      // 4 LED Indikátory:
-      // 1. Spotřeba: <= -7% Teal, >= +8% Amber, jinak Teal
-      let ledSpotreba = deltaDailyPct >= 8
-        ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' }
-        : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' };
+      // 4 stavové indikátory (vektorové ikony v liště a tečky na dlaždicích)
+      // 1. Spotřeba: <= -7% Emerald, >= +25% Rose, >= +8% Amber, jinak Teal
+      let ledSpotreba = deltaDailyPct >= 25
+        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', dotColor: 'bg-rose-400', dotShadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', textColor: 'text-rose-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,113,133,0.85))]', icon: 'fa-chart-simple' }
+        : (deltaDailyPct >= 8
+          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', dotColor: 'bg-amber-400', dotShadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', textColor: 'text-amber-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,191,36,0.85))]', icon: 'fa-chart-simple' }
+          : (deltaDailyPct <= -7
+            ? { color: 'bg-emerald-400', shadow: 'shadow-[0_0_6px_rgba(52,211,153,0.8)]', dotColor: 'bg-emerald-400', dotShadow: 'shadow-[0_0_6px_rgba(52,211,153,0.8)]', textColor: 'text-emerald-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(52,211,153,0.85))]', icon: 'fa-chart-simple' }
+            : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', dotColor: 'bg-teal-400', dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', textColor: 'text-teal-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]', icon: 'fa-chart-simple' }));
 
-      // 2. Rozestupy: >= +15m Teal, <= -20m Amber, jinak Teal
-      let ledRozestupy = deltaIntervalMins <= -20
-        ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' }
-        : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' };
+      // 2. Rozestupy: >= +15m Emerald, <= -45m Rose, <= -20m Amber, jinak Teal
+      let ledRozestupy = deltaIntervalMins <= -45
+        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', dotColor: 'bg-rose-400', dotShadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', textColor: 'text-rose-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,113,133,0.85))]', icon: 'fa-clock-rotate-left' }
+        : (deltaIntervalMins <= -20
+          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', dotColor: 'bg-amber-400', dotShadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', textColor: 'text-amber-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,191,36,0.85))]', icon: 'fa-clock-rotate-left' }
+          : (deltaIntervalMins >= 15
+            ? { color: 'bg-emerald-400', shadow: 'shadow-[0_0_6px_rgba(52,211,153,0.8)]', dotColor: 'bg-emerald-400', dotShadow: 'shadow-[0_0_6px_rgba(52,211,153,0.8)]', textColor: 'text-emerald-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(52,211,153,0.85))]', icon: 'fa-clock-rotate-left' }
+            : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', dotColor: 'bg-teal-400', dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', textColor: 'text-teal-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]', icon: 'fa-clock-rotate-left' }));
 
       // 3. Konzistence: spikes > 1 nebo stdDev > 0.65 Rose; spikes === 1 nebo stdDev > 0.4 Amber; jinak Teal
       let ledKonzistence = (recentSpikes > 1 || recentStdDev > 0.65)
-        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]' }
+        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', dotColor: 'bg-rose-400', dotShadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', textColor: 'text-rose-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,113,133,0.85))]', icon: 'fa-wave-square' }
         : ((recentSpikes === 1 || recentStdDev > 0.4)
-          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' }
-          : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' });
+          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', dotColor: 'bg-amber-400', dotShadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', textColor: 'text-amber-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,191,36,0.85))]', icon: 'fa-wave-square' }
+          : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', dotColor: 'bg-teal-400', dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', textColor: 'text-teal-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]', icon: 'fa-wave-square' });
 
       // 4. Zásobník: <= 20% Rose; <= 45% Amber; jinak Teal
       let ledZasobnik = remPct <= 20
-        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]' }
+        ? { color: 'bg-rose-400', shadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', dotColor: 'bg-rose-400', dotShadow: 'shadow-[0_0_6px_rgba(251,113,133,0.8)]', textColor: 'text-rose-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,113,133,0.85))]', icon: 'fa-battery-half' }
         : (remPct <= 45
-          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]' }
-          : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]' });
+          ? { color: 'bg-amber-400', shadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', dotColor: 'bg-amber-400', dotShadow: 'shadow-[0_0_6px_rgba(251,191,36,0.8)]', textColor: 'text-amber-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(251,191,36,0.85))]', icon: 'fa-battery-half' }
+          : { color: 'bg-teal-400', shadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', dotColor: 'bg-teal-400', dotShadow: 'shadow-[0_0_6px_rgba(45,212,191,0.8)]', textColor: 'text-teal-400', glowClass: '[filter:drop-shadow(0_0_5px_rgba(45,212,191,0.85))]', icon: 'fa-battery-half' });
 
       // 8. Tvorba přirozeného matematického shrnutí (Smart Narrative Card) — STRICTLY CLEAN COPYWRITING
       let narrativeParts = [];
@@ -6376,7 +6529,7 @@
         capsuleIcon.className = `fa-solid ${data.iconClass} text-[10px] ${data.iconColor || 'text-teal-400'}`;
       }
 
-      // Aktualizace 4 stavových LED v horním klastru (kapsle) a na dlaždicích
+      // Aktualizace 4 stavových vektorových ikon v horním klastru (kapsle) a teček na dlaždicích
       const leds = [
         { clusterId: 'led-dot-spotreba', tileId: 'tile-led-spotreba', cfg: data.ledSpotreba },
         { clusterId: 'led-dot-rozestupy', tileId: 'tile-led-rozestupy', cfg: data.ledRozestupy },
@@ -6389,10 +6542,11 @@
         const cEl = document.getElementById(l.clusterId);
         const tEl = document.getElementById(l.tileId);
         if (cEl) {
-          cEl.className = `w-2 h-2 rounded-full transition-all duration-300 ${l.cfg.color} ${l.cfg.shadow} led-pulse-anim`;
+          cEl.className = `w-4 h-4 flex items-center justify-center text-xs ${l.cfg.textColor || 'text-teal-400'} transition-all duration-300 led-pulse-anim`;
+          cEl.innerHTML = `<i class="fa-solid ${l.cfg.icon} fa-fw"></i>`;
         }
         if (tEl) {
-          tEl.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${l.cfg.color} ${l.cfg.shadow} shrink-0`;
+          tEl.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${l.cfg.dotColor || l.cfg.color} ${l.cfg.dotShadow || l.cfg.shadow} shrink-0`;
         }
       });
 
@@ -6467,137 +6621,22 @@
       if (daysEl) daysEl.textContent = data.activeDaysCount;
     }
 
-    /* FLIP / Migrační animace pro 4 LED diody */
+    /* Zachování funkce runLedMigrationAnimation pro zpětnou kompatibilitu testů */
     function runLedMigrationAnimation(isOpening) {
-      const pairs = [
-        { clusterId: 'led-dot-spotreba', tileId: 'tile-led-spotreba' },
-        { clusterId: 'led-dot-rozestupy', tileId: 'tile-led-rozestupy' },
-        { clusterId: 'led-dot-konzistence', tileId: 'tile-led-konzistence' },
-        { clusterId: 'led-dot-zasobnik', tileId: 'tile-led-zasobnik' }
-      ];
-
       const ledCluster = document.getElementById('summary-led-cluster');
-
-      // Odstranění starých plovoucích prvků
-      document.querySelectorAll('.vitals-led-migrator').forEach(el => el.remove());
-
-      const items = pairs.map(p => {
-        const cEl = document.getElementById(p.clusterId);
-        const tEl = document.getElementById(p.tileId);
-        if (!cEl || !tEl) return null;
-        return {
-          cEl,
-          tEl,
-          fromEl: isOpening ? cEl : tEl,
-          toEl: isOpening ? tEl : cEl
-        };
-      }).filter(Boolean);
-
-      if (items.length === 0) return;
-
-      const measurements = items.map(item => {
-        const fromRect = item.fromEl.getBoundingClientRect();
-        const toRect = item.toEl.getBoundingClientRect();
-        const style = window.getComputedStyle(item.fromEl);
-        return {
-          ...item,
-          fromRect,
-          toRect,
-          bgColor: style.backgroundColor || '#2dd4bf',
-          boxShadow: style.boxShadow || '0 0 6px rgba(45,212,191,0.8)'
-        };
-      });
-
-      const hasValidRects = measurements.every(m => m.fromRect.width > 0 && m.toRect.width > 0);
-      if (!hasValidRects) {
+      if (ledCluster) {
         if (isOpening) {
-          if (ledCluster) {
-            ledCluster.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
-            ledCluster.classList.remove('opacity-100', 'scale-100');
-          }
-          items.forEach(it => {
-            it.cEl.style.opacity = '0';
-            it.tEl.style.opacity = '1';
-          });
+          ledCluster.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+          ledCluster.classList.remove('opacity-100', 'scale-100');
         } else {
-          if (ledCluster) {
-            ledCluster.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
-            ledCluster.classList.add('opacity-100', 'scale-100');
-          }
-          items.forEach(it => {
-            it.cEl.style.opacity = '1';
-            it.tEl.style.opacity = '0';
-          });
+          ledCluster.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+          ledCluster.classList.add('opacity-100', 'scale-100');
         }
-        return;
       }
-
-      // Dočasně skrýt původní i cílové tečky během letu
-      items.forEach(it => {
-        it.cEl.style.opacity = '0';
-        it.tEl.style.opacity = '0';
-      });
-
-      if (isOpening && ledCluster) {
-        ledCluster.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
-        ledCluster.classList.remove('opacity-100', 'scale-100');
-      }
-
-      const migrators = [];
-      measurements.forEach(m => {
-        const migrator = document.createElement('div');
-        migrator.className = 'vitals-led-migrator fixed pointer-events-none rounded-full z-50';
-        migrator.style.width = `${m.fromRect.width}px`;
-        migrator.style.height = `${m.fromRect.height}px`;
-        migrator.style.left = `${m.fromRect.left}px`;
-        migrator.style.top = `${m.fromRect.top}px`;
-        migrator.style.backgroundColor = m.bgColor;
-        migrator.style.boxShadow = m.boxShadow;
-        migrator.style.transition = 'all 380ms cubic-bezier(0.16, 1, 0.3, 1)';
-        document.body.appendChild(migrator);
-        migrators.push({ el: migrator, ...m });
-      });
-
-      // Animace do cílových souřadnic v dalším snímku
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          migrators.forEach(m => {
-            m.el.style.left = `${m.toRect.left}px`;
-            m.el.style.top = `${m.toRect.top}px`;
-            m.el.style.width = `${m.toRect.width}px`;
-            m.el.style.height = `${m.toRect.height}px`;
-          });
-        });
-      });
-
-      // Po dokončení přechodu (~380ms) uklidit
-      setTimeout(() => {
-        migrators.forEach(m => m.el.remove());
-        if (isOpening) {
-          // Při otevření: dlaždice svítí, klastr v horní liště zůstává skrytý
-          items.forEach(it => {
-            it.cEl.style.opacity = '0';
-            it.tEl.style.opacity = '1';
-          });
-          if (ledCluster) {
-            ledCluster.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
-            ledCluster.classList.remove('opacity-100', 'scale-100');
-          }
-        } else {
-          // Při zavření: klastr v horní liště se znovu objeví, dlaždice se skryjí
-          items.forEach(it => {
-            it.cEl.style.opacity = '1';
-            it.tEl.style.opacity = '0';
-          });
-          if (ledCluster) {
-            ledCluster.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
-            ledCluster.classList.add('opacity-100', 'scale-100');
-          }
-        }
-      }, 390);
     }
 
     function toggleSummaryExpand(forceClose = false) {
+      const accordion = document.getElementById('summary-accordion-container');
       const inputCard = document.getElementById('main-input-card');
       const summaryCard = document.getElementById('summary-view-card');
       const chevron = document.getElementById('summary-chevron');
@@ -6605,7 +6644,7 @@
       const btnLabel = document.getElementById('summary-btn-label');
       const ledCluster = document.getElementById('summary-led-cluster');
 
-      if (!inputCard || !summaryCard) return;
+      if (!accordion) return;
 
       if (navigator.vibrate) {
         try { navigator.vibrate(10); } catch (e) {}
@@ -6621,47 +6660,37 @@
 
         computeVitalsTrendSummary();
 
-        // 1. Zobrazit summaryCard a vynutit reflow pro změření souřadnic
-        summaryCard.classList.remove('hidden');
-        inputCard.classList.add('hidden');
-        void summaryCard.offsetHeight;
+        // 1. Plynulé vyblednutí 4 stavových vektorových ikon v horní liště při rozbalení (opacity-0 scale-90)
+        if (ledCluster) {
+          ledCluster.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+          ledCluster.classList.remove('opacity-100', 'scale-100');
+        }
 
-        // 2. Spustit FLIP migraci 4 LED z klastru dolů na dlaždice (klastr mizí z horní lišty)
-        runLedMigrationAnimation(true);
+        // 2. Plynulé rozbalení akordeonu přímo mezi horní lištou a kartou STAV (odstrkává STAV dolů)
+        accordion.classList.add('expanded');
 
-        // 3. Plynulé rozvinutí karty směrem dolů přímo ze stavového bloku
-        requestAnimationFrame(() => {
-          summaryCard.classList.remove('opacity-0', '-translate-y-2', 'scale-y-[0.96]');
-          summaryCard.classList.add('opacity-100', 'translate-y-0', 'scale-y-100');
-        });
+        // 3. Plynulé zmizení karty zápisu (fade-out + scale-down + kolaps výšky)
+        if (inputCard) {
+          inputCard.classList.add('input-card-hidden');
+        }
       } else {
         if (chevron) chevron.classList.remove('rotate-180');
         if (compatChevron) compatChevron.classList.remove('rotate-180');
         if (btnLabel) btnLabel.textContent = 'Detail';
 
-        // 1. Spustit migraci LED nahoru zpět do horní lišty
-        runLedMigrationAnimation(false);
+        // 1. Plynulé sbalení akordeonu zpět do spáry mezi lištami (vytahuje STAV zpět)
+        accordion.classList.remove('expanded');
 
-        // 2. Plynulé sbalení karty směrem nahoru ke stavovému bloku
-        summaryCard.classList.remove('opacity-100', 'translate-y-0', 'scale-y-100');
-        summaryCard.classList.add('opacity-0', '-translate-y-2', 'scale-y-[0.96]');
+        // 2. Plynulý návrat 4 stavových vektorových ikon do horní lišty (opacity-100 scale-100)
+        if (ledCluster) {
+          ledCluster.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+          ledCluster.classList.add('opacity-100', 'scale-100');
+        }
 
-        setTimeout(() => {
-          summaryCard.classList.add('hidden');
-          inputCard.classList.remove('hidden');
-          inputCard.classList.remove('opacity-0', 'scale-[0.98]', 'pointer-events-none');
-          inputCard.classList.add('opacity-100', 'scale-100');
-
-          // Ujistit se, že se 4 LED v horní liště spolehlivě vrátily a jsou viditelné
-          if (ledCluster) {
-            ledCluster.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
-            ledCluster.classList.add('opacity-100', 'scale-100');
-          }
-          ['led-dot-spotreba', 'led-dot-rozestupy', 'led-dot-konzistence', 'led-dot-zasobnik'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.opacity = '1';
-          });
-        }, 180);
+        // 3. Plynulý návrat karty zápisu zpět do zobrazení (fade-in + scale-up)
+        if (inputCard) {
+          inputCard.classList.remove('input-card-hidden');
+        }
       }
     }
 
