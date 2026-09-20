@@ -162,6 +162,30 @@
       transition-delay: 0.04s;
     }
 
+    /* TRAJECTORY CHART ACCORDION (CSS GRID 0fr -> 1fr) */
+    .plan-chart-accordion-grid {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.32s cubic-bezier(0.33, 1, 0.68, 1);
+      overflow: hidden;
+    }
+    .plan-chart-accordion-grid.is-open {
+      grid-template-rows: 1fr;
+    }
+    .plan-chart-accordion-content {
+      min-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.26s ease-out, transform 0.26s ease-out, visibility 0.26s;
+    }
+    .plan-chart-accordion-grid.is-open .plan-chart-accordion-content {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
     /* TABS VIEWPORT & FLUID DIRECTIONAL ANIMATIONS */
     .tabs-viewport {
       display: grid;
@@ -247,6 +271,19 @@
 
     input[type="time"], input[type="date"] {
       color-scheme: dark;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.85) hue-rotate(140deg) brightness(1.1);
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-clear-button {
+      display: none;
     }
 
     .rank-text-glow-bronze {
@@ -748,6 +785,27 @@
       box-shadow: 0 0 20px rgba(192, 132, 252, 0.35);
     }
 
+    .liquid-glass-cell.is-selected-teal {
+      border: 1.5px solid rgba(45, 212, 191, 0.65) !important;
+      background: linear-gradient(145deg, rgba(45, 212, 191, 0.20) 0%, rgba(192, 132, 252, 0.08) 100%) !important;
+      box-shadow: 0 0 16px rgba(45, 212, 191, 0.28);
+      color: #5eead4 !important;
+    }
+
+    .pacing-card {
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .pacing-card:hover {
+      border-color: rgba(45, 212, 191, 0.35);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .pacing-card.is-active {
+      border-color: rgba(45, 212, 191, 0.7) !important;
+      background: linear-gradient(145deg, rgba(45, 212, 191, 0.18) 0%, rgba(192, 132, 252, 0.08) 100%) !important;
+      box-shadow: 0 0 18px rgba(45, 212, 191, 0.24);
+    }
+
     .config-expand-container {
       display: grid;
       grid-template-rows: 0fr;
@@ -766,6 +824,7 @@
       display: grid;
       grid-template-rows: 0fr;
       opacity: 0;
+      overflow: hidden;
       transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
     }
     .accordion-collapse-container.expanded {
@@ -773,7 +832,28 @@
       opacity: 1;
     }
     .accordion-collapse-inner {
+      min-height: 0;
       overflow: hidden;
+      transition: padding 0.3s ease, border-color 0.3s ease;
+    }
+    .accordion-collapse-container:not(.expanded) {
+      border-top-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .accordion-collapse-container:not(.expanded) .accordion-collapse-inner {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      border-top: none !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    .accordion-collapse-container.expanded .accordion-collapse-inner {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.5rem;
+      padding-bottom: 0.75rem;
+      padding-left: 0.875rem;
+      padding-right: 0.875rem;
     }
 
     .led-indicator {
@@ -1766,7 +1846,7 @@
     </div>
 
     <!-- TAB 3: PLÁNOVAČ -->
-    <div id="tab-planner" class="tab-pane flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-2 relative hidden">
+    <div id="tab-planner" class="tab-pane flex-1 flex flex-col gap-2.5 overflow-y-auto custom-scroll pr-0.5 pb-28 sm:pb-32 relative hidden">
 
       <!-- HLAVNÍ KARTA: ZÁSOBNÍK A ZŮSTATEK -->
       <section id="capacity-main-card" class="seamless-container rounded-3xl p-4 flex flex-col justify-between relative backdrop-blur-md shrink-0 shadow-2xl overflow-hidden min-h-[370px]">
@@ -1943,81 +2023,161 @@
         
         <div 
           onclick="toggleStrategySection()"
-          class="flex justify-between items-center cursor-pointer select-none group p-3 sm:p-3.5"
+          class="flex justify-between items-center cursor-pointer select-none group p-3 sm:p-3.5 w-full min-h-[48px]"
         >
           <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-300 text-xs shrink-0">
               <i class="fa-solid fa-sliders"></i>
             </span>
-            <h2 class="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-brand-400 to-teal-300">
+            <h2 class="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-brand-400 to-purple-300 leading-none">
               Nastavení strategie
             </h2>
           </div>
           
-          <div class="flex items-center gap-2">
-            <span id="user-status-tag" class="text-[9px] font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-lg">Načítám...</span>
+          <div class="flex items-center gap-2 shrink-0">
+            <span id="user-status-tag" class="text-[9px] font-mono text-teal-300 bg-teal-500/10 border border-teal-500/20 px-2 py-0.5 rounded-lg leading-none flex items-center">Načítám...</span>
             <i id="strategy-chevron-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300 group-hover:text-white"></i>
           </div>
         </div>
 
         <div id="strategy-accordion-container" class="accordion-collapse-container">
-          <div class="accordion-collapse-inner space-y-3 px-3.5 pb-0 pt-0 border-t border-black/5">
+          <div class="accordion-collapse-inner space-y-3">
             
-            <div class="grid grid-cols-3 gap-1.5 text-center relative z-10 pt-2.5">
-              <div class="liquid-glass-cell p-2 rounded-xl">
-                <p class="text-[8.5px] font-bold text-slate-400 uppercase">Průměr / den</p>
-                <p id="user-avg-day" class="text-xs font-black text-brand-400 font-mono mt-0.5">-- G</p>
-              </div>
-              <div class="liquid-glass-cell p-2 rounded-xl">
-                <p class="text-[8.5px] font-bold text-slate-400 uppercase">Špička dne</p>
-                <p id="user-peak-hour" class="text-xs font-black text-amber-400 font-mono mt-0.5">--:00</p>
-              </div>
-              <div class="liquid-glass-cell p-2 rounded-xl">
-                <p class="text-[8.5px] font-bold text-slate-400 uppercase">Variabilita σ</p>
-                <p id="user-std-dev" class="text-xs font-black text-purple-300 font-mono mt-0.5">-- G</p>
-              </div>
-            </div>
-
-            <div class="space-y-1.5 relative z-10 pt-0.5">
-              <label class="text-[9.5px] font-black uppercase tracking-widest text-slate-300 block">Zvolená strategie</label>
-              <div 
-                id="strat-btn-decrease"
-                onclick="selectStrategy('decrease')"
-                class="liquid-glass-cell p-3 rounded-2xl flex items-center justify-between gap-3 cursor-pointer text-white is-today active:scale-98 transition-all border border-teal-500/40 bg-teal-500/10 shadow-sm"
+            <!-- 1. INTERAKTIVNÍ KONTEXTOVÝ PANEL STATISTIK -->
+            <div class="grid grid-cols-3 gap-1.5 text-center relative z-10">
+              <button 
+                type="button" 
+                id="user-stat-card-avg"
+                onclick="applyStatAvgAsStart()" 
+                class="liquid-glass-cell p-2 rounded-2xl flex flex-col items-center justify-between text-center cursor-pointer transition-all hover:border-teal-500/40 active:scale-95 group/stat"
+                title="Klepnutím nastavit výchozí stav dle historického průměru"
               >
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shrink-0">
-                    <i class="fa-solid fa-arrow-trend-down text-sm"></i>
-                  </div>
+                <div class="flex items-center gap-1">
+                  <p class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Průměr / den</p>
+                  <i class="fa-solid fa-arrow-down text-[7.5px] text-teal-400 opacity-0 group-hover/stat:opacity-100 transition-opacity"></i>
+                </div>
+                <p id="user-avg-day" class="text-xs font-black text-brand-400 font-mono mt-0.5">-- G</p>
+                <span class="text-[7.5px] font-semibold text-teal-400/80 mt-0.5 leading-none">Použít start</span>
+              </button>
+
+              <button 
+                type="button" 
+                id="user-stat-card-peak"
+                onclick="highlightPeakHourSlot()" 
+                class="liquid-glass-cell p-2 rounded-2xl flex flex-col items-center justify-between text-center cursor-pointer transition-all hover:border-amber-500/40 active:scale-95 group/stat"
+                title="Analyzovaná hodina nejvyšší koncentrace zápisů"
+              >
+                <div class="flex items-center gap-1">
+                  <p class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Špička dne</p>
+                </div>
+                <p id="user-peak-hour" class="text-xs font-black text-amber-400 font-mono mt-0.5">--:00</p>
+                <span class="text-[7.5px] font-semibold text-amber-400/80 mt-0.5 leading-none">Hlavní okno</span>
+              </button>
+
+              <button 
+                type="button" 
+                id="user-stat-card-std"
+                onclick="highlightVariabilityInfo()" 
+                class="liquid-glass-cell p-2 rounded-2xl flex flex-col items-center justify-between text-center cursor-pointer transition-all hover:border-purple-500/40 active:scale-95 group/stat"
+                title="Historická směrodatná odchylka zápisů (σ)"
+              >
+                <div class="flex items-center gap-1">
+                  <p class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Variabilita σ</p>
+                </div>
+                <p id="user-std-dev" class="text-xs font-black text-purple-300 font-mono mt-0.5">-- G</p>
+                <span class="text-[7.5px] font-semibold text-purple-400/80 mt-0.5 leading-none">Koridor ±0.5σ</span>
+              </button>
+            </div>
+
+            <!-- 2. VÝBĚR PROFILU TEMPA DELOADU -->
+            <div class="space-y-1.5 relative z-10 pt-0.5">
+              <div class="flex justify-between items-center">
+                <label class="text-[9.5px] font-black uppercase tracking-widest text-slate-300 block">Profil tempa deloadu</label>
+                <span id="pacing-profile-indicator" class="text-[8px] font-mono text-teal-300 bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 rounded-md">Matematický model</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-1.5">
+                <!-- 1. Plynulý deload (Mikro-kroky) -->
+                <div 
+                  id="pace-card-smooth"
+                  onclick="selectPacingProfile('smooth')"
+                  class="pacing-card liquid-glass-cell p-2 sm:p-2.5 rounded-2xl flex flex-col justify-between cursor-pointer border border-teal-500/40 bg-teal-500/10 active:scale-95 transition-all text-left is-active"
+                >
                   <div>
-                    <div class="flex items-center gap-1.5">
-                      <p class="text-xs font-extrabold text-slate-100">Snížit (Deload)</p>
-                      <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">Aktivní režim</span>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <p class="text-[10px] sm:text-[10.5px] font-extrabold text-slate-100 leading-none">Plynulý</p>
+                      <span class="text-[7.5px] font-mono font-bold px-1 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">&lt; 0.5σ</span>
                     </div>
-                    <p class="text-[9.5px] text-slate-400 font-medium mt-0.5">Postupná a kontrolovaná redukce denních dávek</p>
+                    <p class="text-[8px] sm:text-[8.5px] text-slate-400 leading-tight">Mikro-kroky s minimální odchylkou</p>
+                  </div>
+                  <div class="flex items-center justify-between pt-1.5 mt-2 border-t border-white/5">
+                    <span class="text-[7.5px] font-mono text-teal-300">S-křivka</span>
+                    <span id="pace-check-smooth" class="w-3.5 h-3.5 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-[8px] opacity-100 transition-opacity">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
                   </div>
                 </div>
-                <div class="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-xs shrink-0">
-                  <i class="fa-solid fa-check"></i>
+
+                <!-- 2. Rovnoměrné tempo (Lineární) -->
+                <div 
+                  id="pace-card-linear"
+                  onclick="selectPacingProfile('linear')"
+                  class="pacing-card liquid-glass-cell p-2 sm:p-2.5 rounded-2xl flex flex-col justify-between cursor-pointer border border-white/10 active:scale-95 transition-all text-left"
+                >
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <p class="text-[10px] sm:text-[10.5px] font-extrabold text-slate-100 leading-none">Lineární</p>
+                      <span class="text-[7.5px] font-mono font-bold px-1 py-0.5 rounded bg-white/10 text-slate-300 border border-white/10">Přímý</span>
+                    </div>
+                    <p class="text-[8px] sm:text-[8.5px] text-slate-400 leading-tight">Rovnoměrný pokles k cíli</p>
+                  </div>
+                  <div class="flex items-center justify-between pt-1.5 mt-2 border-t border-white/5">
+                    <span class="text-[7.5px] font-mono text-slate-400">Konst. Δ</span>
+                    <span id="pace-check-linear" class="w-3.5 h-3.5 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-[8px] opacity-0 transition-opacity">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 3. Akcelerovaný deload (Rychlý sestup) -->
+                <div 
+                  id="pace-card-accelerated"
+                  onclick="selectPacingProfile('accelerated')"
+                  class="pacing-card liquid-glass-cell p-2 sm:p-2.5 rounded-2xl flex flex-col justify-between cursor-pointer border border-white/10 active:scale-95 transition-all text-left"
+                >
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <p class="text-[10px] sm:text-[10.5px] font-extrabold text-slate-100 leading-none">Akcelerovaný</p>
+                      <span class="text-[7.5px] font-mono font-bold px-1 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Špičky</span>
+                    </div>
+                    <p class="text-[8px] sm:text-[8.5px] text-slate-400 leading-tight">Rychlejší redukce peak excesu</p>
+                  </div>
+                  <div class="flex items-center justify-between pt-1.5 mt-2 border-t border-white/5">
+                    <span class="text-[7.5px] font-mono text-slate-400">Konvexní</span>
+                    <span id="pace-check-accelerated" class="w-3.5 h-3.5 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-[8px] opacity-0 transition-opacity">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
+            <!-- 3. ANALYTICKÝ MODEL DELOADU -->
             <div id="planner-infographic-card" class="relative z-10 bg-darkbg/70 border border-brand-500/20 rounded-2xl p-2.5 transition-all duration-300">
-              <div class="flex items-center gap-2 mb-2 pb-1.5 border-b border-white/5">
+              <div class="flex items-center gap-2 mb-1.5 pb-1.5 border-b border-white/5">
                 <span class="w-5 h-5 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400 text-[10px] shrink-0">
-                  <i class="fa-solid fa-circle-info"></i>
+                  <i class="fa-solid fa-chart-line"></i>
                 </span>
                 <span id="infographic-title" class="text-[10.5px] font-bold text-slate-200 uppercase tracking-wider">
-                  Princip redukčního plánu (Deload)
+                  Analytický model deloadu
                 </span>
               </div>
 
-              <div id="infographic-default" class="grid grid-cols-3 gap-1.5 text-left">
+              <div class="grid grid-cols-3 gap-1.5 text-left">
                 <div class="bg-cardbg/80 border border-borderbg/60 p-2 rounded-xl">
-                  <i class="fa-solid fa-wave-square text-brand-400 text-xs mb-1 block"></i>
+                  <i class="fa-solid fa-wave-square text-teal-400 text-xs mb-1 block"></i>
                   <p class="text-[9.5px] font-bold text-slate-200 leading-tight">1. Křivka tempa</p>
-                  <p class="text-[8px] text-slate-400 mt-0.5 leading-snug">Vypočítá plynulý zápis Gcek dle variability.</p>
+                  <p class="text-[8px] text-slate-400 mt-0.5 leading-snug">Vypočítá plynulý sestup Gcek dle variability σ.</p>
                 </div>
                 <div class="bg-cardbg/80 border border-borderbg/60 p-2 rounded-xl">
                   <i class="fa-solid fa-clock-rotate-left text-purple-400 text-xs mb-1 block"></i>
@@ -2025,27 +2185,19 @@
                   <p class="text-[8px] text-slate-400 mt-0.5 leading-snug">Rozvrhne optimální rozestupy a jednotlivé zápisy.</p>
                 </div>
                 <div class="bg-cardbg/80 border border-borderbg/60 p-2 rounded-xl">
-                  <i class="fa-solid fa-calendar-check text-teal-400 text-xs mb-1 block"></i>
-                  <p class="text-[9.5px] font-bold text-slate-200 leading-tight">3. Roadmapa</p>
-                  <p class="text-[8px] text-slate-400 mt-0.5 leading-snug">Interaktivní kalendář s hlídáním limitu den po dni.</p>
+                  <i class="fa-solid fa-calendar-check text-brand-400 text-xs mb-1 block"></i>
+                  <p class="text-[9.5px] font-bold text-slate-200 leading-tight">3. Koridor</p>
+                  <p class="text-[8px] text-slate-400 mt-0.5 leading-snug">Statistické pásmo tolerance (±0.5σ) den po dni.</p>
                 </div>
-              </div>
-
-              <div id="infographic-decrease" class="text-left space-y-1.5">
-                <p class="text-[10px] text-teal-300 font-semibold leading-tight flex items-center gap-1.5">
-                  <i class="fa-solid fa-arrow-trend-down text-teal-400"></i> Redukční strategie (Deload)
-                </p>
-                <p class="text-[9px] text-slate-400 leading-relaxed">
-                  Slouží k postupnému snížení denních zápisů. Algoritmus eliminuje skokové výkyvy tím, že Gcka rozprostře do plynulých mikro-kroků až do zvoleného cílového data.
-                </p>
               </div>
             </div>
 
-            <div id="config-section" class="config-expand-container relative z-10">
-              <div class="config-expand-inner space-y-2.5 pt-2.5 border-t border-white/5">
+            <!-- 4. PARAMETRY A TERMÍN -->
+            <div id="config-section" class="config-expand-container relative z-10 expanded">
+              <div class="config-expand-inner space-y-2.5 pt-2 border-t border-white/5">
                 <div class="flex justify-between items-center">
                   <span class="text-[9.5px] font-black uppercase tracking-widest text-slate-300">Parametry & termín</span>
-                  <span id="badge-selected-mode" class="text-[8.5px] font-bold uppercase px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-500/30">Redukční deload</span>
+                  <span id="badge-selected-mode" class="text-[8.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-500/30">Plynulý deload</span>
                 </div>
 
                 <div id="inputs-directional" class="grid grid-cols-2 gap-2">
@@ -2058,14 +2210,15 @@
                         min="0"
                         id="input-start-grams" 
                         placeholder="3.0" 
-                        class="w-full bg-black/40 border border-white/10 rounded-xl py-1.5 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                        oninput="onStrategyParamChange()"
+                        class="w-full bg-black/40 border border-white/10 rounded-xl py-1.5 px-3 pr-9 text-xs text-white font-mono focus:outline-none focus:border-teal-500 transition-colors shadow-inner"
                       />
                       <span class="absolute right-2.5 top-1.5 text-[10px] font-bold text-slate-500">G/d</span>
                     </div>
                   </div>
 
                   <div>
-                    <label id="label-target-grams" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cílová redukce</label>
+                    <label id="label-target-grams" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cílový stav</label>
                     <div class="relative">
                       <input 
                         type="number" 
@@ -2073,45 +2226,93 @@
                         min="0"
                         id="input-target-grams" 
                         placeholder="1.0" 
-                        class="w-full bg-black/40 border border-white/10 rounded-xl py-1.5 px-3 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
+                        oninput="onStrategyParamChange()"
+                        class="w-full bg-black/40 border border-white/10 rounded-xl py-1.5 px-3 pr-9 text-xs text-white font-mono focus:outline-none focus:border-brand-500 transition-colors shadow-inner"
                       />
                       <span class="absolute right-2.5 top-1.5 text-[10px] font-bold text-brand-400">G/d</span>
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rozdělení na zápisy denně</label>
+                <!-- Quick-select chips -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[8.5px] font-bold uppercase text-slate-500 tracking-wider mr-0.5">Rychlý cíl:</span>
+                  <button type="button" onclick="applyQuickTarget('avg')" class="text-[9px] font-bold font-mono py-1 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-teal-500/20 hover:border-teal-500/40 hover:text-teal-300 active:scale-95 cursor-pointer transition-all text-slate-300">Váš průměr</button>
+                  <button type="button" onclick="applyQuickTarget('-20')" class="text-[9px] font-bold font-mono py-1 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-teal-500/20 hover:border-teal-500/40 hover:text-teal-300 active:scale-95 cursor-pointer transition-all text-slate-300">-20 %</button>
+                  <button type="button" onclick="applyQuickTarget('-50')" class="text-[9px] font-bold font-mono py-1 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-teal-500/20 hover:border-teal-500/40 hover:text-teal-300 active:scale-95 cursor-pointer transition-all text-slate-300">-50 %</button>
+                  <button type="button" onclick="applyQuickTarget('custom')" class="text-[9px] font-bold font-mono py-1 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-teal-500/20 hover:border-teal-500/40 hover:text-teal-300 active:scale-95 cursor-pointer transition-all text-slate-300">Vlastní cíl</button>
+                </div>
+
+                <!-- Rozdělení na zápisy denně -->
+                <div class="space-y-1.5">
+                  <div class="flex justify-between items-center">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Rozdělení na zápisy denně</label>
+                    <span id="slots-frequency-hint" class="text-[8px] font-mono text-slate-400">2 zápisy / den</span>
+                  </div>
                   <div class="grid grid-cols-4 gap-1.5">
-                    <button type="button" onclick="setDosesPerDay(1)" id="dpd-1" class="liquid-glass-cell py-1 rounded-xl text-xs font-bold text-slate-400 active:scale-95">1×</button>
-                    <button type="button" onclick="setDosesPerDay(2)" id="dpd-2" class="liquid-glass-cell py-1 rounded-xl text-xs font-bold text-brand-400 active:scale-95">2×</button>
-                    <button type="button" onclick="setDosesPerDay(3)" id="dpd-3" class="liquid-glass-cell py-1 rounded-xl text-xs font-bold text-slate-400 active:scale-95">3×</button>
-                    <button type="button" onclick="setDosesPerDay(4)" id="dpd-4" class="liquid-glass-cell py-1 rounded-xl text-xs font-bold text-slate-400 active:scale-95">4×</button>
+                    <button type="button" onclick="setDosesPerDay(1)" id="dpd-1" class="liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-slate-400 active:scale-95 transition-all">1×</button>
+                    <button type="button" onclick="setDosesPerDay(2)" id="dpd-2" class="liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-brand-400 active:scale-95 is-selected-teal transition-all">2×</button>
+                    <button type="button" onclick="setDosesPerDay(3)" id="dpd-3" class="liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-slate-400 active:scale-95 transition-all">3×</button>
+                    <button type="button" onclick="setDosesPerDay(4)" id="dpd-4" class="liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-slate-400 active:scale-95 transition-all">4×</button>
+                  </div>
+
+                  <!-- Smart Time-Slot Windows (Rozpad časových oken a volba špičky) -->
+                  <div id="projected-slots-container" class="bg-black/30 border border-white/5 rounded-2xl p-2.5 space-y-1.5 transition-colors duration-300">
+                    <div class="flex justify-between items-center px-1">
+                      <span class="text-[8.5px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                        <i class="fa-regular fa-clock text-[8.5px] text-teal-400"></i> Časová okna & volba špičky
+                      </span>
+                      <span id="slots-total-preview" class="text-[8.5px] font-mono font-bold text-teal-300">-- G celkem</span>
+                    </div>
+                    <p class="text-[8px] sm:text-[8.5px] text-slate-400 px-1 leading-tight">Kliknutím na okno určíte, který zápis dne ponese nejvyšší váhu (špičku).</p>
+                    <div id="projected-slots-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      <!-- Dynamically generated time slot cards -->
+                    </div>
                   </div>
                 </div>
 
+                <!-- Cílové datum splnění -->
                 <div class="space-y-2">
                   <div>
                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cílové datum splnění</label>
                     <input 
                       type="date" 
                       id="input-target-date" 
-                      class="w-full bg-black/40 border border-white/10 rounded-xl py-1.5 px-2.5 text-xs text-white font-sans focus:outline-none focus:border-brand-500 transition-colors"
+                      onchange="onStrategyParamChange()"
+                      class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-xs text-white font-sans focus:outline-none focus:border-teal-500 transition-colors shadow-inner"
                     />
                   </div>
 
-                  <div class="liquid-glass-cell rounded-2xl p-2 flex items-start gap-2">
-                    <span class="w-5 h-5 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-[10px] shrink-0 mt-0.5">
-                      <i class="fa-solid fa-microchip"></i>
-                    </span>
-                    <div class="flex-1">
-                      <div class="flex justify-between items-center">
-                        <p class="text-[10px] font-bold text-slate-200">Algoritmická křivka tempa</p>
-                        <span id="auto-pacing-tag" class="text-[8.5px] font-mono font-bold text-teal-400">Detekuji...</span>
+                  <!-- Live Difficulty & Pacing Metrics -->
+                  <div id="live-pacing-card" class="liquid-glass-cell rounded-2xl p-2.5 space-y-2 border border-white/10">
+                    <div class="flex justify-between items-center">
+                      <div class="flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 text-[10px] shrink-0">
+                          <i class="fa-solid fa-calculator"></i>
+                        </span>
+                        <p class="text-[10px] font-bold text-slate-200">Metriky plánovaného tempa</p>
                       </div>
-                      <p id="auto-pacing-desc" class="text-[9.5px] text-slate-400 mt-0.5 leading-tight">
-                        Tempo je optimalizováno dle variability.
-                      </p>
+                      <span id="live-pacing-badge" class="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                        Plynulý sestup
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-left pt-0.5">
+                      <div class="bg-black/30 border border-white/5 rounded-xl p-1.5">
+                        <span class="text-[8px] font-bold text-slate-400 uppercase block">Celková redukce</span>
+                        <p id="live-stat-diff" class="text-xs font-mono font-black text-teal-300 mt-0.5">-- G (0 %)</p>
+                      </div>
+                      <div class="bg-black/30 border border-white/5 rounded-xl p-1.5">
+                        <span class="text-[8px] font-bold text-slate-400 uppercase block">Denní změna</span>
+                        <p id="live-stat-daily-step" class="text-xs font-mono font-black text-white mt-0.5">-- G/den</p>
+                      </div>
+                    </div>
+
+                    <div class="pt-1 border-t border-white/5 flex items-center justify-between text-[9px]">
+                      <span id="live-stat-variability-ratio" class="text-slate-400 font-medium truncate pr-2">
+                        Tempo úbytku: v pásmu variability σ
+                      </span>
+                      <span id="live-stat-days-count" class="text-slate-400 font-mono font-bold shrink-0">14 dní</span>
                     </div>
                   </div>
                 </div>
@@ -2119,7 +2320,7 @@
                 <button 
                   type="button" 
                   onclick="confirmAndActivatePlan()" 
-                  class="w-full py-2.5 bg-gradient-to-r from-purple-600 via-brand-600 to-teal-500 hover:opacity-95 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.97] transition-all shadow-lg cursor-pointer mt-1"
+                  class="w-full py-2.5 bg-gradient-to-r from-teal-500 via-brand-600 to-purple-600 hover:opacity-95 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.97] transition-all shadow-lg cursor-pointer mt-1"
                 >
                   <i class="fa-solid fa-circle-check text-sm"></i> Potvrdit a aktivovat plán
                 </button>
@@ -2133,7 +2334,7 @@
       <!-- 2. AKTIVNÍ ROADMAPA & ZVĚTŠENÝ KALENDÁŘ -->
       <div id="active-roadmap-wrapper" class="flex-1 flex flex-col min-h-0 view-transition view-hidden hidden space-y-2">
 
-        <section class="flex-1 flex flex-col justify-between relative min-h-0 p-2.5 bg-cardbg border border-borderbg rounded-3xl shadow-xl">
+        <section class="flex flex-col relative p-2.5 sm:p-3 bg-cardbg border border-borderbg rounded-3xl shadow-xl space-y-2">
           
           <div class="flex justify-between items-center pb-2 border-b border-white/5 relative z-10 shrink-0">
             <div class="flex items-center gap-2">
@@ -2164,33 +2365,51 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest relative z-10 py-1.5 shrink-0">
+          <div class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-[9.5px] sm:text-[10px] font-extrabold text-slate-500 uppercase tracking-wider relative z-10 py-0.5 mb-0.5 max-w-md mx-auto w-full shrink-0">
             <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
           </div>
 
-          <div class="relative z-20 py-1.5 shrink-0">
-            <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center">
+          <div class="relative z-20 py-0.5 shrink-0 w-full">
+            <div id="liquid-calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center max-w-md mx-auto w-full">
             </div>
           </div>
 
-          <div class="flex justify-center items-center gap-3.5 py-1 text-[9px] sm:text-[9.5px] text-slate-400 font-medium relative z-10 shrink-0 border-t border-white/5">
+          <div class="flex justify-center items-center gap-2 sm:gap-3 py-1.5 text-[8.5px] sm:text-[9.5px] text-slate-400 font-medium relative z-10 shrink-0 border-t border-white/5 flex-wrap">
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> V limitu</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50"></span> Dnes</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400 shadow-sm shadow-rose-400/50"></span> Nad limit</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Plán</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span> V toleranci (±σ)</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400 shadow-sm shadow-rose-400/50"></span> Nad plán</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-400 shadow-sm shadow-sky-400/50"></span> Pauza / Zmrazeno</span>
           </div>
 
-          <div class="pt-1.5 relative z-10 flex-1 flex flex-col min-h-[120px] shrink-0 border-t border-white/5">
-            <div class="flex justify-between items-center px-1 mb-1 shrink-0">
-              <span class="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-wider text-slate-300">
-                <i class="fa-solid fa-chart-line text-brand-400 text-xs"></i> Trajektorie & Koridor
-              </span>
-              <span id="chart-trend-badge" class="text-[8px] font-mono px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
-                Pásmo tolerance
-              </span>
+          <!-- Výsuvný akordeon: Trajektorie & Koridor -->
+          <div class="pt-2 relative z-10 border-t border-white/5">
+            <div class="flex justify-between items-center px-1">
+              <div class="flex items-center gap-1.5">
+                <span class="flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-slate-300">
+                  <i class="fa-solid fa-chart-line text-teal-400 text-xs"></i> Trajektorie & Koridor
+                </span>
+                <span id="chart-trend-badge" class="text-[7.5px] sm:text-[8px] font-mono px-1.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                  Pásmo tolerance (±0.5σ)
+                </span>
+              </div>
+              <button 
+                id="btn-toggle-plan-chart"
+                type="button" 
+                onclick="togglePlanChartAccordion()" 
+                class="flex items-center gap-1 text-[9px] font-bold text-teal-300 hover:text-teal-200 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 px-2 py-0.5 rounded-lg transition-all active:scale-95 cursor-pointer"
+                title="Rozbalit / sbalit graf trajektorie"
+              >
+                <span id="plan-chart-label">Zobrazit graf</span>
+                <i id="plan-chart-chevron" class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300"></i>
+              </button>
             </div>
-            <div class="flex-1 w-full relative min-h-0">
-              <canvas id="planChart"></canvas>
+            
+            <div id="trajectory-chart-accordion" class="plan-chart-accordion-grid">
+              <div class="plan-chart-accordion-content">
+                <div class="w-full relative h-48 sm:h-52 pt-2 pb-1">
+                  <canvas id="planChart"></canvas>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2278,8 +2497,8 @@
 
       <div class="space-y-1">
         <div class="flex justify-between items-center text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
-          <span>HARMONOGRAM DÁVEK</span>
-          <span class="text-purple-300 font-mono text-[8.5px]" id="modal-day-slots-count">-- DÁVEK</span>
+          <span>Časová okna zápisů</span>
+          <span class="text-teal-300 font-mono text-[8.5px]" id="modal-day-slots-count">-- ZÁPISŮ</span>
         </div>
         <div id="modal-day-slots-list" class="space-y-1">
         </div>
@@ -3099,6 +3318,9 @@
       pacingRationale: ''
     };
     let selectedStrategy = 'decrease';
+    let selectedPacingProfile = 'smooth';
+    let selectedPeakSlotIndex = 0;
+    let isTrajectoryChartOpen = false;
     let dosesPerDay = 2;
     let planChartInstance = null;
     let activePlanData = null;
@@ -5814,7 +6036,7 @@
     initTouchpad();
     initTouchpadStarfield();
 
-    // Reaktivní kontrola anomálií při jakékoliv změně vstupní dávky
+    // Reaktivní kontrola anomálií při jakékoliv změně vstupního zápisu
     const amountInputEl = document.getElementById('input-amount');
     if (amountInputEl) {
       amountInputEl.addEventListener('input', (e) => {
@@ -6607,7 +6829,7 @@
         badgeClass = 'bg-rose-500/15 text-rose-300 border border-rose-400/30';
         dotColor = 'bg-rose-400';
         heroTitle = 'Výrazný nárůst objemu za poslední dny';
-        heroDesc = `Průměrný denní objem se zvýšil o +${Math.round(deltaDailyPct)} % oproti referenčnímu základu. Doporučujeme zvýšit pozornost a sledovat časové rozestupy.`;
+        heroDesc = `Průměrný denní objem se zvýšil o +${Math.round(deltaDailyPct)} % oproti referenčnímu základu. Data indikují zrychlení trajektorie a zkrácení časových rozestupů.`;
         iconClass = 'fa-arrow-trend-up';
         iconColor = 'text-rose-400';
       } else if (deltaDailyPct >= 8) {
@@ -6618,7 +6840,7 @@
         badgeClass = 'bg-amber-500/15 text-amber-300 border border-amber-400/30';
         dotColor = 'bg-amber-400';
         heroTitle = 'Zvýšené tempo za poslední dny';
-        heroDesc = `Průměrný denní objem se zvýšil o +${Math.round(deltaDailyPct)} % oproti referenčnímu základu. Doporučujeme sledovat časové rozestupy mezi záznamy.`;
+        heroDesc = `Průměrný denní objem se zvýšil o +${Math.round(deltaDailyPct)} % oproti referenčnímu základu. Sledované časové rozestupy mezi záznamy vykazují zrychlení.`;
         iconClass = 'fa-arrow-trend-up';
         iconColor = 'text-amber-400';
       }
@@ -6781,7 +7003,7 @@
           meaningText: deltaDailyPct <= -7 
             ? 'Zaznamenáváme systematické snižování denního objemu oproti dlouhodobému základu. Trajektorie vykazuje žádoucí pokles.' 
             : (deltaDailyPct >= 25 
-              ? 'Denní objem se výrazně zvýšil oproti referenčnímu základu. Doporučujeme zvýšit pozornost a sledovat časové rozestupy mezi zápisy.' 
+              ? 'Denní objem se výrazně zvýšil oproti referenčnímu základu. Trajektorie vykazuje zrychlení tempa; rozestupy mezi zápisy jsou zkráceny.' 
               : (deltaDailyPct >= 8 
                 ? 'Průměrné denní množství vykazuje mírné zrychlení tempa. Vyplatí se hlídat plánované intervaly.' 
                 : 'Zápisy se drží v stabilním, vyrovnaném koridoru referenčního základu s minimální odchylkou.')),
@@ -6815,7 +7037,7 @@
           meaningText: deltaIntervalMins >= 15 
             ? 'Časové rozestupy mezi jednotlivými zápisy se prodloužily, což indikuje klidnější tempo a větší stabilitu čerpání.' 
             : (deltaIntervalMins <= -45 
-              ? 'Intervaly mezi zápisy jsou výrazně kratší než stanovený cíl. Doporučujeme vyčkat na uplynutí cílového časového záměru.' 
+              ? 'Intervaly mezi zápisy jsou výrazně kratší než stanovený cíl. Matematický model předpokládá dodržení cílového časového záměru.' 
               : (deltaIntervalMins <= -20 
                 ? 'Intervaly jsou mírně zkrácené oproti referenčnímu průměru. Pro udržení tempa je vhodné dodržovat plánované rozestupy.' 
                 : 'Rozestupy mezi zápisy zůstávají stabilní a vyrovnané v souladu se stanoveným cílem.')),
@@ -8049,10 +8271,334 @@
       }
     }
 
+    // --- STRATEGIE & PROFILY TEMPA ---
+    function getDefaultPeakIndexForCount(count, peakHour) {
+      if (count <= 1) return 0;
+      const h = typeof peakHour === 'number' && !isNaN(peakHour) ? peakHour : 10;
+      if (count === 2) {
+        return h < 13 ? 0 : 1;
+      } else if (count === 3) {
+        if (h < 11) return 0;
+        if (h < 16) return 1;
+        return 2;
+      } else if (count === 4) {
+        if (h < 10) return 0;
+        if (h < 14) return 1;
+        if (h < 18) return 2;
+        return 3;
+      }
+      return 0;
+    }
+
+    function applyStatAvgAsStart() {
+      const startInput = document.getElementById('input-start-grams');
+      if (!startInput) return;
+      const baseline = userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0;
+      startInput.value = baseline;
+      
+      const card = document.getElementById('user-stat-card-avg');
+      if (card) {
+        card.classList.add('is-today');
+        setTimeout(() => card.classList.remove('is-today'), 600);
+      }
+      onStrategyParamChange();
+      showToast(`Výchozí stav nastaven na ${baseline} G/d`);
+    }
+
+    function highlightPeakHourSlot() {
+      const container = document.getElementById('projected-slots-container');
+      if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        container.classList.add('border-teal-500/50');
+        setTimeout(() => container.classList.remove('border-teal-500/50'), 800);
+      }
+      const defaultIdx = getDefaultPeakIndexForCount(dosesPerDay, userStats.peakHour);
+      selectPeakSlot(defaultIdx);
+      showToast(`Analyzovaná denní špička v ${String(userStats.peakHour).padStart(2, '0')}:00 označena v rozvrhu`);
+    }
+
+    function highlightVariabilityInfo() {
+      const stdVal = userStats.stdDev || 0;
+      showToast(`Variabilita σ = ${stdVal.toFixed(2)} G (tolerance ±${(stdVal * 0.5).toFixed(2)} G)`);
+    }
+
+    function selectPacingProfile(profile) {
+      selectedPacingProfile = profile;
+
+      ['smooth', 'linear', 'accelerated'].forEach(p => {
+        const card = document.getElementById(`pace-card-${p}`);
+        const check = document.getElementById(`pace-check-${p}`);
+        if (card) {
+          if (p === profile) {
+            card.classList.add('is-active', 'border-teal-500/40', 'bg-teal-500/10');
+            card.classList.remove('border-white/10');
+          } else {
+            card.classList.remove('is-active', 'border-teal-500/40', 'bg-teal-500/10');
+            card.classList.add('border-white/10');
+          }
+        }
+        if (check) {
+          check.className = p === profile
+            ? 'w-3.5 h-3.5 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-[8px] opacity-100 transition-opacity'
+            : 'w-3.5 h-3.5 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 text-[8px] opacity-0 transition-opacity';
+        }
+      });
+
+      const modeBadge = document.getElementById('badge-selected-mode');
+      const liveBadge = document.getElementById('live-pacing-badge');
+      const profileNames = {
+        'smooth': 'Plynulý deload',
+        'linear': 'Rovnoměrné tempo',
+        'accelerated': 'Akcelerovaný deload'
+      };
+      const badgeLabels = {
+        'smooth': 'Plynulý sestup (< 0.5σ)',
+        'linear': 'Rovnoměrný sestup',
+        'accelerated': 'Akcelerovaný pokles'
+      };
+
+      if (modeBadge) modeBadge.textContent = profileNames[profile] || 'Plynulý deload';
+      if (liveBadge) liveBadge.textContent = badgeLabels[profile] || 'Plynulý sestup';
+
+      updateLiveStrategyMetrics();
+    }
+
+    function applyQuickTarget(type) {
+      const startInput = document.getElementById('input-start-grams');
+      const targetInput = document.getElementById('input-target-grams');
+      if (!targetInput) return;
+
+      const startG = parseFloat(startInput?.value) || (userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0);
+
+      if (type === 'avg') {
+        targetInput.value = startG.toFixed(1);
+      } else if (type === '-20') {
+        targetInput.value = Math.max(0.1, parseFloat((startG * 0.8).toFixed(1))).toFixed(1);
+      } else if (type === '-50') {
+        targetInput.value = Math.max(0.1, parseFloat((startG * 0.5).toFixed(1))).toFixed(1);
+      } else if (type === 'custom') {
+        targetInput.focus();
+        targetInput.select();
+        return;
+      }
+
+      onStrategyParamChange();
+    }
+
+    function onStrategyParamChange() {
+      renderSlotsPreview();
+      updateLiveStrategyMetrics();
+    }
+
+    function setDosesPerDay(num) {
+      dosesPerDay = num;
+      [1, 2, 3, 4].forEach(d => {
+        const btn = document.getElementById(`dpd-${d}`);
+        if (btn) {
+          if (d === num) {
+            btn.className = "liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-brand-400 active:scale-95 is-selected-teal transition-all";
+          } else {
+            btn.className = "liquid-glass-cell py-1.5 rounded-xl text-xs font-bold text-slate-400 active:scale-95 transition-all";
+          }
+        }
+      });
+
+      const freqHint = document.getElementById('slots-frequency-hint');
+      if (freqHint) {
+        const text = num === 1 ? '1 zápis / den' : (num < 5 ? `${num} zápisy / den` : `${num} zápisů / den`);
+        freqHint.textContent = text;
+      }
+
+      if (selectedPeakSlotIndex >= num) {
+        selectedPeakSlotIndex = getDefaultPeakIndexForCount(num, userStats.peakHour);
+      }
+
+      renderSlotsPreview();
+    }
+
+    function selectPeakSlot(index) {
+      if (index < 0 || index >= dosesPerDay) return;
+      selectedPeakSlotIndex = index;
+      renderSlotsPreview();
+      const slots = generateDoseSlots(parseFloat(document.getElementById('input-target-grams')?.value) || 1.0, dosesPerDay, userStats.peakHour, selectedPeakSlotIndex);
+      const chosen = slots[index];
+      if (chosen) {
+        showToast(`Špička dne nastavena: ${chosen.label} (${chosen.time})`);
+      }
+    }
+
+    function generateDoseSlots(totalGrams, count, peakH, peakIndex = selectedPeakSlotIndex) {
+      const slots = [];
+      const fmtTime = (hour, min = 0) => `${String(((hour % 24) + 24) % 24).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+      const validPeakIndex = Math.max(0, Math.min(count - 1, (typeof peakIndex === 'number' ? peakIndex : 0)));
+
+      let windowDefs = [];
+      if (count === 1) {
+        const h = typeof peakH === 'number' && !isNaN(peakH) ? peakH : 10;
+        windowDefs = [{ hour: h, min: 0, baseLabel: "Hlavní časové okno" }];
+      } else if (count === 2) {
+        windowDefs = [
+          { hour: 9, min: 0, baseLabel: "Dopolední okno" },
+          { hour: 17, min: 0, baseLabel: "Odpolední okno" }
+        ];
+      } else if (count === 3) {
+        windowDefs = [
+          { hour: 8, min: 30, baseLabel: "Ranní okno" },
+          { hour: 13, min: 30, baseLabel: "Odpolední okno" },
+          { hour: 19, min: 0, baseLabel: "Večerní okno" }
+        ];
+      } else {
+        windowDefs = [
+          { hour: 8, min: 0, baseLabel: "Ranní okno" },
+          { hour: 12, min: 0, baseLabel: "Polední okno" },
+          { hour: 16, min: 0, baseLabel: "Odpolední okno" },
+          { hour: 20, min: 0, baseLabel: "Večerní okno" }
+        ];
+      }
+
+      let weights = [];
+      if (count === 1) {
+        weights = [1.0];
+      } else if (count === 2) {
+        weights = validPeakIndex === 0 ? [0.60, 0.40] : [0.40, 0.60];
+      } else if (count === 3) {
+        weights = [0.25, 0.25, 0.25];
+        weights[validPeakIndex] = 0.50;
+      } else if (count === 4) {
+        weights = [0.20, 0.20, 0.20, 0.20];
+        weights[validPeakIndex] = 0.40;
+      } else {
+        weights = new Array(count).fill(1 / count);
+      }
+
+      let runningSum = 0;
+      for (let i = 0; i < count; i++) {
+        const isPeak = (i === validPeakIndex);
+        const isLast = (i === count - 1);
+        let amount = 0;
+        if (isLast) {
+          amount = parseFloat(Math.max(0, totalGrams - runningSum).toFixed(2));
+        } else {
+          amount = parseFloat((totalGrams * weights[i]).toFixed(2));
+          runningSum += amount;
+        }
+        const def = windowDefs[i];
+        slots.push({
+          time: fmtTime(def.hour, def.min),
+          amount: amount,
+          label: isPeak ? `${def.baseLabel} (Špička)` : def.baseLabel,
+          isPeak: isPeak,
+          weightPct: Math.round(weights[i] * 100)
+        });
+      }
+
+      return slots;
+    }
+
+    function renderSlotsPreview() {
+      const grid = document.getElementById('projected-slots-grid');
+      const totalPreview = document.getElementById('slots-total-preview');
+      const targetInput = document.getElementById('input-target-grams');
+      if (!grid) return;
+
+      const targetVal = parseFloat(targetInput?.value) || 1.0;
+      const slots = generateDoseSlots(targetVal, dosesPerDay, userStats.peakHour, selectedPeakSlotIndex);
+
+      if (totalPreview) {
+        totalPreview.textContent = `${targetVal.toFixed(2)} G celkem`;
+      }
+
+      grid.innerHTML = '';
+      slots.forEach((slot, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => selectPeakSlot(idx);
+        btn.className = `p-2 rounded-xl border flex justify-between items-center text-left transition-all active:scale-[0.98] cursor-pointer ${
+          slot.isPeak 
+            ? 'border-amber-400/60 bg-amber-500/15 text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.15)]' 
+            : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10 text-slate-300'
+        }`;
+        btn.innerHTML = `
+          <div class="flex items-center gap-2 truncate pr-1">
+            <span class="w-5 h-5 rounded-lg ${slot.isPeak ? 'bg-amber-500/30 text-amber-300 font-extrabold border border-amber-400/40' : 'bg-white/10 text-slate-400 font-bold'} flex items-center justify-center text-[9px] shrink-0 font-mono">
+              ${idx + 1}
+            </span>
+            <div class="truncate">
+              <div class="flex items-center gap-1.5">
+                <span class="font-sans font-bold ${slot.isPeak ? 'text-amber-200' : 'text-slate-200'} text-xs truncate">${slot.label}</span>
+                <span class="text-[8.5px] font-mono text-slate-400">(${slot.time})</span>
+              </div>
+              <p class="text-[8px] ${slot.isPeak ? 'text-amber-300 font-bold' : 'text-slate-500'} flex items-center gap-1 mt-0.5">
+                ${slot.isPeak ? '⭐ Špička dne (' + slot.weightPct + ' %)' : 'Běžný zápis (' + slot.weightPct + ' %)'}
+              </p>
+            </div>
+          </div>
+          <span class="font-bold font-mono shrink-0 ml-1 ${slot.isPeak ? 'text-amber-300 text-sm' : 'text-brand-400/90 text-xs'}">${slot.amount.toFixed(2)} G</span>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function updateLiveStrategyMetrics() {
+      const startInput = document.getElementById('input-start-grams');
+      const targetInput = document.getElementById('input-target-grams');
+      const targetDateInput = document.getElementById('input-target-date');
+
+      const statDiffEl = document.getElementById('live-stat-diff');
+      const statDailyStepEl = document.getElementById('live-stat-daily-step');
+      const statVariabilityRatioEl = document.getElementById('live-stat-variability-ratio');
+      const statDaysCountEl = document.getElementById('live-stat-days-count');
+
+      if (!statDiffEl || !statDailyStepEl) return;
+
+      const startG = parseFloat(startInput?.value) || (userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0);
+      const targetG = parseFloat(targetInput?.value) || 1.0;
+
+      const targetDateVal = targetDateInput?.value;
+      let totalDays = 14;
+      if (targetDateVal) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(targetDateVal);
+        targetDate.setHours(0, 0, 0, 0);
+        const diffMs = targetDate.getTime() - today.getTime();
+        totalDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+      }
+
+      const totalDiff = targetG - startG;
+      const diffPercent = startG > 0 ? ((totalDiff / startG) * 100) : 0;
+      const dailyStep = Math.abs(totalDiff) / totalDays;
+
+      const diffPrefix = totalDiff > 0 ? '+' : '';
+      const percentPrefix = diffPercent > 0 ? '+' : '';
+      statDiffEl.textContent = `${diffPrefix}${totalDiff.toFixed(2)} G (${percentPrefix}${diffPercent.toFixed(1)} %)`;
+      statDailyStepEl.textContent = `-${dailyStep.toFixed(2)} G/den`;
+      if (statDaysCountEl) statDaysCountEl.textContent = `${totalDays} dní`;
+
+      const std = userStats.stdDev || 0;
+      if (statVariabilityRatioEl) {
+        if (std <= 0) {
+          statVariabilityRatioEl.textContent = `Denní změna: ${dailyStep.toFixed(2)} G/den`;
+          statVariabilityRatioEl.className = 'text-slate-400 font-medium truncate pr-2';
+        } else if (dailyStep <= 0.5 * std) {
+          statVariabilityRatioEl.textContent = `Tempo úbytku: v pásmu mikro-kroků (< 0.5σ = ${(0.5 * std).toFixed(2)} G)`;
+          statVariabilityRatioEl.className = 'text-teal-300 font-medium truncate pr-2';
+        } else if (dailyStep <= std) {
+          statVariabilityRatioEl.textContent = `Tempo úbytku: v pásmu variability σ = ${std.toFixed(2)} G`;
+          statVariabilityRatioEl.className = 'text-purple-300 font-medium truncate pr-2';
+        } else {
+          statVariabilityRatioEl.textContent = `Tempo úbytku: nad běžnou variabilitou (Δ > σ = ${std.toFixed(2)} G)`;
+          statVariabilityRatioEl.className = 'text-amber-300 font-medium truncate pr-2';
+        }
+      }
+    }
+
     function analyzeUserHistory() {
       if (!logs || logs.length === 0) {
         const statusTag = document.getElementById('user-status-tag');
         if (statusTag) statusTag.textContent = "Zatím bez dat";
+        renderSlotsPreview();
+        updateLiveStrategyMetrics();
         return;
       }
 
@@ -8090,18 +8636,13 @@
 
       const avgFreq = Math.max(1, Math.round(logs.length / Math.max(1, dayKeys.length)));
 
-      let pacing = 'linear';
-      let pacingRationale = '';
-
-      if (stdDev > 0.8) {
-        pacing = 'gentle_start';
-        pacingRationale = `Detekována vyšší variabilita (σ = ${stdDev.toFixed(2)} G). Určen jemný adaptivní rozjezd.`;
-      } else if (stdDev <= 0.4 && avgDaily > 2.5) {
-        pacing = 'linear';
-        pacingRationale = `Vykazujete vysokou stabilitu zápisů (σ = ${stdDev.toFixed(2)} G). Určena lineární trajektorie.`;
+      let recommendedProfile = 'smooth';
+      if (stdDev > 0.6) {
+        recommendedProfile = 'smooth';
+      } else if (stdDev <= 0.35 && avgDaily > 2.0) {
+        recommendedProfile = 'accelerated';
       } else {
-        pacing = 'gentle_end';
-        pacingRationale = `Optimální profil se stabilním rytmem. Zvolena plynulá křivka.`;
+        recommendedProfile = 'linear';
       }
 
       userStats = {
@@ -8110,8 +8651,7 @@
         dailyFrequency: avgFreq,
         peakPeriodName: period,
         stdDev: parseFloat(stdDev.toFixed(2)),
-        recommendedPacing: pacing,
-        pacingRationale: pacingRationale
+        recommendedPacing: recommendedProfile
       };
 
       const avgEl = document.getElementById('user-avg-day');
@@ -8128,127 +8668,27 @@
       if (startInput && !startInput.value) {
         startInput.value = userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0;
       }
+      const targetInput = document.getElementById('input-target-grams');
+      if (targetInput && !targetInput.value) {
+        const base = userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0;
+        targetInput.value = Math.max(0.2, (base * 0.5)).toFixed(1);
+      }
 
       setDosesPerDay(Math.min(4, Math.max(1, avgFreq)));
-      updatePacingUI();
-      selectStrategy('decrease');
+      selectPacingProfile(userStats.recommendedPacing);
+      if (!activePlanData) {
+        selectedPeakSlotIndex = getDefaultPeakIndexForCount(dosesPerDay, peakH);
+      }
+      renderSlotsPreview();
+      updateLiveStrategyMetrics();
     }
 
-    function updatePacingUI() {
-      const pacingTag = document.getElementById('auto-pacing-tag');
-      const pacingDesc = document.getElementById('auto-pacing-desc');
-
-      if (!pacingTag || !pacingDesc) return;
-
-      const pacingLabels = {
-        'gentle_start': 'Adaptivní rozjezd (Ease-In)',
-        'linear': 'Rovnoměrné tempo (Linear)',
-        'gentle_end': 'Plynulé doznění (Ease-Out)'
-      };
-
-      pacingTag.textContent = pacingLabels[userStats.recommendedPacing] || 'Lineární';
-      pacingDesc.textContent = userStats.pacingRationale || 'Tempo optimalizováno na základě variability.';
-    }
-
-    function setDosesPerDay(num) {
-      dosesPerDay = num;
-      [1, 2, 3, 4].forEach(d => {
-        const btn = document.getElementById(`dpd-${d}`);
-        if (btn) {
-          if (d === num) {
-            btn.className = "liquid-glass-cell py-1 rounded-xl text-xs font-bold text-brand-400 active:scale-95 is-today";
-          } else {
-            btn.className = "liquid-glass-cell py-1 rounded-xl text-xs font-bold text-slate-400 active:scale-95";
-          }
-        }
-      });
-    }
-
-    function updateInfographic(strategy = 'decrease') {
-      const defEl = document.getElementById('infographic-default');
-      const decEl = document.getElementById('infographic-decrease');
-      const titleEl = document.getElementById('infographic-title');
-
-      if (!decEl) return;
-
-      if (strategy === 'decrease') {
-        if (defEl) defEl.classList.add('hidden');
-        decEl.classList.remove('hidden');
-        if (titleEl) titleEl.textContent = "Princip redukčního plánu (Deload)";
-      } else {
-        decEl.classList.add('hidden');
-        if (defEl) defEl.classList.remove('hidden');
-        if (titleEl) titleEl.textContent = "Jak funguje adaptivní plánovač";
-      }
-    }
-
-    function selectStrategy(strategy = 'decrease') {
-      selectedStrategy = 'decrease';
-
-      const btn = document.getElementById('strat-btn-decrease');
-      if (btn) {
-        btn.className = "liquid-glass-cell p-3 rounded-2xl flex items-center justify-between gap-3 cursor-pointer text-white is-today active:scale-98 transition-all border border-teal-500/40 bg-teal-500/10 shadow-sm";
-      }
-
-      updateInfographic('decrease');
-
-      const configSec = document.getElementById('config-section');
-      const inputsDir = document.getElementById('inputs-directional');
-      const badge = document.getElementById('badge-selected-mode');
-      const labelTarget = document.getElementById('label-target-grams');
-      const startInput = document.getElementById('input-start-grams');
-      const targetInput = document.getElementById('input-target-grams');
-
-      if (configSec && !configSec.classList.contains('expanded')) {
-        configSec.classList.remove('hidden');
-        setTimeout(() => {
-          configSec.classList.add('expanded');
-        }, 10);
-      }
-
-      const baseline = userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0;
-      if (startInput) startInput.value = baseline;
-
-      if (inputsDir) inputsDir.classList.remove('hidden');
-      if (badge) {
-        badge.className = "text-[8.5px] font-bold uppercase px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-500/30";
-        badge.textContent = "Redukční deload";
-      }
-      if (labelTarget) labelTarget.textContent = "Cílová redukce";
-      if (targetInput && (!targetInput.value || parseFloat(targetInput.value) >= baseline)) {
-        targetInput.value = Math.max(0.2, (baseline * 0.4)).toFixed(1);
-      }
-
-      updatePacingUI();
-    }
-
-    function generateDoseSlots(totalGrams, count, peakH) {
-      const slots = [];
-      if (count === 1) {
-        slots.push({ time: `${peakH}:00`, amount: totalGrams, label: "Hlavní zápis" });
-      } else if (count === 2) {
-        const secH = (peakH + 5) % 24;
-        slots.push({ time: `${peakH}:00`, amount: parseFloat((totalGrams * 0.65).toFixed(2)), label: "Špičkový zápis" });
-        slots.push({ time: `${secH}:00`, amount: parseFloat((totalGrams * 0.35).toFixed(2)), label: "Udržovací zápis" });
-      } else if (count === 3) {
-        const t1 = Math.max(6, peakH - 2);
-        const t2 = peakH + 2;
-        const t3 = (peakH + 6) % 24;
-        slots.push({ time: `${t1}:00`, amount: parseFloat((totalGrams * 0.40).toFixed(2)), label: "Ranní stimulace" });
-        slots.push({ time: `${t2}:00`, amount: parseFloat((totalGrams * 0.35).toFixed(2)), label: "Odpolední fokus" });
-        slots.push({ time: `${t3}:00`, amount: parseFloat((totalGrams * 0.25).toFixed(2)), label: "Večerní vyrovnání" });
-      } else if (count === 4) {
-        const dose = parseFloat((totalGrams / 4).toFixed(2));
-        [8, 12, 16, 20].forEach((h, idx) => {
-          slots.push({ time: `${h}:00`, amount: dose, label: `Zápis ${idx + 1}` });
-        });
-      }
-      return slots;
-    }
+    // Zpětná kompatibilita pro stávající volání
+    function updatePacingUI() {}
+    function updateInfographic(strategy = 'decrease') {}
+    function selectStrategy(strategy = 'decrease') {}
 
     async function confirmAndActivatePlan() {
-      if (!selectedStrategy) return;
-
       const targetDateInput = document.getElementById('input-target-date');
       const targetDateVal = targetDateInput ? targetDateInput.value : '';
       if (!targetDateVal) {
@@ -8264,72 +8704,55 @@
       const diffTime = targetDate.getTime() - today.getTime();
       const totalDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
 
-      const pacing = userStats.recommendedPacing;
       const dailySchedule = [];
       const labels = [];
       const dataPoints = [];
 
-      let startG = 0, targetG = 0, minG = 0, maxG = 0;
+      const startG = parseFloat(document.getElementById('input-start-grams')?.value) || (userStats.avgDailyGrams > 0 ? userStats.avgDailyGrams : 3.0);
+      const targetG = parseFloat(document.getElementById('input-target-grams')?.value) || 1.0;
+      const totalDiff = targetG - startG;
 
-      if (selectedStrategy === 'maintain') {
-        minG = parseFloat(document.getElementById('input-maintain-min')?.value) || 1.5;
-        maxG = parseFloat(document.getElementById('input-maintain-max')?.value) || 2.5;
-        const avgG = (minG + maxG) / 2;
+      for (let i = 0; i <= totalDays; i++) {
+        const curDate = new Date(today);
+        curDate.setDate(curDate.getDate() + i);
+        const dateStr = `${curDate.getDate()}.${curDate.getMonth() + 1}.`;
+        const dateISO = getDateKey(curDate);
 
-        for (let i = 0; i <= totalDays; i++) {
-          const curDate = new Date(today);
-          curDate.setDate(curDate.getDate() + i);
-          const dateStr = `${curDate.getDate()}.${curDate.getMonth() + 1}.`;
-          const dateISO = getDateKey(curDate);
+        labels.push(dateStr);
 
-          labels.push(dateStr);
-          dataPoints.push(avgG);
-
-          dailySchedule.push({
-            dayIndex: i + 1,
-            dateStr: dateStr,
-            dateISO: dateISO,
-            targetGrams: avgG,
-            targetDisplay: `${minG.toFixed(1)} – ${maxG.toFixed(1)} G`,
-            minGrams: minG,
-            maxGrams: maxG,
-            slots: generateDoseSlots(avgG, dosesPerDay, userStats.peakHour)
-          });
+        const progress = totalDays > 0 ? (i / totalDays) : 1;
+        let factor = progress;
+        if (selectedPacingProfile === 'smooth') {
+          // Cosine ease-in-out S-curve for minimal day-to-day delta (< 0.5σ)
+          factor = (1 - Math.cos(Math.PI * progress)) / 2;
+        } else if (selectedPacingProfile === 'accelerated') {
+          // Convex curve targeting peak excess upfront
+          factor = 1 - Math.pow(1 - progress, 1.8);
+        } else {
+          // Direct linear descent
+          factor = progress;
         }
-      } else {
-        startG = parseFloat(document.getElementById('input-start-grams')?.value) || userStats.avgDailyGrams;
-        targetG = parseFloat(document.getElementById('input-target-grams')?.value) || 1.0;
-        const totalDiff = targetG - startG;
 
-        for (let i = 0; i <= totalDays; i++) {
-          const curDate = new Date(today);
-          curDate.setDate(curDate.getDate() + i);
-          const dateStr = `${curDate.getDate()}.${curDate.getMonth() + 1}.`;
-          const dateISO = getDateKey(curDate);
+        const currentTarget = parseFloat((startG + (totalDiff * factor)).toFixed(2));
+        dataPoints.push(currentTarget);
 
-          labels.push(dateStr);
-
-          const progress = i / totalDays;
-          let factor = progress;
-          if (pacing === 'gentle_start') factor = Math.pow(progress, 1.6);
-          else if (pacing === 'gentle_end') factor = 1 - Math.pow(1 - progress, 1.6);
-
-          const currentTarget = parseFloat((startG + (totalDiff * factor)).toFixed(2));
-          dataPoints.push(currentTarget);
-
-          dailySchedule.push({
-            dayIndex: i + 1,
-            dateStr: dateStr,
-            dateISO: dateISO,
-            targetGrams: currentTarget,
-            targetDisplay: `${currentTarget.toFixed(2)} G`,
-            slots: generateDoseSlots(currentTarget, dosesPerDay, userStats.peakHour)
-          });
-        }
+        dailySchedule.push({
+          dayIndex: i + 1,
+          dateStr: dateStr,
+          dateISO: dateISO,
+          targetGrams: currentTarget,
+          targetDisplay: `${currentTarget.toFixed(2)} G`,
+          slots: generateDoseSlots(currentTarget, dosesPerDay, userStats.peakHour, selectedPeakSlotIndex)
+        });
       }
 
       activePlanData = {
-        strategy: selectedStrategy,
+        strategy: 'decrease',
+        pacingProfile: selectedPacingProfile,
+        peakSlotIndex: selectedPeakSlotIndex,
+        stdDev: userStats.stdDev,
+        startG: startG,
+        targetG: targetG,
         startDateISO: getDateKey(today),
         targetDateISO: getDateKey(targetDate),
         totalDays: totalDays,
@@ -8352,14 +8775,16 @@
       }
 
       setTimeout(() => {
-        roadmap.classList.remove('hidden');
-        renderActiveRoadmap();
-        renderPlannerPieChart();
+        if (roadmap) {
+          roadmap.classList.remove('hidden');
+          renderActiveRoadmap();
+          renderPlannerPieChart();
 
-        setTimeout(() => {
-          roadmap.classList.remove('view-hidden');
-          roadmap.classList.add('view-visible');
-        }, 20);
+          setTimeout(() => {
+            roadmap.classList.remove('view-hidden');
+            roadmap.classList.add('view-visible');
+          }, 20);
+        }
       }, 260);
 
       showToast("Plán byl aktivován a uložen");
@@ -8381,26 +8806,22 @@
       const container = document.getElementById('strategy-accordion-container');
       const chevron = document.getElementById('strategy-chevron-icon');
 
-      roadmap.classList.remove('view-visible');
-      roadmap.classList.add('view-hidden');
+      if (roadmap) {
+        roadmap.classList.remove('view-visible');
+        roadmap.classList.add('view-hidden');
+      }
 
       setTimeout(() => {
-        roadmap.classList.add('hidden');
+        if (roadmap) roadmap.classList.add('hidden');
         
         if (strategyCard) strategyCard.classList.remove('hidden');
         if (container) container.classList.remove('expanded');
         if (chevron) chevron.style.transform = 'rotate(0deg)';
         isStrategySectionOpen = false;
 
-        selectedStrategy = 'decrease';
-        selectStrategy('decrease');
+        selectPacingProfile('smooth');
         renderPlannerPieChart();
-        
-        const configSec = document.getElementById('config-section');
-        if (configSec) {
-          configSec.classList.remove('expanded');
-          setTimeout(() => configSec.classList.add('hidden'), 350);
-        }
+        onStrategyParamChange();
       }, 260);
 
       showToast("Plán byl smazán");
@@ -8420,6 +8841,9 @@
       }
 
       if (activePlanData) {
+        if (typeof activePlanData.peakSlotIndex === 'number') {
+          selectedPeakSlotIndex = activePlanData.peakSlotIndex;
+        }
         if (strategyCard) strategyCard.classList.add('hidden');
         if (roadmap) {
           roadmap.classList.remove('hidden', 'view-hidden');
@@ -8438,19 +8862,41 @@
       const container = document.getElementById('strategy-accordion-container');
       const chevron = document.getElementById('strategy-chevron-icon');
       
-      roadmap.classList.remove('view-visible');
-      roadmap.classList.add('view-hidden');
+      if (roadmap) {
+        roadmap.classList.remove('view-visible');
+        roadmap.classList.add('view-hidden');
+      }
 
       setTimeout(() => {
-        roadmap.classList.add('hidden');
+        if (roadmap) roadmap.classList.add('hidden');
         if (strategyCard) strategyCard.classList.remove('hidden');
         if (container) container.classList.add('expanded');
         if (chevron) chevron.style.transform = 'rotate(180deg)';
         isStrategySectionOpen = true;
 
         if (activePlanData) {
-          selectStrategy(activePlanData.strategy);
-          setDosesPerDay(activePlanData.dosesPerDay);
+          if (activePlanData.startG !== undefined) {
+            const startInput = document.getElementById('input-start-grams');
+            if (startInput) startInput.value = activePlanData.startG;
+          }
+          if (activePlanData.targetG !== undefined) {
+            const targetInput = document.getElementById('input-target-grams');
+            if (targetInput) targetInput.value = activePlanData.targetG;
+          }
+          if (activePlanData.targetDateISO) {
+            const targetDateInput = document.getElementById('input-target-date');
+            if (targetDateInput) targetDateInput.value = activePlanData.targetDateISO;
+          }
+          if (typeof activePlanData.peakSlotIndex === 'number') {
+            selectedPeakSlotIndex = activePlanData.peakSlotIndex;
+          }
+          if (activePlanData.pacingProfile) {
+            selectPacingProfile(activePlanData.pacingProfile);
+          }
+          if (activePlanData.dosesPerDay) {
+            setDosesPerDay(activePlanData.dosesPerDay);
+          }
+          onStrategyParamChange();
         }
       }, 260);
     }
@@ -8467,28 +8913,13 @@
       const today = new Date();
       const todayISO = getDateKey(today);
 
-      const stratTitles = {
-        'decrease': 'REDUKČNÍ PLÁN',
-        'maintain': 'UDRŽOVACÍ PLÁN',
-        'increase': 'NÁRŮSTOVÝ PLÁN'
-      };
-      
       const titleEl = document.getElementById('roadmap-summary-title');
       const ledDot = document.getElementById('header-led-dot');
 
       if (titleEl) {
-        titleEl.textContent = stratTitles[activePlanData.strategy] || 'AKTIVNÍ PLÁN';
-
-        if (activePlanData.strategy === 'decrease') {
-          titleEl.className = "text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
-          if (ledDot) ledDot.className = "led-indicator bg-teal-400 shrink-0";
-        } else if (activePlanData.strategy === 'increase') {
-          titleEl.className = "text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400";
-          if (ledDot) ledDot.className = "led-indicator bg-amber-400 shrink-0";
-        } else {
-          titleEl.className = "text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-400";
-          if (ledDot) ledDot.className = "led-indicator bg-purple-400 shrink-0";
-        }
+        titleEl.textContent = 'REDUKČNÍ PLÁN';
+        titleEl.className = "text-xs sm:text-sm font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-brand-400";
+        if (ledDot) ledDot.className = "led-indicator bg-teal-400 shrink-0";
       }
 
       renderLiquidCalendar(activePlanData.dailySchedule, todayISO);
@@ -8507,9 +8938,12 @@
 
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = "p-1 rounded-xl opacity-0 pointer-events-none h-16 sm:h-20";
+        emptyCell.className = "aspect-square w-full min-h-0 opacity-0 pointer-events-none";
         container.appendChild(emptyCell);
       }
+
+      const planStd = (activePlanData && typeof activePlanData.stdDev === 'number') ? activePlanData.stdDev : (userStats.stdDev || 0.25);
+      const tolerance = 0.5 * planStd;
 
       schedule.forEach((day) => {
         const isToday = day.dateISO === todayISO;
@@ -8527,8 +8961,9 @@
             else if (actualSum > day.maxGrams) statusDotColor = "bg-rose-400";
             else statusDotColor = "bg-amber-400";
           } else {
-            if (actualSum <= day.targetGrams && actualSum > 0) statusDotColor = "bg-teal-400";
-            else if (actualSum > day.targetGrams) statusDotColor = "bg-rose-400";
+            if (actualSum > 0 && actualSum <= day.targetGrams) statusDotColor = "bg-teal-400";
+            else if (actualSum > day.targetGrams && actualSum <= (day.targetGrams + tolerance)) statusDotColor = "bg-amber-400";
+            else if (actualSum > (day.targetGrams + tolerance)) statusDotColor = "bg-rose-400";
             else if (isPast && actualSum === 0) statusDotColor = "bg-slate-500";
           }
         }
@@ -8538,7 +8973,7 @@
         cell.id = `cal-cell-${day.dateISO}`;
         cell.onclick = () => openDayModal(day.dateISO);
 
-        let cellStyle = `liquid-glass-cell p-1.5 sm:p-2.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer relative h-16 sm:h-20 w-full ${
+        let cellStyle = `liquid-glass-cell aspect-square w-full min-h-0 p-1 sm:p-1.5 rounded-xl flex flex-col items-center justify-between cursor-pointer relative overflow-hidden transition-all ${
           isToday ? 'is-today' : ''
         }`;
         if (frozen) {
@@ -8550,19 +8985,19 @@
         const fullDateDisplay = `${parseInt(parts[2], 10)}.${parseInt(parts[1], 10)}.`;
 
         const indicator = frozen
-          ? `<span class="text-sky-300 text-[8.5px] flex items-center justify-center leading-none"><i class="fa-solid fa-snowflake"></i></span>`
-          : `<span class="w-2 h-2 rounded-full ${statusDotColor}"></span>`;
+          ? `<span class="text-sky-300 text-[8px] sm:text-[8.5px] flex items-center justify-center leading-none"><i class="fa-solid fa-snowflake"></i></span>`
+          : `<span class="w-1.5 h-1.5 rounded-full ${statusDotColor}"></span>`;
 
         const bottomLabel = frozen
-          ? `<span class="text-[8px] sm:text-[9px] font-black font-mono text-sky-400 leading-none tracking-wider">PAUZA</span>`
-          : `<span class="text-[9px] sm:text-[10px] font-bold font-mono text-brand-400/90 leading-none">${day.targetGrams}G</span>`;
+          ? `<span class="text-[8px] sm:text-[8.5px] font-black font-mono text-sky-400 leading-none tracking-wider">PAUZA</span>`
+          : `<span class="text-[8.5px] sm:text-[9.5px] font-mono font-extrabold text-teal-300 leading-none">${day.targetGrams}G</span>`;
 
         cell.innerHTML = `
-          <div class="w-full flex justify-between items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-slate-400 leading-none">
+          <div class="w-full flex justify-between items-center text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-400 leading-none">
             <span>${day.dayIndex}d</span>
             ${indicator}
           </div>
-          <span class="text-xs sm:text-sm font-black font-mono tracking-tight leading-none ${isToday ? 'text-purple-300 font-extrabold' : (frozen ? 'text-sky-200' : 'text-white')}">${fullDateDisplay}</span>
+          <span class="text-xs sm:text-sm font-black font-mono tracking-tight leading-none my-auto ${isToday ? 'text-purple-300 font-extrabold' : (frozen ? 'text-sky-200' : 'text-white')}">${fullDateDisplay}</span>
           ${bottomLabel}
         `;
 
@@ -8579,6 +9014,9 @@
       const isPast = dateISO < todayISO;
       const isFrozen = isDateFrozen(dateISO);
 
+      const planStd = (activePlanData && typeof activePlanData.stdDev === 'number') ? activePlanData.stdDev : (userStats.stdDev || 0.25);
+      const tolerance = 0.5 * planStd;
+
       const titleEl = document.getElementById('modal-day-title');
       const targetValEl = document.getElementById('modal-day-target-val');
       const subtitleEl = document.getElementById('modal-day-subtitle');
@@ -8586,7 +9024,7 @@
 
       if (titleEl) titleEl.textContent = `${dayObj.dateStr} (DEN ${dayObj.dayIndex})`;
       if (targetValEl) targetValEl.textContent = isFrozen ? "PAUZA" : dayObj.targetDisplay;
-      if (subtitleEl) subtitleEl.textContent = isFrozen ? "Den vynechán ze statistik a roadmapy (Pauza)" : (isToday ? "Dnešní aktivní den" : (isPast ? "Minulý den plánu" : "Budoucí plánovaný den"));
+      if (subtitleEl) subtitleEl.textContent = isFrozen ? "Den v režimu pauzy (vynechán ze statistické řady)" : (isToday ? "Dnešní aktivní časový interval" : (isPast ? "Ukončený den plánu" : "Budoucí modelovaný den"));
 
       if (badgeEl) {
         if (isFrozen) {
@@ -8600,7 +9038,7 @@
           badgeEl.textContent = "HISTORIE";
         } else {
           badgeEl.className = "text-[8.5px] font-bold px-2 py-0.5 rounded-md font-mono bg-brand-500/10 text-brand-400 border border-brand-500/30";
-          badgeEl.textContent = "PLÁN";
+          badgeEl.textContent = "MODEL";
         }
       }
 
@@ -8608,13 +9046,6 @@
       const actualSum = dayLogs.reduce((acc, l) => acc + l.amount, 0);
 
       const fBox = document.getElementById('modal-day-fulfillment-box');
-      let isFulfilled = false;
-
-      if (activePlanData.strategy === 'maintain') {
-        isFulfilled = actualSum >= dayObj.minGrams && actualSum <= dayObj.maxGrams;
-      } else {
-        isFulfilled = actualSum > 0 && actualSum <= dayObj.targetGrams;
-      }
 
       if (fBox) {
         if (isFrozen) {
@@ -8626,27 +9057,55 @@
         } else if (dayLogs.length === 0 && !isPast) {
           fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-darkbg/60 border-borderbg/50 text-slate-300";
           fBox.innerHTML = `
-            <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-purple-400"></i> Zápisy zatím neproběhly</span>
+            <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-purple-400"></i> Časová okna otevřena (bez zápisu)</span>
             <span class="font-mono font-bold text-slate-400">0.00 / ${dayObj.targetGrams} G</span>
           `;
-        } else if (isFulfilled) {
-          fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-teal-500/10 border-teal-500/30 text-teal-300";
-          fBox.innerHTML = `
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-teal-400"></i> Cíl dne splněn</span>
-            <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
-          `;
-        } else if (actualSum > (dayObj.targetGrams || dayObj.maxGrams)) {
-          fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-rose-500/10 border-rose-500/30 text-rose-300";
-          fBox.innerHTML = `
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Překročen cíl</span>
-            <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
-          `;
+        } else if (activePlanData.strategy === 'maintain') {
+          if (actualSum >= dayObj.minGrams && actualSum <= dayObj.maxGrams) {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-teal-500/10 border-teal-500/30 text-teal-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-teal-400"></i> V rámci cílového rozpětí</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          } else if (actualSum > dayObj.maxGrams) {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-rose-500/10 border-rose-500/30 text-rose-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Nad cílovým rozpětím</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          } else {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-amber-500/10 border-amber-500/30 text-amber-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-amber-400"></i> Pod cílovým rozpětím</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          }
         } else {
-          fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-darkbg/60 border-borderbg/50 text-slate-400";
-          fBox.innerHTML = `
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-minus text-slate-500"></i> Zapsáno méně než plán</span>
-            <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
-          `;
+          if (actualSum > 0 && actualSum <= dayObj.targetGrams) {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-teal-500/10 border-teal-500/30 text-teal-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-teal-400"></i> V rámci cílové hodnoty</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          } else if (actualSum > dayObj.targetGrams && actualSum <= (dayObj.targetGrams + tolerance)) {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-amber-500/10 border-amber-500/30 text-amber-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-amber-400"></i> V tolerančním koridoru (±0.5σ)</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          } else if (actualSum > (dayObj.targetGrams + tolerance)) {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-rose-500/10 border-rose-500/30 text-rose-300";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Nad tolerančním koridorem</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          } else {
+            fBox.className = "p-2 rounded-2xl border flex justify-between items-center text-xs bg-darkbg/60 border-borderbg/50 text-slate-400";
+            fBox.innerHTML = `
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-minus text-slate-500"></i> Bez zaznamenaného zápisu</span>
+              <span class="font-mono font-black text-white">${actualSum.toFixed(2)} / ${dayObj.targetGrams} G</span>
+            `;
+          }
         }
       }
 
@@ -8677,7 +9136,7 @@
       if (actualLogsContainer) {
         actualLogsContainer.innerHTML = '';
         if (dayLogs.length === 0) {
-          actualLogsContainer.innerHTML = `<p class="text-[9.5px] text-slate-500 italic py-1">V tento den není v databázi žádný zápis.</p>`;
+          actualLogsContainer.innerHTML = `<p class="text-[9.5px] text-slate-500 italic py-1">V tento den nebyl zaznamenán žádný zápis.</p>`;
         } else {
           dayLogs.forEach(l => {
             const logTime = new Date(l.timestamp).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
@@ -8729,11 +9188,12 @@
         const todayIndex = activePlanData.dailySchedule.findIndex(d => d.dateISO === todayISO);
         if (todayIndex === -1) return;
 
-        let point = chart.getDatasetMeta(2)?.data[todayIndex];
+        // Try actual point first (dataset 3), fallback to planned trajectory (dataset 2)
+        let point = chart.getDatasetMeta(3)?.data[todayIndex];
         if (!point || point.skip || point.x === undefined || point.y === undefined) {
-          point = chart.getDatasetMeta(1)?.data[todayIndex];
+          point = chart.getDatasetMeta(2)?.data[todayIndex];
         }
-        if (!point || point.x === undefined || point.y === undefined) return;
+        if (!point || point.skip || point.x === undefined || point.y === undefined) return;
 
         const { ctx } = chart;
         const x = point.x;
@@ -8747,7 +9207,7 @@
         ctx.save();
         ctx.beginPath();
         ctx.arc(x, y, r1, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(45, 212, 191, ${alpha1 * 0.4})`;
+        ctx.fillStyle = `rgba(45, 212, 191, ${alpha1 * 0.4})`;
         ctx.strokeStyle = `rgba(192, 132, 252, ${alpha1})`;
         ctx.lineWidth = 1.5;
         ctx.shadowColor = '#2dd4bf';
@@ -8765,13 +9225,49 @@
       }
     };
 
+    function togglePlanChartAccordion() {
+      isTrajectoryChartOpen = !isTrajectoryChartOpen;
+      const accordion = document.getElementById('trajectory-chart-accordion');
+      const chevron = document.getElementById('plan-chart-chevron') || document.getElementById('trajectory-chart-chevron');
+      const label = document.getElementById('plan-chart-label') || document.getElementById('trajectory-chart-btn-label');
+
+      if (accordion) {
+        accordion.classList.toggle('is-open', isTrajectoryChartOpen);
+      }
+      if (chevron) {
+        chevron.style.transform = isTrajectoryChartOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+      if (label) {
+        label.textContent = isTrajectoryChartOpen ? 'Skrýt graf' : 'Zobrazit graf';
+      }
+
+      if (isTrajectoryChartOpen) {
+        setTimeout(() => {
+          if (planChartInstance) {
+            planChartInstance.resize();
+            planChartInstance.update();
+          }
+        }, 120);
+        setTimeout(() => {
+          if (planChartInstance) {
+            planChartInstance.resize();
+            planChartInstance.update();
+          }
+        }, 340);
+      }
+    }
+    window.togglePlanChartAccordion = togglePlanChartAccordion;
+    window.toggleTrajectoryChartAccordion = togglePlanChartAccordion;
+
     function startPulsingChartLoop() {
       cancelAnimationFrame(chartPulseAnimId);
       function loop() {
         const roadmap = document.getElementById('active-roadmap-wrapper');
         const tabPlanner = document.getElementById('tab-planner');
-        if (planChartInstance && roadmap && !roadmap.classList.contains('hidden') && tabPlanner && !tabPlanner.classList.contains('hidden')) {
+        if (isTrajectoryChartOpen && planChartInstance && roadmap && !roadmap.classList.contains('hidden') && tabPlanner && !tabPlanner.classList.contains('hidden')) {
           planChartInstance.draw();
+        }
+        if (roadmap && !roadmap.classList.contains('hidden') && tabPlanner && !tabPlanner.classList.contains('hidden')) {
           chartPulseAnimId = requestAnimationFrame(loop);
         }
       }
@@ -8797,15 +9293,14 @@
         themeRgba = '192, 132, 252';
       }
 
-      const grad = ctx.createLinearGradient(0, 0, 0, 115);
-      grad.addColorStop(0, `rgba(${themeRgba}, 0.28)`);
-      grad.addColorStop(0.7, `rgba(${themeRgba}, 0.04)`);
-      grad.addColorStop(1, 'rgba(11, 15, 23, 0)');
-
       const todayISO = getDateKey(new Date());
 
-      const upperBand = dataPoints.map(val => parseFloat((val * 1.15).toFixed(2)));
-      const lowerBand = dataPoints.map(val => parseFloat((val * 0.85).toFixed(2)));
+      // Dual-layer corridor: Planned trajectory +/- 0.5 sigma
+      const planStd = (activePlanData && typeof activePlanData.stdDev === 'number') ? activePlanData.stdDev : (userStats.stdDev || 0.25);
+      const halfStd = parseFloat((0.5 * planStd).toFixed(2));
+
+      const upperBand = dataPoints.map(val => parseFloat((val + halfStd).toFixed(2)));
+      const lowerBand = dataPoints.map(val => parseFloat(Math.max(0, val - halfStd).toFixed(2)));
 
       const actualDataPoints = [];
       const actualPointColors = [];
@@ -8832,8 +9327,9 @@
             actualPointStyles.push('circle');
             actualPointRadii.push(3.5);
           } else {
-            if (sum <= day.targetGrams && sum > 0) actualPointColors.push('#2dd4bf');
-            else if (sum > day.targetGrams) actualPointColors.push('#f43f5e');
+            if (sum > 0 && sum <= day.targetGrams) actualPointColors.push('#2dd4bf');
+            else if (sum > day.targetGrams && sum <= (day.targetGrams + halfStd)) actualPointColors.push('#fbbf24');
+            else if (sum > (day.targetGrams + halfStd)) actualPointColors.push('#f43f5e');
             else actualPointColors.push('#64748b');
             actualPointStyles.push('circle');
             actualPointRadii.push(3.5);
@@ -8860,7 +9356,8 @@
           sumXY += p.x * p.y;
           sumXX += p.x * p.x;
         });
-        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+        const denominator = (n * sumXX - sumX * sumX);
+        const slope = denominator !== 0 ? (n * sumXY - sumX * sumY) / denominator : 0;
         const intercept = (sumY - slope * sumX) / n;
 
         const lastRecordedIdx = recordedEntries[recordedEntries.length - 1].x;
@@ -8892,7 +9389,7 @@
           labels: labels,
           datasets: [
             {
-              label: 'Horní mez',
+              label: 'Horní hranice koridoru',
               data: upperBand,
               borderColor: 'transparent',
               backgroundColor: 'transparent',
@@ -8901,7 +9398,7 @@
               order: 5
             },
             {
-              label: 'Pásmo tolerance (±15%)',
+              label: 'Statistický koridor (±0.5σ)',
               data: lowerBand,
               borderColor: 'transparent',
               backgroundColor: `rgba(${themeRgba}, 0.08)`,
@@ -8910,37 +9407,38 @@
               order: 4
             },
             {
-              label: 'Doporučený cíl',
+              label: 'Plánovaná trajektorie',
               data: dataPoints,
               borderColor: themeColor,
-              backgroundColor: grad,
-              fill: true,
+              borderDash: [5, 4],
+              backgroundColor: 'transparent',
+              fill: false,
               tension: 0.35,
-              borderWidth: 2.2,
+              borderWidth: 2,
               pointRadius: labels.length > 25 ? 0 : 2,
               pointBackgroundColor: themeColor,
               order: 2
             },
             {
-              label: 'Reálný zápis',
+              label: 'Reálné zápisy',
               data: actualDataPoints,
               borderColor: '#c084fc',
-              borderDash: [2, 2],
+              borderDash: [],
               backgroundColor: 'transparent',
               fill: false,
-              tension: 0.25,
-              borderWidth: 1.8,
+              tension: 0.2,
+              borderWidth: 2.2,
               pointRadius: actualPointRadii,
               pointStyle: actualPointStyles,
               pointBackgroundColor: actualPointColors,
               pointBorderColor: '#0b0f17',
               pointBorderWidth: 1,
-              pointHoverRadius: 5,
+              pointHoverRadius: 5.5,
               spanGaps: false,
               order: 1
             },
             {
-              label: 'Predikce trendu',
+              label: 'Lineární trend',
               data: trendLine,
               borderColor: 'rgba(244, 63, 94, 0.75)',
               borderDash: [4, 4],
@@ -8964,12 +9462,12 @@
               position: 'top',
               align: 'end',
               labels: {
-                boxWidth: 6,
-                boxHeight: 2,
+                boxWidth: 8,
+                boxHeight: 3,
                 color: '#94a3b8',
-                font: { size: 7.5, weight: '700' },
-                padding: 4,
-                filter: (item) => item.text !== 'Horní mez' && item.text !== 'Pásmo tolerance (±15%)'
+                font: { size: 8, weight: '700' },
+                padding: 6,
+                filter: (item) => item.text !== 'Horní hranice koridoru'
               }
             },
             tooltip: {
@@ -8980,7 +9478,10 @@
               borderWidth: 1,
               callbacks: {
                 label: (c) => {
-                  if (c.dataset.label === 'Horní mez' || c.dataset.label === 'Pásmo tolerance (±15%)') return null;
+                  if (c.dataset.label === 'Horní hranice koridoru') return null;
+                  if (c.dataset.label === 'Statistický koridor (±0.5σ)') {
+                    return ` Koridor (±0.5σ): ±${halfStd} G`;
+                  }
                   const dayObj = activePlanData?.dailySchedule?.[c.dataIndex];
                   const freezeTag = (dayObj && isDateFrozen(dayObj.dateISO)) ? ' [Pauza]' : '';
                   return ` ${c.dataset.label}: ${c.raw !== null ? c.raw + ' G' : '--'}${freezeTag}`;
