@@ -2718,6 +2718,192 @@
           </p>
         </div>
 
+        <!-- OZNÁMENÍ A PŘIPOMÍNKY -->
+        <div class="bg-darkbg border border-borderbg rounded-xl p-3.5 space-y-3">
+          <!-- Master Header & Switch -->
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-bell text-brand-400 text-xs"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                  Oznámení a připomínky
+                </h4>
+                <p class="text-[10px] text-slate-400">Web Push notifikace a diskrétní lock-screen upozornění</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+              <input 
+                type="checkbox" 
+                id="setting-notif-master-toggle" 
+                onchange="toggleNotificationsMaster(this.checked)" 
+                class="sr-only peer"
+              >
+              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500"></div>
+            </label>
+          </div>
+
+          <!-- Upozornění na blokaci oprávnění v prohlížeči -->
+          <div id="notif-permission-warning" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 text-[11px] text-amber-300 flex items-start gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0"></i>
+            <span>Notifikace jsou v prohlížeči blokovány. Pro povolení klikněte na ikonu zámku v adresním řádku prohlížeče a přepněte Oznámení na Povolit.</span>
+          </div>
+
+          <!-- Detailní nastavení notifikací (aktivní při zapnutém toggle) -->
+          <div id="notif-settings-details" class="space-y-3 pt-2 border-t border-borderbg/60 hidden">
+            <!-- REŽIM SPOUŠTĚNÍ -->
+            <div class="space-y-1.5">
+              <label class="block text-[11px] font-bold text-slate-300">
+                Režim spouštění připomínky
+              </label>
+              <div class="grid grid-cols-3 gap-1.5 p-1 bg-cardbg border border-borderbg rounded-xl">
+                <button 
+                  type="button" 
+                  id="notif-mode-interval" 
+                  onclick="setNotificationMode('interval')" 
+                  class="py-1.5 px-2 text-[10px] font-bold rounded-lg transition-all text-center bg-brand-500/20 text-brand-400 border border-brand-500/40 shadow-sm"
+                >
+                  Interval
+                </button>
+                <button 
+                  type="button" 
+                  id="notif-mode-fixed" 
+                  onclick="setNotificationMode('fixed_time')" 
+                  class="py-1.5 px-2 text-[10px] font-semibold rounded-lg transition-all text-center text-slate-400 hover:text-white border border-transparent bg-transparent"
+                >
+                  Pevný čas
+                </button>
+                <button 
+                  type="button" 
+                  id="notif-mode-both" 
+                  onclick="setNotificationMode('both')" 
+                  class="py-1.5 px-2 text-[10px] font-semibold rounded-lg transition-all text-center text-slate-400 hover:text-white border border-transparent bg-transparent"
+                >
+                  Obojí
+                </button>
+              </div>
+              <p id="notif-mode-desc" class="text-[10px] text-slate-500 leading-normal pl-0.5">
+                Upozornění po uplynutí cílového intervalu od posledního záznamu.
+              </p>
+            </div>
+
+            <!-- PEVNÝ ČAS DNE (při fixed_time nebo both) -->
+            <div id="notif-fixed-time-container" class="space-y-1.5 hidden">
+              <label class="block text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                <i class="fa-regular fa-clock text-brand-400 text-xs"></i> Čas denního upozornění
+              </label>
+              <div class="flex items-center gap-2">
+                <input 
+                  type="time" 
+                  id="setting-notif-fixed-time" 
+                  value="20:00" 
+                  onchange="updateNotifFixedTime(this.value)" 
+                  class="w-28 bg-cardbg border border-borderbg rounded-xl py-1.5 px-3 text-sm font-extrabold text-white text-center focus:outline-none focus:border-brand-500"
+                >
+                <span class="text-[10px] font-semibold text-slate-400">každý den</span>
+              </div>
+            </div>
+
+            <!-- DISKRÉTNÍ RYCHLÉ ŠABLONY -->
+            <div class="space-y-1.5">
+              <label class="block text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                <span>Diskrétní šablony pro zámek obrazovky</span>
+                <span class="text-[9.5px] font-normal text-slate-500">1 kliknutí</span>
+              </label>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button 
+                  type="button" 
+                  onclick="applyNotificationPreset('voda')" 
+                  title="Připomínka: Čas se napít vody a protáhnout se." 
+                  class="py-1.5 px-2 bg-cardbg hover:bg-slate-800 border border-borderbg hover:border-brand-500/40 rounded-xl text-slate-300 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                >
+                  <span>💧 Voda</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="applyNotificationPreset('interval')" 
+                  title="Grammi: Cílový časový interval vypršel." 
+                  class="py-1.5 px-2 bg-cardbg hover:bg-slate-800 border border-borderbg hover:border-brand-500/40 rounded-xl text-slate-300 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                >
+                  <span>⏱️ Interval</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="applyNotificationPreset('pauza')" 
+                  title="Check-in: Krátká přestávka." 
+                  class="py-1.5 px-2 bg-cardbg hover:bg-slate-800 border border-borderbg hover:border-brand-500/40 rounded-xl text-slate-300 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                >
+                  <span>🧘 Pauza</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- VLASTNÍ TEXTY NOTIFIKACE -->
+            <div class="space-y-2">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-bold text-slate-300">Titulek (Title)</label>
+                  <span id="notif-title-count" class="text-[10px] text-slate-500 font-mono">6/30</span>
+                </div>
+                <input 
+                  type="text" 
+                  id="setting-notif-title" 
+                  maxlength="30" 
+                  value="Grammi" 
+                  oninput="handleNotifTitleInput(this.value)" 
+                  onchange="saveNotificationCustomText()" 
+                  placeholder="Např. Grammi" 
+                  class="w-full bg-cardbg border border-borderbg rounded-xl py-1.5 px-3 text-xs text-white focus:outline-none focus:border-brand-500"
+                >
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-bold text-slate-300">Text zprávy (Body)</label>
+                  <span id="notif-body-count" class="text-[10px] text-slate-500 font-mono">33/80</span>
+                </div>
+                <input 
+                  type="text" 
+                  id="setting-notif-body" 
+                  maxlength="80" 
+                  value="Uplynul nastavený časový rozestup." 
+                  oninput="handleNotifBodyInput(this.value)" 
+                  onchange="saveNotificationCustomText()" 
+                  placeholder="Např. Uplynul nastavený časový rozestup." 
+                  class="w-full bg-cardbg border border-borderbg rounded-xl py-1.5 px-3 text-xs text-white focus:outline-none focus:border-brand-500"
+                >
+              </div>
+            </div>
+
+            <!-- UPOZORNĚNÍ PŘI PŘEKROČENÍ DENNÍHO LIMITU -->
+            <div class="pt-1">
+              <label class="flex items-center gap-2.5 cursor-pointer text-slate-300 select-none">
+                <input 
+                  type="checkbox" 
+                  id="setting-notif-limit-warning" 
+                  onchange="updateNotifLimitWarning(this.checked)" 
+                  class="w-4 h-4 rounded border-borderbg bg-cardbg text-brand-500 focus:ring-brand-500/20 focus:ring-offset-0 cursor-pointer"
+                >
+                <span class="text-xs font-semibold text-slate-200">Upozornit při překročení denního limitu</span>
+              </label>
+              <p class="text-[10px] text-slate-500 mt-1 pl-6 leading-normal">
+                Automaticky upozorní při překročení vaší nastavené denní spotřeby Gcek.
+              </p>
+            </div>
+
+            <!-- TESTOVACÍ OZNÁMENÍ -->
+            <div class="pt-1">
+              <button 
+                type="button" 
+                onclick="sendTestNotification()" 
+                class="w-full py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <i class="fa-solid fa-paper-plane text-xs"></i> Odeslat testovací oznámení
+              </button>
+            </div>
+          </div>
+        </div>
+
         <button onclick="exportData()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-colors cursor-pointer">
           <i class="fa-solid fa-download"></i> Stáhnout data (JSON) [POUZE PC]
         </button>
@@ -2858,7 +3044,7 @@
         <div>
           <div class="flex items-center gap-1.5">
             <h3 class="text-sm font-black text-white tracking-tight uppercase">Co je nového?</h3>
-            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.7</span>
+            <span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 rounded-full">v1.6</span>
           </div>
           <p class="text-[11px] text-slate-400">Přehled nejnovějších změn a funkcí</p>
         </div>
@@ -2867,7 +3053,19 @@
       <div class="bg-darkbg/70 border border-borderbg/80 rounded-2xl p-3 space-y-2 text-xs text-slate-300">
         <div class="flex items-start gap-2">
           <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
-          <span>Možnost pomalým tahem <strong>přecházet i přes CELÉ</strong> Gcka v touchpadu.</span>
+          <span>Přidáno více <strong>animací</strong> do webu.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span>Nové volení pomocí <strong>adaptivního touchpadu</strong>.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span>Přidané varování o <strong>vyšším</strong> zápisu.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-brand-400 text-xs mt-0.5 shrink-0"></i>
+          <span>Možnost zpětně <strong>POZASTAVIT</strong> dny do statistik tlačítkem PAUZA v plánovači.</span>
         </div>
       </div>
 
@@ -3256,6 +3454,14 @@
     const PIE_CAPACITY_KEY = 'grammi_pie_capacity';
     const PIE_REMAINING_KEY = 'grammi_pie_remaining';
     
+    // ==========================================
+    // VAPID PUBLIC KEY PRO WEB PUSH NOTIFIKACE
+    // Pro produkční odesílání Web Push notifikací ze serveru (Edge Function / Cron / Backend)
+    // doplňte sem svůj veřejný VAPID klíč (Base64 URL-safe řetězec).
+    // Např. vygenerovaný příkazem: npx web-push generate-vapid-keys
+    // ==========================================
+    const VAPID_PUBLIC_KEY = "";
+
     const CURRENT_APP_VERSION = '1.5';
     const WHATS_NEW_KEY = 'grammi_seen_version';
     
@@ -3276,6 +3482,15 @@
     let dailyLimitGrams = 5.0;
     let pieCapacityGrams = 50.0;
     let pieRemainingGrams = 50.0;
+
+    // Stavové proměnné pro Oznámení a připomínky (Web Push)
+    let notificationsEnabled = false;
+    let notificationTriggerMode = 'interval'; // 'interval' | 'fixed_time' | 'both'
+    let notificationFixedTime = '20:00';
+    let notificationCustomTitle = 'Grammi';
+    let notificationCustomBody = 'Uplynul nastavený časový rozestup.';
+    let notificationLimitWarning = false;
+    let swRegistration = null;
     let weeklyChartInstance = null;
     let todayHourlyChartInstance = null;
     let mainChartMode = 'weekly';
@@ -4162,6 +4377,7 @@
           sortLogs();
           renderAll();
           await savePromise;
+          checkAndTriggerLimitWarning();
         }
 
         // 3. Stage 3: Success & Elastic Release / Rebound to scale(1) over 320ms
@@ -4311,6 +4527,7 @@
 
       checkWhatsNewNotice();
       initStatusAutoUpdate();
+      registerServiceWorker();
     }
 
     async function updateDisplayName() {
@@ -4863,6 +5080,18 @@
             } else {
               loadLocalSettings();
             }
+
+            // Načtení nastavení oznámení a připomínek
+            notificationsEnabled = (data.notifications_enabled !== undefined && data.notifications_enabled !== null)
+              ? !!data.notifications_enabled
+              : false;
+            notificationTriggerMode = data.notification_trigger_mode || 'interval';
+            notificationFixedTime = data.notification_fixed_time ? String(data.notification_fixed_time).slice(0, 5) : '20:00';
+            notificationCustomTitle = data.notification_custom_title || 'Grammi';
+            notificationCustomBody = data.notification_custom_body || 'Uplynul nastavený časový rozestup.';
+            notificationLimitWarning = (data.notification_limit_warning !== undefined && data.notification_limit_warning !== null)
+              ? !!data.notification_limit_warning
+              : false;
           } else {
             loadLocalSettings();
           }
@@ -4884,6 +5113,13 @@
       if (capacityInputEl) capacityInputEl.value = pieCapacityGrams.toFixed(1);
 
       updateFreezeUI();
+      updateNotificationUI();
+
+      if (notificationsEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        setTimeout(() => {
+          subscribeUserToPush().catch(() => {});
+        }, 1200);
+      }
     }
 
     function loadLocalSettings() {
@@ -4918,6 +5154,19 @@
         if (localGlobalStart) {
           globalFreezeStartDate = localGlobalStart;
         }
+
+        const localNotif = localStorage.getItem('grammi_notifications_settings');
+        if (localNotif) {
+          try {
+            const parsed = JSON.parse(localNotif);
+            if (parsed.notificationsEnabled !== undefined) notificationsEnabled = !!parsed.notificationsEnabled;
+            if (parsed.notificationTriggerMode) notificationTriggerMode = parsed.notificationTriggerMode;
+            if (parsed.notificationFixedTime) notificationFixedTime = parsed.notificationFixedTime;
+            if (parsed.notificationCustomTitle) notificationCustomTitle = parsed.notificationCustomTitle;
+            if (parsed.notificationCustomBody) notificationCustomBody = parsed.notificationCustomBody;
+            if (parsed.notificationLimitWarning !== undefined) notificationLimitWarning = !!parsed.notificationLimitWarning;
+          } catch(e) {}
+        }
       } catch(e) {}
     }
 
@@ -4936,6 +5185,15 @@
         localStorage.removeItem('grammi_global_freeze_start');
       }
 
+      localStorage.setItem('grammi_notifications_settings', JSON.stringify({
+        notificationsEnabled,
+        notificationTriggerMode,
+        notificationFixedTime,
+        notificationCustomTitle,
+        notificationCustomBody,
+        notificationLimitWarning
+      }));
+
       if (currentUserId) {
         const freezePayload = {
           days: frozenDays,
@@ -4953,6 +5211,12 @@
               remaining_capacity: pieRemainingGrams,
               active_plan: activePlanData,
               frozen_days: freezePayload,
+              notifications_enabled: notificationsEnabled,
+              notification_trigger_mode: notificationTriggerMode,
+              notification_fixed_time: notificationFixedTime,
+              notification_custom_title: notificationCustomTitle,
+              notification_custom_body: notificationCustomBody,
+              notification_limit_warning: notificationLimitWarning,
               updated_at: new Date().toISOString()
             });
 
@@ -4966,6 +5230,7 @@
     function openExportModal(defaultSubTab = 'config') {
       document.getElementById('settings-modal').classList.remove('hidden');
       switchSettingsTab(defaultSubTab);
+      updateNotificationUI();
     }
 
     function closeExportModal() {
@@ -5020,6 +5285,450 @@
       renderPlannerPieChart();
       if (isForecastViewActive) renderForecastModel();
       showToast(`Kapacita zásobníku nastavena na ${num.toFixed(1)} G`);
+    }
+
+    // ==========================================
+    // WEB PUSH NOTIFIKACE & SERVICE WORKER LOGIKA
+    // ==========================================
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    async function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.register('sw.js');
+          swRegistration = reg;
+          console.log('[SW] Service Worker zaregistrován s rozsahem:', reg.scope);
+          return reg;
+        } catch (err) {
+          console.error('[SW] Chyba při registraci Service Workera:', err);
+        }
+      }
+      return null;
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        registerServiceWorker();
+      });
+    }
+
+    async function subscribeUserToPush() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('[Push] Push notifikace nejsou tímto prohlížečem podporovány.');
+        return null;
+      }
+
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        let sub = await reg.pushManager.getSubscription();
+
+        if (!sub) {
+          if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.trim() === '') {
+            console.warn('[Push] VAPID_PUBLIC_KEY není nastavena. Testovací a lokální notifikace fungují. Pro Web Push ze serveru doplňte platný VAPID klíč.');
+            return null;
+          }
+          const convertedVapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY.trim());
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+          });
+        }
+
+        if (sub && currentUserId) {
+          const rawSub = sub.toJSON();
+          const endpoint = sub.endpoint;
+          const p256dh = rawSub.keys?.p256dh || '';
+          const auth = rawSub.keys?.auth || '';
+          const userAgent = navigator.userAgent || '';
+
+          const { error } = await db
+            .from('user_push_subscriptions')
+            .upsert({
+              user_id: currentUserId,
+              endpoint: endpoint,
+              p256dh: p256dh,
+              auth: auth,
+              user_agent: userAgent
+            }, { onConflict: 'endpoint' });
+
+          if (error) {
+            console.error('[Push] Chyba při ukládání push subskripce do Supabase:', error);
+          } else {
+            console.log('[Push] Push subskripce úspěšně uložena pro uživatele:', currentUserId);
+          }
+        }
+        return sub;
+      } catch (err) {
+        console.error('[Push] Selhala registrace push subskripce:', err);
+        throw err;
+      }
+    }
+
+    async function unsubscribeUserFromPush() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          const endpoint = sub.endpoint;
+          await sub.unsubscribe();
+          console.log('[Push] Odběr v prohlížeči byl zrušen.');
+
+          if (currentUserId && endpoint) {
+            const { error } = await db
+              .from('user_push_subscriptions')
+              .delete()
+              .eq('endpoint', endpoint);
+
+            if (error) {
+              console.error('[Push] Chyba při mazání odběru z DB:', error);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[Push] Chyba při odhlašování push notifikací:', err);
+      }
+    }
+
+    async function toggleNotificationsMaster(checked) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(10); } catch (e) {}
+      }
+
+      const warningEl = document.getElementById('notif-permission-warning');
+      const masterToggle = document.getElementById('setting-notif-master-toggle');
+
+      if (checked) {
+        if (!('Notification' in window)) {
+          showToast('Prohlížeč nepodporuje notifikace');
+          if (masterToggle) masterToggle.checked = false;
+          return;
+        }
+
+        if (Notification.permission === 'denied') {
+          if (warningEl) warningEl.classList.remove('hidden');
+          if (masterToggle) masterToggle.checked = false;
+          showToast('Oznámení jsou blokována v prohlížeči');
+          return;
+        }
+
+        if (Notification.permission !== 'granted') {
+          const perm = await Notification.requestPermission();
+          if (perm !== 'granted') {
+            if (warningEl) warningEl.classList.remove('hidden');
+            if (masterToggle) masterToggle.checked = false;
+            showToast('Oprávnění k oznámení nebylo uděleno');
+            return;
+          }
+        }
+
+        if (warningEl) warningEl.classList.add('hidden');
+        notificationsEnabled = true;
+        updateNotificationUI();
+
+        try {
+          await subscribeUserToPush();
+        } catch (pushErr) {
+          console.warn('[Push] Chyba push registrace:', pushErr);
+        }
+
+        await saveSettings();
+        showToast('Oznámení a připomínky aktivovány');
+      } else {
+        notificationsEnabled = false;
+        updateNotificationUI();
+
+        await unsubscribeUserFromPush();
+        await saveSettings();
+        showToast('Oznámení byla vypnuta');
+      }
+    }
+
+    async function setNotificationMode(mode) {
+      if (!['interval', 'fixed_time', 'both'].includes(mode)) return;
+      notificationTriggerMode = mode;
+
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(8); } catch (e) {}
+      }
+
+      updateNotificationUI();
+      await saveSettings();
+
+      const labels = {
+        interval: 'Po uplynutí intervalu',
+        fixed_time: 'V pevný čas dne',
+        both: 'Interval i pevný čas'
+      };
+      showToast(`Režim oznámení: ${labels[mode]}`);
+    }
+
+    async function updateNotifFixedTime(val) {
+      if (!val) return;
+      notificationFixedTime = val;
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(6); } catch (e) {}
+      }
+      await saveSettings();
+      showToast(`Čas oznámení nastaven na ${val}`);
+    }
+
+    function handleNotifTitleInput(val) {
+      notificationCustomTitle = val;
+      updateNotifCharCounters();
+    }
+
+    function handleNotifBodyInput(val) {
+      notificationCustomBody = val;
+      updateNotifCharCounters();
+    }
+
+    function updateNotifCharCounters() {
+      const titleEl = document.getElementById('setting-notif-title');
+      const bodyEl = document.getElementById('setting-notif-body');
+      const titleCountEl = document.getElementById('notif-title-count');
+      const bodyCountEl = document.getElementById('notif-body-count');
+
+      if (titleEl && titleCountEl) {
+        titleCountEl.textContent = `${titleEl.value.length}/30`;
+      }
+      if (bodyEl && bodyCountEl) {
+        bodyCountEl.textContent = `${bodyEl.value.length}/80`;
+      }
+    }
+
+    async function saveNotificationCustomText() {
+      const titleEl = document.getElementById('setting-notif-title');
+      const bodyEl = document.getElementById('setting-notif-body');
+
+      if (titleEl) notificationCustomTitle = titleEl.value.trim() || 'Grammi';
+      if (bodyEl) notificationCustomBody = bodyEl.value.trim() || 'Uplynul nastavený časový rozestup.';
+
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(6); } catch (e) {}
+      }
+
+      await saveSettings();
+      showToast('Text oznámení byl uložen');
+    }
+
+    async function applyNotificationPreset(preset) {
+      let title = 'Grammi';
+      let body = 'Uplynul nastavený časový rozestup.';
+      let name = 'Interval';
+
+      if (preset === 'voda') {
+        title = 'Připomínka';
+        body = 'Čas se napít vody a protáhnout se.';
+        name = 'Voda';
+      } else if (preset === 'interval') {
+        title = 'Grammi';
+        body = 'Cílový časový interval vypršel.';
+        name = 'Interval';
+      } else if (preset === 'pauza') {
+        title = 'Check-in';
+        body = 'Krátká přestávka.';
+        name = 'Pauza';
+      }
+
+      notificationCustomTitle = title;
+      notificationCustomBody = body;
+
+      const titleEl = document.getElementById('setting-notif-title');
+      const bodyEl = document.getElementById('setting-notif-body');
+      if (titleEl) titleEl.value = title;
+      if (bodyEl) bodyEl.value = body;
+      updateNotifCharCounters();
+
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(10); } catch (e) {}
+      }
+
+      await saveSettings();
+      showToast(`Šablona „${name}“ nastavena`);
+    }
+
+    async function updateNotifLimitWarning(checked) {
+      notificationLimitWarning = !!checked;
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(6); } catch (e) {}
+      }
+      await saveSettings();
+      showToast(checked ? 'Upozornění při překročení limitu zapnuto' : 'Upozornění při limitu vypnuto');
+    }
+
+    async function sendTestNotification() {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(12); } catch (e) {}
+      }
+
+      if (!('Notification' in window)) {
+        showToast('Tento prohlížeč nepodporuje notifikace.');
+        return;
+      }
+
+      if (Notification.permission !== 'granted') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          showToast('Oprávnění k oznámení nebylo uděleno.');
+          return;
+        }
+      }
+
+      const titleInput = document.getElementById('setting-notif-title');
+      const bodyInput = document.getElementById('setting-notif-body');
+      const title = (titleInput?.value || notificationCustomTitle || 'Grammi').trim() || 'Grammi';
+      const body = (bodyInput?.value || notificationCustomBody || 'Uplynul nastavený časový rozestup.').trim() || 'Uplynul nastavený časový rozestup.';
+
+      const options = {
+        body: body,
+        icon: 'icons/icon-192.png',
+        badge: 'icons/icon-192.png',
+        tag: 'grammi-notification',
+        renotify: true,
+        data: {
+          url: 'dashboard.html'
+        }
+      };
+
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.ready;
+          await reg.showNotification(title, options);
+        } else {
+          new Notification(title, options);
+        }
+        showToast('Testovací oznámení bylo odesláno');
+      } catch (err) {
+        console.error('[Notification] Chyba při odesílání testovacího oznámení:', err);
+        try {
+          new Notification(title, options);
+          showToast('Testovací oznámení bylo odesláno');
+        } catch (fallbackErr) {
+          showToast('Chyba při zobrazení oznámení');
+        }
+      }
+    }
+
+    function updateNotificationUI() {
+      const masterToggle = document.getElementById('setting-notif-master-toggle');
+      const detailsEl = document.getElementById('notif-settings-details');
+      const warningEl = document.getElementById('notif-permission-warning');
+      const fixedTimeCont = document.getElementById('notif-fixed-time-container');
+      const fixedTimeInput = document.getElementById('setting-notif-fixed-time');
+      const titleInput = document.getElementById('setting-notif-title');
+      const bodyInput = document.getElementById('setting-notif-body');
+      const limitWarningCheck = document.getElementById('setting-notif-limit-warning');
+      const modeDescEl = document.getElementById('notif-mode-desc');
+
+      if (masterToggle) masterToggle.checked = !!notificationsEnabled;
+
+      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+        if (warningEl) warningEl.classList.remove('hidden');
+      } else {
+        if (warningEl) warningEl.classList.add('hidden');
+      }
+
+      if (detailsEl) {
+        if (notificationsEnabled) {
+          detailsEl.classList.remove('hidden');
+          detailsEl.style.opacity = '1';
+          detailsEl.style.pointerEvents = 'auto';
+        } else {
+          detailsEl.classList.add('hidden');
+          detailsEl.style.opacity = '0.5';
+          detailsEl.style.pointerEvents = 'none';
+        }
+      }
+
+      // Režimy spouštění
+      const modes = ['interval', 'fixed_time', 'both'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`notif-mode-${m === 'fixed_time' ? 'fixed' : m}`);
+        if (btn) {
+          if (notificationTriggerMode === m) {
+            btn.className = 'py-1.5 px-2 text-[10px] font-bold rounded-lg transition-all text-center bg-brand-500/20 text-brand-400 border border-brand-500/40 shadow-sm';
+          } else {
+            btn.className = 'py-1.5 px-2 text-[10px] font-semibold rounded-lg transition-all text-center text-slate-400 hover:text-white border border-transparent bg-transparent';
+          }
+        }
+      });
+
+      if (modeDescEl) {
+        if (notificationTriggerMode === 'interval') {
+          modeDescEl.textContent = 'Upozornění po uplynutí cílového intervalu od posledního záznamu.';
+        } else if (notificationTriggerMode === 'fixed_time') {
+          modeDescEl.textContent = 'Upozornění každý den v přesně stanovený pevný čas.';
+        } else if (notificationTriggerMode === 'both') {
+          modeDescEl.textContent = 'Kombinované upozornění: po uplynutí intervalu i v pevný čas dne.';
+        }
+      }
+
+      if (fixedTimeCont) {
+        if (notificationTriggerMode === 'fixed_time' || notificationTriggerMode === 'both') {
+          fixedTimeCont.classList.remove('hidden');
+        } else {
+          fixedTimeCont.classList.add('hidden');
+        }
+      }
+
+      if (fixedTimeInput) fixedTimeInput.value = notificationFixedTime || '20:00';
+      if (titleInput) titleInput.value = notificationCustomTitle || 'Grammi';
+      if (bodyInput) bodyInput.value = notificationCustomBody || 'Uplynul nastavený časový rozestup.';
+      if (limitWarningCheck) limitWarningCheck.checked = !!notificationLimitWarning;
+
+      updateNotifCharCounters();
+    }
+
+    async function checkAndTriggerLimitWarning() {
+      if (!notificationLimitWarning || !notificationsEnabled) return;
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      if (!dailyLimitGrams || dailyLimitGrams <= 0) return;
+
+      const todayKey = getDateKey(new Date());
+      let todayTotal = 0;
+      logs.forEach(l => {
+        if (l.dateKey === todayKey) todayTotal += (parseFloat(l.amount) || 0);
+      });
+
+      if (todayTotal >= dailyLimitGrams) {
+        const title = 'Upozornění na denní limit';
+        const body = `Dnešní spotřeba (${todayTotal.toFixed(2)} G) dosáhla nebo překročila nastavený limit (${dailyLimitGrams.toFixed(2)} G).`;
+
+        const options = {
+          body: body,
+          icon: 'icons/icon-192.png',
+          badge: 'icons/icon-192.png',
+          tag: 'grammi-limit-warning',
+          renotify: true,
+          data: { url: 'dashboard.html' }
+        };
+
+        try {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            await reg.showNotification(title, options);
+          } else {
+            new Notification(title, options);
+          }
+        } catch (e) {
+          console.warn('[Push] Chyba při odesílání limit notifikace:', e);
+        }
+      }
     }
 
     function setCurrentTime() {
