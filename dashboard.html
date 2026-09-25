@@ -5269,6 +5269,7 @@
       fracAccumulator: 0,
       currentHundredths: 200,
       lastStepYCount: 0,
+      boundaryPushDistance: 0,
       pointerId: null,
       corridor: null
     };
@@ -5333,6 +5334,7 @@
         touchpadState.startIntH = Math.floor(h / 100) * 100;
         touchpadState.startFracH = h % 100;
         touchpadState.fracAccumulator = h % 100;
+        touchpadState.boundaryPushDistance = 0;
         const liveText = document.getElementById('joypad-live-text');
         if (liveText) liveText.textContent = '+0.00 G';
       }
@@ -5759,6 +5761,7 @@
         touchpadState.fracAccumulator = startFracH;
         touchpadState.currentHundredths = curH;
         touchpadState.lastStepYCount = 0;
+        touchpadState.boundaryPushDistance = 0;
 
         // Position origin marker, puck, and badge
         if (originMarker) {
@@ -5853,7 +5856,7 @@
         // 1. Dynamic Velocity-Accelerated Horizontal Drag (X-Axis)
         // Instantaneous finger speed tracking (px / ms)
         const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-        const dt = Math.max(1, now - (touchpadState.lastMoveTime || now));
+        const dt = Math.min(150, Math.max(1, now - (touchpadState.lastMoveTime || now)));
         const dx = clientX - (touchpadState.lastMoveX !== undefined ? touchpadState.lastMoveX : clientX);
         const velocity = Math.abs(dx / dt); // pixels per ms
 
@@ -5878,28 +5881,135 @@
           factorH = 0.16 + t * 0.14;
         }
 
-        // Accumulate fractional displacement
-        touchpadState.fracAccumulator += dx * factorH;
-
-        // Strict hard decimal clamp: strictly within [0, 99] of current locked integer
-        // Zero rollover or rollback across whole integers!
-        touchpadState.fracAccumulator = Math.max(0, Math.min(99, touchpadState.fracAccumulator));
-        const currentFracH = Math.round(touchpadState.fracAccumulator);
-
         // 2. Exclusive Integer Control for Vertical Drag (Y-Axis)
         // Whole numbers are strictly adjusted along the vertical Y-axis
         const stepYCount = Math.trunc(deltaY / TOUCHPAD_Y_STEP_PX);
-        const currentIntH = touchpadState.startIntH + (stepYCount * 100);
+        let currentIntH = touchpadState.startIntH + (stepYCount * 100);
+        let steppedY = false;
 
         if (stepYCount !== touchpadState.lastStepYCount) {
           touchpadState.lastStepYCount = stepYCount;
+          steppedY = true;
           triggerTouchpadHaptic(8); // Distinct haptic pulse only when crossing a whole gram boundary on Y-axis
         }
 
-        // 3. Dynamic Corridor Clamping & Reassembly
+        // 3. Dynamic Corridor & Velocity-Gated Sticky Wall / Slow-Crawl Boundary Breakout
         const corridor = touchpadState.corridor || getTouchpadCorridor();
+        const SLOW_CRAWL_MAX_VELOCITY = 0.18; // px / ms threshold for slow-crawl breakout
+        const BOUNDARY_BREAKOUT_PX = 12;      // Intentional micro-push threshold (~10-15px)
+        let boundaryBreakout = false;
+
+        if (dx > 0) {
+          // Dragging right (increasing fractional part)
+          const canRollOverNext = (currentIntH + 100) <= corridor.maxH;
+
+          if (touchpadState.fracAccumulator < 99) {
+            const prospectiveFrac = touchpadState.fracAccumulator + dx * factorH;
+            if (prospectiveFrac < 99) {
+              touchpadState.fracAccumulator = prospectiveFrac;
+              touchpadState.boundaryPushDistance = 0;
+            } else {
+              // Reached wall at X.99
+              const neededH = 99 - touchpadState.fracAccumulator;
+              const pxToWall = factorH > 0 ? (neededH / factorH) : 0;
+              const excessPx = Math.max(0, dx - pxToWall);
+              touchpadState.fracAccumulator = 99;
+
+              if (canRollOverNext && velocity < SLOW_CRAWL_MAX_VELOCITY) {
+                touchpadState.boundaryPushDistance = (touchpadState.boundaryPushDistance || 0) + excessPx;
+                if (touchpadState.boundaryPushDistance >= BOUNDARY_BREAKOUT_PX) {
+                  // Breakout to next integer tier (e.g. 1.99 -> 2.00)
+                  touchpadState.startIntH += 100;
+                  touchpadState.fracAccumulator = 0;
+                  touchpadState.boundaryPushDistance = 0;
+                  boundaryBreakout = true;
+                  triggerTouchpadHaptic(6);
+                }
+              } else {
+                touchpadState.boundaryPushDistance = 0;
+              }
+            }
+          } else {
+            // Already at X.99 boundary
+            touchpadState.fracAccumulator = 99;
+            if (canRollOverNext && velocity < SLOW_CRAWL_MAX_VELOCITY) {
+              touchpadState.boundaryPushDistance = (touchpadState.boundaryPushDistance || 0) + dx;
+              if (touchpadState.boundaryPushDistance >= BOUNDARY_BREAKOUT_PX) {
+                // Breakout to next integer tier (e.g. 1.99 -> 2.00)
+                touchpadState.startIntH += 100;
+                touchpadState.fracAccumulator = 0;
+                touchpadState.boundaryPushDistance = 0;
+                boundaryBreakout = true;
+                triggerTouchpadHaptic(6);
+              }
+            } else {
+              touchpadState.boundaryPushDistance = 0;
+            }
+          }
+        } else if (dx < 0) {
+          // Dragging left (decreasing fractional part)
+          const absDx = Math.abs(dx);
+          const canRollOverPrev = (currentIntH - 1) >= corridor.minH;
+
+          if (touchpadState.fracAccumulator > 0) {
+            const prospectiveFrac = touchpadState.fracAccumulator + dx * factorH;
+            if (prospectiveFrac > 0) {
+              touchpadState.fracAccumulator = prospectiveFrac;
+              touchpadState.boundaryPushDistance = 0;
+            } else {
+              // Reached wall at X.00
+              const neededH = touchpadState.fracAccumulator;
+              const pxToWall = factorH > 0 ? (neededH / factorH) : 0;
+              const excessPx = Math.max(0, absDx - pxToWall);
+              touchpadState.fracAccumulator = 0;
+
+              if (canRollOverPrev && velocity < SLOW_CRAWL_MAX_VELOCITY) {
+                touchpadState.boundaryPushDistance = (touchpadState.boundaryPushDistance || 0) + excessPx;
+                if (touchpadState.boundaryPushDistance >= BOUNDARY_BREAKOUT_PX) {
+                  // Breakout to previous integer tier (e.g. 2.00 -> 1.99)
+                  touchpadState.startIntH -= 100;
+                  touchpadState.fracAccumulator = 99;
+                  touchpadState.boundaryPushDistance = 0;
+                  boundaryBreakout = true;
+                  triggerTouchpadHaptic(6);
+                }
+              } else {
+                touchpadState.boundaryPushDistance = 0;
+              }
+            }
+          } else {
+            // Already at X.00 boundary
+            touchpadState.fracAccumulator = 0;
+            if (canRollOverPrev && velocity < SLOW_CRAWL_MAX_VELOCITY) {
+              touchpadState.boundaryPushDistance = (touchpadState.boundaryPushDistance || 0) + absDx;
+              if (touchpadState.boundaryPushDistance >= BOUNDARY_BREAKOUT_PX) {
+                // Breakout to previous integer tier (e.g. 2.00 -> 1.99)
+                touchpadState.startIntH -= 100;
+                touchpadState.fracAccumulator = 99;
+                touchpadState.boundaryPushDistance = 0;
+                boundaryBreakout = true;
+                triggerTouchpadHaptic(6);
+              }
+            } else {
+              touchpadState.boundaryPushDistance = 0;
+            }
+          }
+        }
+
+        // Recompute integer base if boundary breakout occurred
+        currentIntH = touchpadState.startIntH + (stepYCount * 100);
+
+        // 4. Dynamic Corridor Clamping & Reassembly
+        const currentFracH = Math.round(touchpadState.fracAccumulator);
         let targetH = currentIntH + currentFracH;
         targetH = Math.max(corridor.minH, Math.min(corridor.maxH, targetH));
+
+        // Clamp fractional accumulator within active tier to prevent dead-zones at corridor extremes
+        if (targetH >= corridor.maxH) {
+          touchpadState.fracAccumulator = Math.min(touchpadState.fracAccumulator, Math.max(0, corridor.maxH - currentIntH));
+        } else if (targetH <= corridor.minH) {
+          touchpadState.fracAccumulator = Math.max(touchpadState.fracAccumulator, Math.max(0, corridor.minH - currentIntH));
+        }
 
         if (targetH !== touchpadState.currentHundredths) {
           touchpadState.currentHundredths = targetH;
@@ -5916,8 +6026,8 @@
           const deltaStr = (diffG >= 0 ? '+' : '') + diffG.toFixed(2) + ' G';
           if (liveText) liveText.textContent = deltaStr;
 
-          // Subtle micro-tick on hundredths change (unless stepped)
-          if (stepYCount === touchpadState.lastStepYCount) {
+          // Subtle micro-tick on hundredths change (unless whole-number step or breakout already pulsed)
+          if (!boundaryBreakout && !steppedY) {
             triggerTouchpadHaptic(2);
           }
         }
@@ -5929,6 +6039,7 @@
         touchpadState.isDragging = false;
         touchpadState.pointerId = null;
         touchpadState.corridor = null;
+        touchpadState.boundaryPushDistance = 0;
 
         // Smoothly glide rolling animation to exact final resting float
         const finalVal = touchpadState.currentHundredths / 100;
